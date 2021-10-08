@@ -1,0 +1,7 @@
+*
+!/.bpan/
+!/bin/
+!/docker/
+!/external/
+!/jekyll/
+!/main/

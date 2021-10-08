@@ -1,0 +1,22 @@
+# See https://jekyllrb.com/docs/configuration/default/
+
+title: YAML™ Ain’t Markup Language — Spec Development
+name: null
+
+destination: /home/host/build
+
+kramdown:
+  parse_block_html: true
+
+theme: jekyll-theme-cayman
+
+layouts_dir: jekyll/_layouts
+includes_dir: jekyll/_includes
+
+exclude:
+- .git
+- .gitignore
+- ReadMe.md
+- Makefile
+- external
+- jekyll
