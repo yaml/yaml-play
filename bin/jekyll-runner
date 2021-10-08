@@ -4,7 +4,7 @@
 
 version=0.0.4
 
-source "${ROOT:-$PWD}/.bpan/run-or-docker.sh"
+source "${ROOT:-$PWD}/.bpan/run-or-docker.bash"
 
 check() (
   force
@@ -21,7 +21,7 @@ group :jekyll_plugins do
 end
 ...
 
-echo "
+  echo "\
 FROM jekyll/jekyll:latest
 
 COPY Gemfile /tmp/
