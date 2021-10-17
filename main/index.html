@@ -88,21 +88,6 @@ run this command from a terminal:</p>
 <p>This will start a local YAML Playground backend server, and your playgrounds
 will be able to work with them.</p>
 
-<h3 id="running-the-playground-locally">Running the Playground Locally</h3>
-
-<p>If you want to run this site locally all you need to do is:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git clone https://github.com/yaml/yaml-play
-$ cd yaml-play
-$ make serve
-</code></pre></div></div>
-
-<p>Your local playground will be served at <a href="http://0.0.0.0:4000/main/">http://0.0.0.0:4000/main/</a> and you’ll
-need to run a separate and slightly different docker container with:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -d -p 1337:1337 yamlio/play-sandbox:latest http
-</code></pre></div></div>
-
 <h3 id="required-browser-tweaks">Required Browser Tweaks</h3>
 
 <p>Calling a localhost server from a web page breaks some browser security rules,
@@ -112,7 +97,7 @@ but it’s pretty simple to work around them for this.</p>
 
 <ul>
   <li><a href="https://localhost:31337/">https://localhost:31337/</a></li>
-  <li><a href="https://localhost:1337/">https://localhost:1337/</a> (for local <code class="language-plaintext highlighter-rouge">make serve</code>)</li>
+  <li><a href="https://localhost:1337/">https://localhost:1337/</a> (for local <code class="language-plaintext highlighter-rouge">make serve</code>, see below)</li>
 </ul>
 
 <p>and authorize the untrusted SSL certificate for it.</p>
@@ -132,7 +117,7 @@ browsers.</p>
       <li>Enable <code class="language-plaintext highlighter-rouge">chrome://flags/#allow-insecure-localhost</code></li>
       <li>Disable <code class="language-plaintext highlighter-rouge">chrome://flags/#block-insecure-private-network-requests</code>
         <ul>
-          <li>Only needed for local <code class="language-plaintext highlighter-rouge">make serve</code> server</li>
+          <li>Needed for local <code class="language-plaintext highlighter-rouge">make serve</code> server (see below)</li>
         </ul>
       </li>
     </ul>
@@ -154,6 +139,21 @@ untrusted input on a server!</p>
 
 <p>We’ll keep looking for ways to make this simpler.
 If you have ideas, let us know!</p>
+
+<h2 id="running-the-playground-locally">Running the Playground Locally</h2>
+
+<p>If you want to run this site locally all you need to do is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git clone https://github.com/yaml/yaml-play
+$ cd yaml-play
+$ make serve
+</code></pre></div></div>
+
+<p>Your local playground will be served at <a href="http://0.0.0.0:4000/main/">http://0.0.0.0:4000/main/</a> and you’ll
+need to run a separate and slightly different docker container with:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -d -p 1337:1337 yamlio/play-sandbox:latest http
+</code></pre></div></div>
 
 
 </section>
