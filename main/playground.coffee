@@ -140,8 +140,8 @@ class window.Playground
     console.dir(resp)
 
     help = loc.replace(
-      /(\/playground\/).*/,
-      "$1#setting-up-a-local-sandbox",
+      /\/[^\/]+\?.*/,
+      "/#setting-up-a-local-sandbox",
     )
 
     return mark: """
