@@ -82,7 +82,7 @@ here.</p>
 <p>Assuming you have <a href="https://docs.docker.com/get-docker/">Docker installed</a>, just
 run this command from a terminal:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -d -p 31337:31337 yamlio/play-sandbox:latest https
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -d -p 31337:31337 yamlio/play-sandbox:0.0.7 https
 </code></pre></div></div>
 
 <p>This will start a local YAML Playground backend server, and your playgrounds
@@ -152,7 +152,7 @@ $ make serve
 <p>Your local playground will be served at <a href="http://0.0.0.0:4000/main/">http://0.0.0.0:4000/main/</a> and you’ll
 need to run a separate and slightly different docker container with:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -d -p 1337:1337 yamlio/play-sandbox:latest http
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -d -p 1337:1337 yamlio/play-sandbox:0.0.7 http
 </code></pre></div></div>
 
 
