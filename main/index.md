@@ -11,6 +11,7 @@ When you change values in the playgrounds, your changes are saved into the URL.
 You can share your sessions with others just by sending them the URL.
 This is a useful when reporting problems you come across.
 
+
 ## Playgrounds
 
 * [YAML Parsers](parser)
@@ -31,6 +32,7 @@ This is a useful when reporting problems you come across.
   functionality itself.
 -->
 
+
 ## Setting up a Local Sandbox
 
 YAML frameworks are implemented in many programming languages.
@@ -50,15 +52,12 @@ Assuming you have [Docker installed](https://docs.docker.com/get-docker/), just
 run this command from a terminal:
 
 ```
-docker run --rm -p 31337:31337 \
-  yamlio/playground-sandbox:0.0.3 https
+docker run --rm -d -p 31337:31337 yamlio/play-sandbox:0.0.7 https
 ```
 
 This will start a local YAML Playground backend server, and your playgrounds
 will be able to work with them.
 
-NOTE: Port 1337 is for http calls, and port 31337 is for https calls.
-These defaults will likely be made configurable in the future.
 
 ### Required Browser Tweaks
 
@@ -67,10 +66,12 @@ but it's pretty simple to work around them for this.
 
 You'll need to open this URL one time:
 
-* <https://localhost:31337/>
+* <https://localhost:31337>
+* <http://localhost:1337> (for local `make serve`, see below)
 
 and authorize the untrusted SSL certificate for it.
-Note: You should see the word `Hello` on the page if it works.
+
+> Note: You should see the word `YAML` on the page if it works.
 
 The other thing you need to do is allow JavaScript to "allow invalid
 certificates for resources loaded from localhost".
@@ -78,14 +79,12 @@ So far, we have figured out how to do this on the Google Chrome and Firefox
 browsers.
 
 * Google Chrome (also works for Chromium)
-  * Type `chrome://flags` into the browser URL location
-  * Search for `#allow-insecure-localhost` in the "Search flags" box
-  * Enable the "Allow invalid certificates for resources loaded from localhost"
-    flag
-  * Click the "Relaunch" button
+  * Enable `chrome://flags/#allow-insecure-localhost`
+  * Disable `chrome://flags/#block-insecure-private-network-requests`
+    * Needed for local `make serve` server (see below)
 
 * Firefox
-  * Type `about:config` into the browser URL location
+  * Open the `about:config` URL
   * Search for `security.fileuri.strict_origin_policy` in the "Search preference
     name" box
   * Change value from `true` to `false`
@@ -97,3 +96,24 @@ untrusted input on a server!
 
 We'll keep looking for ways to make this simpler.
 If you have ideas, let us know!
+
+
+## Running the Playground Locally
+
+If you are interested in toying around with the playground code yourself, it is
+easy to make changes and run the server locally.
+This might be useful if you want to submit a pull request to fix a bug or add a
+feature.
+
+To run this site locally all you need to do is:
+
+```
+$ git clone https://github.com/yaml/yaml-play
+$ cd yaml-play
+$ make serve
+```
+
+Your local playground will be served at <http://0.0.0.0:4000/main/>.
+The `make serve` command will automatically start the right docker container
+for you.
+It will also kill that container when you kill the local server (ctl-C).

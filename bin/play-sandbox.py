@@ -16,7 +16,7 @@ CORS(app)
 
 @app.route('/', methods=['GET'])
 def hello():
-  return 'Hello'
+  return 'YAML'
 
 @app.route('/', methods=['POST'])
 def processYaml():

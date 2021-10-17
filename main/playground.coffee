@@ -122,11 +122,9 @@ class window.Playground
         data: { text: text }
         dataType: 'json'
         async: false
-        # success: (a...)=> @localhost_success()
-        # error: (a...)=> @localhost_success()
       )
     catch e
-      throw 'Try: docker run --rm -d -p 31337:8000 yamlio/...'
+      window.ajax_error = e
 
     if resp.status == 200
       data = resp.responseJSON
@@ -135,9 +133,6 @@ class window.Playground
           throw data.error
         if data.output?
           return data.output
-
-    console.dir('Error calling localhost sandbox:')
-    console.dir(resp)
 
     help = loc.replace(
       /\/[^\/]+\?.*/,
@@ -151,9 +146,8 @@ class window.Playground
 
       ```
       $ docker run --rm -d -p #{port}:#{port} \\
-          yamlio/playground-sandbox:0.0.5 #{scheme}
+          yamlio/play-sandbox:0.0.7 #{scheme}
       ```
-
 
       on the same computer as your web browser.
 
