@@ -169,7 +169,7 @@
         });
       } catch (error1) {
         e = error1;
-        throw 'Try: docker run --rm -d -p 31337:8000 yamlio/...';
+        window.ajax_error = e;
       }
       if (resp.status === 200) {
         data = resp.responseJSON;
@@ -182,11 +182,9 @@
           }
         }
       }
-      console.dir('Error calling localhost sandbox:');
-      console.dir(resp);
       help = loc.replace(/\/[^\/]+\?.*/, "/#setting-up-a-local-sandbox");
       return {
-        mark: "This pane requires a localhost sandbox server.\n\nRun:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/playground-sandbox:0.0.5 " + scheme + "\n```\n\n\non the same computer as your web browser.\n\nSee " + help + "  \nfor more instructions."
+        mark: "This pane requires a localhost sandbox server.\n\nRun:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/play-sandbox:latest " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + "  \nfor more instructions."
       };
     };
 

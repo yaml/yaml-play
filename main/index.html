@@ -82,15 +82,26 @@ here.</p>
 <p>Assuming you have <a href="https://docs.docker.com/get-docker/">Docker installed</a>, just
 run this command from a terminal:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -p 31337:31337 \
-  yamlio/playground-sandbox:0.0.3 https
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -d -p 31337:31337 yamlio/play-sandbox:latest https
 </code></pre></div></div>
 
 <p>This will start a local YAML Playground backend server, and your playgrounds
 will be able to work with them.</p>
 
-<p>NOTE: Port 1337 is for http calls, and port 31337 is for https calls.
-These defaults will likely be made configurable in the future.</p>
+<h3 id="running-the-playground-locally">Running the Playground Locally</h3>
+
+<p>If you want to run this site locally all you need to do is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git clone https://github.com/yaml/yaml-play
+$ cd yaml-play
+$ make serve
+</code></pre></div></div>
+
+<p>Your local playground will be served at <a href="http://0.0.0.0:4000/main/">http://0.0.0.0:4000/main/</a> and you’ll
+need to run a separate and slightly different docker container with:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -d -p 1337:1337 yamlio/play-sandbox:latest http
+</code></pre></div></div>
 
 <h3 id="required-browser-tweaks">Required Browser Tweaks</h3>
 
@@ -101,10 +112,14 @@ but it’s pretty simple to work around them for this.</p>
 
 <ul>
   <li><a href="https://localhost:31337/">https://localhost:31337/</a></li>
+  <li><a href="https://localhost:1337/">https://localhost:1337/</a> (for local <code class="language-plaintext highlighter-rouge">make serve</code>)</li>
 </ul>
 
-<p>and authorize the untrusted SSL certificate for it.
-Note: You should see the word <code class="language-plaintext highlighter-rouge">Hello</code> on the page if it works.</p>
+<p>and authorize the untrusted SSL certificate for it.</p>
+
+<blockquote>
+  <p>Note: You should see the word <code class="language-plaintext highlighter-rouge">YAML</code> on the page if it works.</p>
+</blockquote>
 
 <p>The other thing you need to do is allow JavaScript to “allow invalid
 certificates for resources loaded from localhost”.
@@ -114,16 +129,17 @@ browsers.</p>
 <ul>
   <li>Google Chrome (also works for Chromium)
     <ul>
-      <li>Type <code class="language-plaintext highlighter-rouge">chrome://flags</code> into the browser URL location</li>
-      <li>Search for <code class="language-plaintext highlighter-rouge">#allow-insecure-localhost</code> in the “Search flags” box</li>
-      <li>Enable the “Allow invalid certificates for resources loaded from localhost”
-flag</li>
-      <li>Click the “Relaunch” button</li>
+      <li>Enable <code class="language-plaintext highlighter-rouge">chrome://flags/#allow-insecure-localhost</code></li>
+      <li>Disable <code class="language-plaintext highlighter-rouge">chrome://flags/#block-insecure-private-network-requests</code>
+        <ul>
+          <li>Only needed for local <code class="language-plaintext highlighter-rouge">make serve</code> server</li>
+        </ul>
+      </li>
     </ul>
   </li>
   <li>Firefox
     <ul>
-      <li>Type <code class="language-plaintext highlighter-rouge">about:config</code> into the browser URL location</li>
+      <li>Open the <code class="language-plaintext highlighter-rouge">about:config</code> URL</li>
       <li>Search for <code class="language-plaintext highlighter-rouge">security.fileuri.strict_origin_policy</code> in the “Search preference
 name” box</li>
       <li>Change value from <code class="language-plaintext highlighter-rouge">true</code> to <code class="language-plaintext highlighter-rouge">false</code></li>
