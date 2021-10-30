@@ -2,6 +2,17 @@
 ---
 class window.Playground
   @init: (eatme) ->
+
+    # To get the clipboard button in the UI, you need to:
+    # Enable chrome://#unsafely-treat-insecure-origin-as-secure
+    # with http://0.0.0.0:4000
+    # and https://play.yaml.io
+    if navigator.clipboard
+      eatme.add_button 'copy-tsv',
+        name: 'Copy to TSV'
+        icon: 'segmented-nav'
+      , 2
+
     params = new URLSearchParams(window.location.search)
     if params.has('input')
       base64 = params.get('input')
@@ -13,13 +24,73 @@ class window.Playground
         console.log(base64)
         console.log(e)
 
+  @copy_tsv: (btn, e, eatme)->
+    e.stopPropagation()
+    tsv = @make_tsv(eatme)
+    navigator.clipboard.writeText(tsv)
+
+  @make_tsv: (eatme)->
+    $panes = eatme.$panes
+    yaml = $panes['yaml-input'][0].cm.getValue()
+    tree = $panes['refparser'][0].$output.text()
+    play = @state_url(yaml)
+    yaml = @escape(yaml)
+    yaml = yaml.replace(/"/g, '""')
+
+    if tree == ''
+      tree = 'ERROR'
+    else
+      tree = @indent(tree)
+      tree = tree.replace(/"/g, '""')
+
+    return "\t\t\"#{yaml}\"\t\"#{tree}\"\t#{play}"
+
+  @escape: (text)->
+    text = text.replace /(\ +)$/mg, (m, $1)=>
+      @repeat("␣", $1.length)
+
+    while text.match(/\t/)
+      text = text.replace /^(.*?)\t/mg, (m, $1)=>
+        return $1 + @repeat('—', 4-$1.length%4) + '»'
+
+    text = text.replace /\n(\n+)$/, (m, $1)=>
+      "\n" + @repeat("↵\n", $1.length)
+
+    text = text.replace /\r/g, '←'
+
+    if not text.match(/\n$/)
+      text += '∎'
+
+    return text
+
+  @indent: (text)->
+    i = 0
+    text = text.replace /^(.)/mg, (m, $1)=>
+      if $1 == '+'
+        @repeat(' ', i++) + $1
+      else if $1 == '-'
+        @repeat(' ', --i) + $1
+      else
+        @repeat(' ', i) + $1
+    return text.replace(/\n+$/, '')
+
+  @repeat: (text, n)->
+    str = ''
+    i = 0
+    while i++ < n
+      str += text
+    return str
+
   @change: (text, pane)->
+    newurl = @state_url(text)
+    window.history.replaceState(null, null, newurl)
+
+  @state_url: (text)->
     {origin, pathname} = window.location
     base64 = btoa(unescape(encodeURIComponent(text)))
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
-    newurl = "#{origin}#{pathname}?input=#{base64}"
-    window.history.replaceState(null, null, newurl)
+    return "#{origin}#{pathname}?input=#{base64}"
 
   @js_refparser_event: (text)->
     parser = new Parser(new TestReceiver)
