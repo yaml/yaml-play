@@ -44,7 +44,7 @@
         tree = this.indent(tree);
         tree = tree.replace(/"/g, '""');
       }
-      return "\t\t\"" + yaml + "\"\t\"" + tree + "\"\t" + play;
+      return play + "\t\t\t\"" + yaml + "\"\t\"" + tree + "\"";
     };
 
     Playground.escape = function(text) {
