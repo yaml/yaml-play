@@ -1,12 +1,13 @@
 import { warn } from '../log.js';
 import { createStringifyContext } from '../stringify/stringify.js';
-import { isSeq, isScalar, isAlias, isMap, isNode } from './Node.js';
+import { isAlias, isSeq, isScalar, isMap, isNode } from './Node.js';
 import { Scalar } from './Scalar.js';
 import { toJS } from './toJS.js';
 
 const MERGE_KEY = '<<';
 function addPairToJSMap(ctx, map, { key, value }) {
     if (ctx && ctx.doc.schema.merge && isMergeKey(key)) {
+        value = isAlias(value) ? value.resolve(ctx.doc) : value;
         if (isSeq(value))
             for (const it of value.items)
                 mergeToJSMap(ctx, map, it);

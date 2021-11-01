@@ -91,12 +91,13 @@
         $col = this.make_col(size);
         this.root.append($col);
       }
+      this.$panes = {};
       ref1 = this.conf.pane;
       for (j = 0, len = ref1.length; j < len; j++) {
         pane = ref1[j];
         if ((column = pane.colx) != null) {
           $col = $(this.root.find(".eatme-col")[column - 1]);
-          $pane = this.make_pane(pane.slug).appendTo($col);
+          this.$panes[pane.slug] = $pane = this.make_pane(pane.slug).appendTo($col);
           this.setup_pane($pane);
         }
       }
@@ -459,20 +460,36 @@
     };
 
     EatMe.prototype.make_button = function(id, $tools) {
-      var $btn, btn, func, self;
+      var $btn, btn, func, self, that;
       btn = EatMe.buttons[id];
       $btn = $("<a\n  class=\"eatme-btn-" + id + "\"\n  title=\"" + btn.name + "\">\n  <i class=\"bi-" + btn.icon + "\" />\n</a>");
       if (btn.dead == null) {
-        self = this;
         func = btn.func || id.replace(/-/g, '_');
         $btn.attr({
           'href': '#'
         });
+        if (btn.code != null) {
+          that = this.code;
+          func = this.code[func];
+        } else {
+          that = this;
+          func = this[func];
+        }
+        self = this;
         $tools.on('click', ".eatme-btn-" + id, function(e) {
-          return self[func]($(this), e);
+          return func.call(that, $(this), e, self);
         });
       }
       return $btn;
+    };
+
+    EatMe.prototype.add_button = function(id, button, row, col) {
+      if (row == null) {
+        row = EatMe.toolbar.length;
+      }
+      button.code = true;
+      EatMe.buttons[id] = button;
+      return EatMe.toolbar[row - 1].push(id);
     };
 
     EatMe.toolbar_div = "<div class=\"eatme-btns dropdown\">\n  <button\n    class=\"btn btn-default dropdown-toggle eatme-toolbar-btn\"\n    type=\"button\"\n    data-toggle=\"dropdown\"\n    title=\"Pane toolbar\"\n  ></button>\n\n  <ul class=\"dropdown-menu\">\n  </ul>\n</div>";

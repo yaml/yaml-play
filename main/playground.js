@@ -4,6 +4,12 @@
 
     Playground.init = function(eatme) {
       var base64, e, params;
+      if (navigator.clipboard) {
+        eatme.add_button('copy-tsv', {
+          name: 'Copy to TSV',
+          icon: 'segmented-nav'
+        }, 2);
+      }
       params = new URLSearchParams(window.location.search);
       if (params.has('input')) {
         base64 = params.get('input').replace(/-/g, '+').replace(/_/g, '/');
@@ -17,12 +23,93 @@
       }
     };
 
+    Playground.copy_tsv = function(btn, e, eatme) {
+      var tsv;
+      e.stopPropagation();
+      tsv = this.make_tsv(eatme);
+      return navigator.clipboard.writeText(tsv);
+    };
+
+    Playground.make_tsv = function(eatme) {
+      var $panes, play, tree, yaml;
+      $panes = eatme.$panes;
+      yaml = $panes['yaml-input'][0].cm.getValue();
+      tree = $panes['refparser'][0].$output.text();
+      play = this.state_url(yaml);
+      yaml = this.escape(yaml);
+      yaml = yaml.replace(/"/g, '""');
+      if (tree === '') {
+        tree = 'ERROR';
+      } else {
+        tree = this.indent(tree);
+        tree = tree.replace(/"/g, '""');
+      }
+      return "\t\t\"" + yaml + "\"\t\"" + tree + "\"\t" + play;
+    };
+
+    Playground.escape = function(text) {
+      text = text.replace(/(\ +)$/mg, (function(_this) {
+        return function(m, $1) {
+          return _this.repeat("␣", $1.length);
+        };
+      })(this));
+      while (text.match(/\t/)) {
+        text = text.replace(/^(.*?)\t/mg, (function(_this) {
+          return function(m, $1) {
+            return $1 + _this.repeat('—', 4 - $1.length % 4) + '»';
+          };
+        })(this));
+      }
+      text = text.replace(/\n(\n+)$/, (function(_this) {
+        return function(m, $1) {
+          return "\n" + _this.repeat("↵\n", $1.length);
+        };
+      })(this));
+      text = text.replace(/\r/g, '←');
+      if (!text.match(/\n$/)) {
+        text += '∎';
+      }
+      return text;
+    };
+
+    Playground.indent = function(text) {
+      var i;
+      i = 0;
+      text = text.replace(/^(.)/mg, (function(_this) {
+        return function(m, $1) {
+          if ($1 === '+') {
+            return _this.repeat(' ', i++) + $1;
+          } else if ($1 === '-') {
+            return _this.repeat(' ', --i) + $1;
+          } else {
+            return _this.repeat(' ', i) + $1;
+          }
+        };
+      })(this));
+      return text.replace(/\n+$/, '');
+    };
+
+    Playground.repeat = function(text, n) {
+      var i, str;
+      str = '';
+      i = 0;
+      while (i++ < n) {
+        str += text;
+      }
+      return str;
+    };
+
     Playground.change = function(text, pane) {
-      var base64, newurl, origin, pathname, ref;
+      var newurl;
+      newurl = this.state_url(text);
+      return window.history.replaceState(null, null, newurl);
+    };
+
+    Playground.state_url = function(text) {
+      var base64, origin, pathname, ref;
       ref = window.location, origin = ref.origin, pathname = ref.pathname;
       base64 = btoa(unescape(encodeURIComponent(text))).replace(/\+/g, '-').replace(/\//g, '_');
-      newurl = "" + origin + pathname + "?input=" + base64;
-      return window.history.replaceState(null, null, newurl);
+      return "" + origin + pathname + "?input=" + base64;
     };
 
     Playground.js_refparser_event = function(text) {
