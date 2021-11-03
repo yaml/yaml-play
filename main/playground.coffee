@@ -75,6 +75,7 @@ class window.Playground
 
     for parser in parsers
       result = eatme.$panes[parser][0].$output.text()
+        .replace(/^=COMMENT .*\n?/mg, '')
       if result == expect or
          result == expect.replace(/\s+(\{\}|\[\])$/mg, '')
         results.push ''
