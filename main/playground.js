@@ -25,26 +25,53 @@
 
     Playground.copy_tsv = function(btn, e, eatme) {
       var tsv;
-      e.stopPropagation();
       tsv = this.make_tsv(eatme);
       return navigator.clipboard.writeText(tsv);
     };
 
     Playground.make_tsv = function(eatme) {
-      var $panes, play, tree, yaml;
+      var $panes, fields, play, refparser, tree, yaml;
       $panes = eatme.$panes;
       yaml = $panes['yaml-input'][0].cm.getValue();
       tree = $panes['refparser'][0].$output.text();
+      refparser = tree;
       play = this.state_url(yaml);
       yaml = this.escape(yaml);
-      yaml = yaml.replace(/"/g, '""');
+      yaml = "\"'" + yaml.replace(/"/g, '""') + '"';
       if (tree === '') {
         tree = 'ERROR';
       } else {
         tree = this.indent(tree);
-        tree = tree.replace(/"/g, '""');
+        tree = "\"'" + tree.replace(/"/g, '""') + '"';
       }
-      return play + "\t\t\t\"" + yaml + "\"\t\"" + tree + "\"";
+      fields = [play, '', '', yaml, tree];
+      fields.push.apply(fields, this.results(eatme, refparser));
+      return fields.join("\t");
+    };
+
+    Playground.results = function(eatme, expect) {
+      var eee, j, len, npm, parser, parsers, result, results, yeast;
+      parsers = ['libyaml', 'libfyaml', 'yamlpp', 'npmyamlmaster', 'pyyaml', 'nimyaml', 'hsyaml', 'snakeyaml', 'ruamel', 'yamldotnet'];
+      results = [''];
+      yeast = eatme.$panes['hsrefyeast'][0].$output.text();
+      npm = eatme.$panes['libyaml'][0].$output.text();
+      eee = expect.replace(/\s+(\{\}|\[\])$/mg, '');
+      say([eee, npm, eee === npm]);
+      if (yeast === '') {
+        results.push(expect === '' ? '' : 'X');
+      } else {
+        results.push(expect !== '' ? '' : 'X');
+      }
+      for (j = 0, len = parsers.length; j < len; j++) {
+        parser = parsers[j];
+        result = eatme.$panes[parser][0].$output.text();
+        if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
+          results.push('');
+        } else {
+          results.push('X');
+        }
+      }
+      return results;
     };
 
     Playground.escape = function(text) {
@@ -131,7 +158,7 @@
       if (error != null) {
         throw error;
       }
-      return events.join("\n");
+      return events.join("\n") + "\n";
     };
 
     Playground.npmyaml1_json = function(text) {
