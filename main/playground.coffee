@@ -186,7 +186,7 @@ class window.Playground
     return @sandbox_event(text, 'cmd=c-libfyaml-event')
 
   @libyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=c-libfyaml-event')
+    return @sandbox_event(text, 'cmd=c-libyaml-event')
 
   @yamlcpp_event: (text)->
     return @sandbox_event(text, 'cmd=cpp-yamlcpp-event')
