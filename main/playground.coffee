@@ -25,7 +25,7 @@ class window.Playground
         console.log(e)
 
   @copy_tsv: (btn, e, eatme)->
-    e.stopPropagation()
+    # e.stopPropagation()
     tsv = @make_tsv(eatme)
     navigator.clipboard.writeText(tsv)
 
@@ -33,17 +33,55 @@ class window.Playground
     $panes = eatme.$panes
     yaml = $panes['yaml-input'][0].cm.getValue()
     tree = $panes['refparser'][0].$output.text()
+    refparser = tree
     play = @state_url(yaml)
     yaml = @escape(yaml)
-    yaml = yaml.replace(/"/g, '""')
+    yaml = "\"'" + yaml.replace(/"/g, '""') + '"'
 
     if tree == ''
       tree = 'ERROR'
     else
       tree = @indent(tree)
-      tree = tree.replace(/"/g, '""')
+      tree = "\"'" + tree.replace(/"/g, '""') + '"'
 
-    return "\t\t\"#{yaml}\"\t\"#{tree}\"\t#{play}"
+    fields = [ play, '', '', yaml, tree ]
+    fields.push @results(eatme, refparser)...
+
+    return fields.join("\t")
+
+  @results: (eatme, expect)->
+    parsers = [
+      'libyaml'
+      'libfyaml'
+      'yamlpp'
+      'npmyamlmaster'
+      'pyyaml'
+      'nimyaml'
+      'hsyaml'
+      'snakeyaml'
+      'ruamel'
+      'yamldotnet'
+    ]
+    results = ['']
+
+    yeast = eatme.$panes['hsrefyeast'][0].$output.text()
+    npm = eatme.$panes['libyaml'][0].$output.text()
+    eee = expect.replace(/\s+(\{\}|\[\])$/mg, '')
+    say [eee, npm, eee == npm]
+    if yeast == ''
+      results.push(if expect == '' then '' else 'X')
+    else
+      results.push(if expect != '' then '' else 'X')
+
+    for parser in parsers
+      result = eatme.$panes[parser][0].$output.text()
+      if result == expect or
+         result == expect.replace(/\s+(\{\}|\[\])$/mg, '')
+        results.push ''
+      else
+        results.push 'X'
+
+    return results
 
   @escape: (text)->
     text = text.replace /(\ +)$/mg, (m, $1)=>
@@ -104,7 +142,7 @@ class window.Playground
   @npmyamlmaster_event: (text)->
       {events, error} = npmYAML.events(text)
       throw error if error?
-      return events.join("\n")
+      return events.join("\n") + "\n"
 
   @npmyaml1_json: (text)->
     data = npmYAML1.parse(text)
