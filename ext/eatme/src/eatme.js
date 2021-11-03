@@ -244,7 +244,7 @@
       if ((html = show.html) != null) {
         $box = pane.$html.html(html);
       } else if ((markdown = show.mark) != null) {
-        $box = pane.$html.html(marked(markdown));
+        $box = pane.$html.html(marked.parse(markdown));
       } else if ((error = show.error) != null) {
         $box = pane.$error.text(error);
       } else if ((output = show.output) != null) {
