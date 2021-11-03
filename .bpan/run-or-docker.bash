@@ -26,6 +26,7 @@ run() (
       *.bash) lang=bash ;;
       *.pl) lang=perl ;;
       *.py) lang=python3 ;;
+      *.rb) lang=ruby ;;
       *) die "Don't recognize language of '$prog'" ;;
     esac
   fi
@@ -173,24 +174,36 @@ need-modules() {
   for module; do
     case $cmd in
       perl)
-        perl -M"$module" -e1 &>/dev/null ||
-          fail "'$cmd' requires Perl module '$module'"
+        if [[ $module == *=* ]]; then
+          want=$module
+          version=${module#*=}
+          module=${module%=*}
+          perl -M"$module"\ "$version" -e1 &>/dev/null ||
+            fail "'$cmd' requires Perl module '$want'"
+        else
+          want=$module
+          perl -M"$module" -e1 &>/dev/null ||
+            fail "'$cmd' requires Perl module '$module'"
+        fi
         ;;
       node)
         node -e "require('$module');" &>/dev/null ||
           fail "'$cmd' requires NodeJS module '$module'"
         ;;
+      python)
+        python3 -c "import $module" &>/dev/null ||
+          fail "'$cmd' requires Python(3) module '$module'"
+        ;;
       ruby)
         list=$(gem list)
         if [[ $module == *=* ]]; then
-          pattern="${module//./\\.}"
-          pattern="${pattern/=/ (.*})"
+          version=${module#*=}
+          module=${module%=*}
         else
-          pattern="$module.*"
+          version=0
         fi
-        pattern="^$pattern$"
-        grep "$pattern" <<<"$list" ||
-          fail "'$cmd' requires Ruby module '$module'"
+        (set -x; ruby -e "gem '$module', '>=$version'") &>/dev/null ||
+          fail "'$cmd' requires Ruby module '$module' >= v$version"
         ;;
       *) die "Can't check module '$module' for '$cmd'" ;;
     esac
@@ -296,8 +309,13 @@ build-docker-image() (
 
   (
     dockerfile
-
-    cmd "ENV PATH=/home/host/bin:\$PATH"
+    bin=$(dirname "$0")
+    bin=${bin#$root/}
+    if [[ $bin == bin ]]; then
+      cmd "ENV PATH=/home/host/bin:\$PATH"
+    else
+      cmd "ENV PATH=/home/host/$bin:/home/host/bin:\$PATH"
+    fi
   ) > "$build/Dockerfile"
 
 

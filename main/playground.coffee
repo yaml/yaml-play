@@ -256,7 +256,7 @@ class window.Playground
 
       ```
       $ docker run --rm -d -p #{port}:#{port} \\
-          yamlio/play-sandbox:0.0.7 #{scheme}
+          yamlio/play-sandbox:0.0.8 #{scheme}
       ```
 
       on the same computer as your web browser.
