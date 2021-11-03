@@ -2,7 +2,7 @@
 
 # shellcheck disable=2154
 
-version=0.0.7
+version=0.0.8
 
 source "${ROOT:-$PWD}/.bpan/run-or-docker.bash"
 
@@ -42,6 +42,8 @@ RUN apk add \
         vim \
         wget \
  && true
+
+RUN pip3 install wheel
 
 RUN pip3 install \
         flask \
