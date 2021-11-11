@@ -51,7 +51,7 @@
 
     Playground.results = function(eatme, expect) {
       var eee, j, len, npm, parser, parsers, result, results, yeast;
-      parsers = ['libyaml', 'libfyaml', 'yamlpp', 'npmyamlmaster', 'pyyaml', 'nimyaml', 'hsyaml', 'snakeyaml', 'ruamel', 'yamldotnet'];
+      parsers = ['libyaml', 'libfyaml', 'goyaml', 'yamlpp', 'npmyamlmaster', 'pyyaml', 'nimyaml', 'hsyaml', 'snakeyaml', 'ruamel', 'yamldotnet'];
       results = [''];
       yeast = eatme.$panes['hsrefyeast'][0].$output.text();
       npm = eatme.$panes['libyaml'][0].$output.text();
@@ -219,12 +219,16 @@
       return this.sandbox_event(text, 'cmd=py-pyyaml-event');
     };
 
+    Playground.libyaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=c-libyaml-event');
+    };
+
     Playground.libfyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=c-libfyaml-event');
     };
 
-    Playground.libyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=c-libyaml-event');
+    Playground.goyaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=go-yaml-test');
     };
 
     Playground.yamlcpp_event = function(text) {
@@ -298,7 +302,7 @@
       }
       help = loc.replace(/\/[^\/]+\?.*/, "/#setting-up-a-local-sandbox");
       return {
-        mark: "This pane requires a localhost sandbox server.\n\nRun:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/play-sandbox:0.0.8 " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + "  \nfor more instructions."
+        mark: "This pane requires a localhost sandbox server.\n\nRun:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/play-sandbox:0.0.9 " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + "  \nfor more instructions."
       };
     };
 
