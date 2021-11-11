@@ -53,6 +53,7 @@ class window.Playground
     parsers = [
       'libyaml'
       'libfyaml'
+      'goyaml'
       'yamlpp'
       'npmyamlmaster'
       'pyyaml'
@@ -183,11 +184,14 @@ class window.Playground
   @pyyaml_event: (text)->
     return @sandbox_event(text, 'cmd=py-pyyaml-event')
 
+  @libyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=c-libyaml-event')
+
   @libfyaml_event: (text)->
     return @sandbox_event(text, 'cmd=c-libfyaml-event')
 
-  @libyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=c-libyaml-event')
+  @goyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=go-yaml-test')
 
   @yamlcpp_event: (text)->
     return @sandbox_event(text, 'cmd=cpp-yamlcpp-event')
@@ -256,7 +260,7 @@ class window.Playground
 
       ```
       $ docker run --rm -d -p #{port}:#{port} \\
-          yamlio/play-sandbox:0.0.8 #{scheme}
+          yamlio/play-sandbox:0.0.9 #{scheme}
       ```
 
       on the same computer as your web browser.
