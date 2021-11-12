@@ -24,7 +24,7 @@ def processYaml():
   fmt = request.args.get('fmt', 'event')
   yaml = request.form.get('text')
 
-  command = '/yaml/bin/' + cmd
+  command = '/usr/local/bin/' + cmd
 
   p = subprocess.Popen(
     command,
