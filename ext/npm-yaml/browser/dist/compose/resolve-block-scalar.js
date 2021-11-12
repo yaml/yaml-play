@@ -18,7 +18,7 @@ function resolveBlockScalar(scalar, strict, onError) {
     }
     // shortcut for empty contents
     if (!scalar.source || chompStart === 0) {
-        const value = header.chomp === '+' ? lines.map(line => line[0]).join('\n') : '';
+        const value = header.chomp === '+' ? '\n'.repeat(Math.max(0, lines.length - 1)) : '';
         let end = start + header.length;
         if (scalar.source)
             end += scalar.source.length;

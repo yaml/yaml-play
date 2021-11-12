@@ -1,29 +1,21 @@
-ALL := $(shell echo */Dockerfile)
-ALL := $(ALL:%/Dockerfile=%)
+DOCKER_DIRS := \
+    python \
+    main
 
-ALL_BUILD := $(ALL:%=%-BUILD)
-ALL_PUSH := $(ALL:%=%-PUSH)
-ALL_PULL := $(ALL:%=%-PULL)
-ALL_CLEAN := $(ALL:%=%-CLEAN)
+CLEAN_TARGETS := $(DOCKER_BUILD:%=clean-%)
 
-default:
 
-docker-build-all: $(ALL_BUILD)
+docker-build: $(DOCKER_DIRS)
 
-docker-push-all: $(ALL_PUSH)
+docker-push docker-shell: docker-build
+	$(MAKE) -C main $@
 
-docker-pull-all: $(ALL_PULL)
+clean:: $(CLEAN_TARGETS)
 
-clean-all: $(ALL_CLEAN)
+$(DOCKER_DIRS): force
+	$(MAKE) -C $@ docker-build
 
-%-BUILD:
-	$(MAKE) -C $(@:%-BUILD=%) docker-build
+clean-%: %/
+	$(MAKE) -C $< clean
 
-%-PUSH:
-	$(MAKE) -C $(@:%-PUSH=%) docker-push
-
-%-PULL:
-	$(MAKE) -C $(@:%-PULL=%) docker-pull
-
-%-CLEAN:
-	@$(MAKE) --no-print-directory -C $(@:%-CLEAN=%) clean
+force:

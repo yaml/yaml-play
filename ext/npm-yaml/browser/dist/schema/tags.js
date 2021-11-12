@@ -50,11 +50,15 @@ const coreKnownTags = {
 function getTags(customTags, schemaName) {
     let tags = schemas[schemaName];
     if (!tags) {
-        const keys = Object.keys(schemas)
-            .filter(key => key !== 'yaml11')
-            .map(key => JSON.stringify(key))
-            .join(', ');
-        throw new Error(`Unknown schema "${schemaName}"; use one of ${keys}`);
+        if (Array.isArray(customTags))
+            tags = [];
+        else {
+            const keys = Object.keys(schemas)
+                .filter(key => key !== 'yaml11')
+                .map(key => JSON.stringify(key))
+                .join(', ');
+            throw new Error(`Unknown schema "${schemaName}"; use one of ${keys} or define customTags array`);
+        }
     }
     if (Array.isArray(customTags)) {
         for (const tag of customTags)

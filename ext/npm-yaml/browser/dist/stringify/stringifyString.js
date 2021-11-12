@@ -118,34 +118,50 @@ function doubleQuotedString(value, ctx) {
         : foldFlowLines(str, indent, FOLD_QUOTED, getFoldOptions(ctx));
 }
 function singleQuotedString(value, ctx) {
-    if (ctx.implicitKey) {
-        if (/\n/.test(value))
-            return doubleQuotedString(value, ctx);
-    }
-    else {
-        // single quoted string can't have leading or trailing whitespace around newline
-        if (/[ \t]\n|\n[ \t]/.test(value))
-            return doubleQuotedString(value, ctx);
-    }
+    if (ctx.options.singleQuote === false ||
+        (ctx.implicitKey && value.includes('\n')) ||
+        /[ \t]\n|\n[ \t]/.test(value) // single quoted string can't have leading or trailing whitespace around newline
+    )
+        return doubleQuotedString(value, ctx);
     const indent = ctx.indent || (containsDocumentMarker(value) ? '  ' : '');
     const res = "'" + value.replace(/'/g, "''").replace(/\n+/g, `$&\n${indent}`) + "'";
     return ctx.implicitKey
         ? res
         : foldFlowLines(res, indent, FOLD_FLOW, getFoldOptions(ctx));
 }
+function quotedString(value, ctx) {
+    const { singleQuote } = ctx.options;
+    let qs;
+    if (singleQuote === false)
+        qs = doubleQuotedString;
+    else {
+        const hasDouble = value.includes('"');
+        const hasSingle = value.includes("'");
+        if (hasDouble && !hasSingle)
+            qs = singleQuotedString;
+        else if (hasSingle && !hasDouble)
+            qs = doubleQuotedString;
+        else
+            qs = singleQuote ? singleQuotedString : doubleQuotedString;
+    }
+    return qs(value, ctx);
+}
 function blockString({ comment, type, value }, ctx, onComment, onChompKeep) {
+    const { lineWidth, blockQuote } = ctx.options;
     // 1. Block can't end in whitespace unless the last line is non-empty.
     // 2. Strings consisting of only whitespace are best rendered explicitly.
-    if (/\n[\t ]+$/.test(value) || /^\s*$/.test(value)) {
-        return doubleQuotedString(value, ctx);
+    if (!blockQuote || /\n[\t ]+$/.test(value) || /^\s*$/.test(value)) {
+        return quotedString(value, ctx);
     }
     const indent = ctx.indent ||
         (ctx.forceBlockIndent || containsDocumentMarker(value) ? '  ' : '');
-    const literal = type === Scalar.BLOCK_FOLDED
-        ? false
-        : type === Scalar.BLOCK_LITERAL
-            ? true
-            : !lineLengthOverLimit(value, ctx.options.lineWidth, indent.length);
+    const literal = blockQuote === 'literal'
+        ? true
+        : blockQuote === 'folded' || type === Scalar.BLOCK_FOLDED
+            ? false
+            : type === Scalar.BLOCK_LITERAL
+                ? true
+                : !lineLengthOverLimit(value, lineWidth, indent.length);
     if (!value)
         return literal ? '|\n' : '>\n';
     // determine chomping from whitespace at value end
@@ -218,25 +234,10 @@ function plainString(item, ctx, onComment, onChompKeep) {
     const { actualString, implicitKey, indent, inFlow } = ctx;
     if ((implicitKey && /[\n[\]{},]/.test(value)) ||
         (inFlow && /[[\]{},]/.test(value))) {
-        return doubleQuotedString(value, ctx);
+        return quotedString(value, ctx);
     }
     if (!value ||
         /^[\n\t ,[\]{}#&*!|>'"%@`]|^[?-]$|^[?-][ \t]|[\n:][ \t]|[ \t]\n|[\n\t ]#|[\n\t :]$/.test(value)) {
-        const hasDouble = value.indexOf('"') !== -1;
-        const hasSingle = value.indexOf("'") !== -1;
-        let quotedString;
-        if (hasDouble && !hasSingle) {
-            quotedString = singleQuotedString;
-        }
-        else if (hasSingle && !hasDouble) {
-            quotedString = doubleQuotedString;
-        }
-        else if (ctx.options.singleQuote) {
-            quotedString = singleQuotedString;
-        }
-        else {
-            quotedString = doubleQuotedString;
-        }
         // not allowed:
         // - empty string, '-' or '?'
         // - start with an indicator character (except [?:-]) or /[?-] /
@@ -267,7 +268,7 @@ function plainString(item, ctx, onComment, onChompKeep) {
             if (tag.default &&
                 tag.tag !== 'tag:yaml.org,2002:str' &&
                 ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(str)))
-                return doubleQuotedString(value, ctx);
+                return quotedString(value, ctx);
         }
     }
     return implicitKey
@@ -290,7 +291,7 @@ function stringifyString(item, ctx, onComment, onChompKeep) {
             case Scalar.BLOCK_FOLDED:
             case Scalar.BLOCK_LITERAL:
                 return implicitKey || inFlow
-                    ? doubleQuotedString(ss.value, ctx) // blocks are not valid inside flow containers
+                    ? quotedString(ss.value, ctx) // blocks are not valid inside flow containers
                     : blockString(ss, ctx, onComment, onChompKeep);
             case Scalar.QUOTE_DOUBLE:
                 return doubleQuotedString(ss.value, ctx);

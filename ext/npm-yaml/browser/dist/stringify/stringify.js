@@ -8,6 +8,7 @@ const createStringifyContext = (doc, options) => ({
     indent: '',
     indentStep: typeof options.indent === 'number' ? ' '.repeat(options.indent) : '  ',
     options: Object.assign({
+        blockQuote: true,
         defaultKeyType: null,
         defaultStringType: 'PLAIN',
         directives: null,
@@ -19,7 +20,7 @@ const createStringifyContext = (doc, options) => ({
         minContentWidth: 20,
         nullStr: 'null',
         simpleKeys: false,
-        singleQuote: false,
+        singleQuote: null,
         trueStr: 'true',
         verifyAliasOrder: true
     }, options)

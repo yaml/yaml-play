@@ -44,7 +44,7 @@ function createScalarToken(value, context) {
         implicitKey,
         indent: indent > 0 ? ' '.repeat(indent) : '',
         inFlow,
-        options: { lineWidth: -1 }
+        options: { blockQuote: true, lineWidth: -1 }
     });
     const end = (_a = context.end) !== null && _a !== void 0 ? _a : [
         { type: 'newline', offset: -1, indent, source: '\n' }
@@ -113,7 +113,7 @@ function setScalarValue(token, value, context = {}) {
         implicitKey: implicitKey || indent === null,
         indent: indent !== null && indent > 0 ? ' '.repeat(indent) : '',
         inFlow,
-        options: { lineWidth: -1 }
+        options: { blockQuote: true, lineWidth: -1 }
     });
     switch (source[0]) {
         case '|':

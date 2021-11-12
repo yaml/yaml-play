@@ -302,7 +302,7 @@
       }
       help = loc.replace(/\/[^\/]+\?.*/, "/#setting-up-a-local-sandbox");
       return {
-        mark: "This pane requires a localhost sandbox server.\n\nRun:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/play-sandbox:0.0.9 " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + "  \nfor more instructions."
+        mark: "This pane requires a localhost sandbox server.\n\nRun:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/yaml-play-sandbox:0.1.0 " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + "  \nfor more instructions."
       };
     };
 
