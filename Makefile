@@ -29,10 +29,10 @@ JEKYLL_BUILD := jekyll build --trace
 JEKYLL_SERVE := jekyll serve --host 0.0.0.0
 HISTORY_FILE := /tmp/docker-bash_history
 
-SANDBOX_VERSION := \
+SANDBOX_VERSION := 0.1.0 # \
   $(shell grep version bin/play-sandbox | head -n1 | cut -d= -f2)
 SANDBOX_PORT ?= 1337
-SANDBOX_IMAGE := yamlio/play-sandbox:$(SANDBOX_VERSION)
+SANDBOX_IMAGE := yamlio/yaml-play-sandbox:$(SANDBOX_VERSION)
 SANDBOX_RUN := \
   docker run --rm -d -p $(SANDBOX_PORT):$(SANDBOX_PORT) $(SANDBOX_IMAGE) http
 
@@ -94,14 +94,12 @@ publish: check-publish site
 	@echo "Published: https://$(PUBLISH_CNAME)/$(SITEDIR)"
 	@echo
 
+docker-build docker-push docker-shell:
+	$(MAKE) -C docker $@
+
 # Remove generated files to force rebuild:
 force:
 	rm -fr ext $(BUILD) $(SITE) $(FILES)
-
-push-all: push-play-sandbox
-
-push-play-sandbox:
-	RUN_OR_DOCKER_PUSH=true play-sandbox
 
 common:
 	cp $(COMMON)/bpan/run-or-docker.bash $(BPAN)/
@@ -110,7 +108,7 @@ clean: force
 	$(MAKE) -C $(EXT) $@
 
 clean-all:
-	make -C .. clean
+	$(MAKE) -C .. clean
 
 #------------------------------------------------------------------------------
 _config.yml: jekyll/_config.yml
