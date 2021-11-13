@@ -56,9 +56,9 @@
       yeast = eatme.$panes['hsrefyeast'][0].$output.text();
       npm = eatme.$panes['libyaml'][0].$output.text();
       if (yeast === '') {
-        results.push(expect === '' ? '' : 'X');
+        results.push(expect === '' ? '' : 'x');
       } else {
-        results.push(expect !== '' ? '' : 'X');
+        results.push(expect !== '' ? '' : 'x');
       }
       for (j = 0, len = parsers.length; j < len; j++) {
         parser = parsers[j];
@@ -71,10 +71,10 @@
             if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
               results.push('');
             } else {
-              results.push('X');
+              results.push('x');
             }
           } else {
-            results.push('X');
+            results.push('x');
           }
         }
       }
