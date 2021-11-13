@@ -51,7 +51,7 @@
 
     Playground.results = function(eatme, expect) {
       var eee, j, len, npm, parser, parsers, result, results, yeast;
-      parsers = ['libyaml', 'libfyaml', 'goyaml', 'yamlpp', 'npmyamlmaster', 'pyyaml', 'nimyaml', 'hsyaml', 'snakeyaml', 'ruamel', 'yamldotnet'];
+      parsers = ['libyaml', 'libfyaml', 'yamlpp', 'npmyamlmaster', 'pyyaml', 'goyaml', 'nimyaml', 'hsyaml', 'snakeyaml', 'ruamel', 'yamldotnet'];
       results = [''];
       yeast = eatme.$panes['hsrefyeast'][0].$output.text();
       npm = eatme.$panes['libyaml'][0].$output.text();
