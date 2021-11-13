@@ -53,10 +53,10 @@ class window.Playground
     parsers = [
       'libyaml'
       'libfyaml'
-      'goyaml'
       'yamlpp'
       'npmyamlmaster'
       'pyyaml'
+      'goyaml'
       'nimyaml'
       'hsyaml'
       'snakeyaml'
