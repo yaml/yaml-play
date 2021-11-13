@@ -94,6 +94,10 @@ publish: check-publish site
 	@echo "Published: https://$(PUBLISH_CNAME)/$(SITEDIR)"
 	@echo
 
+push: docker-push
+
+shell: docker-shell
+
 docker-build docker-push docker-shell:
 	$(MAKE) -C docker $@
 

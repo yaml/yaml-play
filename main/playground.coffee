@@ -36,13 +36,13 @@ class window.Playground
     refparser = tree
     play = @state_url(yaml)
     yaml = @escape(yaml)
-    yaml = "\"'" + yaml.replace(/"/g, '""') + '"'
+    yaml = '"' + yaml.replace(/"/g, '""') + '"'
 
     if tree == ''
       tree = 'ERROR'
     else
       tree = @indent(tree)
-      tree = "\"'" + tree.replace(/"/g, '""') + '"'
+      tree = '"' + tree.replace(/"/g, '""') + '"'
 
     fields = [ play, '', '', yaml, tree ]
     fields.push @results(eatme, refparser)...
@@ -67,8 +67,6 @@ class window.Playground
 
     yeast = eatme.$panes['hsrefyeast'][0].$output.text()
     npm = eatme.$panes['libyaml'][0].$output.text()
-    eee = expect.replace(/\s+(\{\}|\[\])$/mg, '')
-    say [eee, npm, eee == npm]
     if yeast == ''
       results.push(if expect == '' then '' else 'X')
     else
