@@ -66,7 +66,16 @@
         if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
           results.push('');
         } else {
-          results.push('X');
+          if (result = eatme.$panes[parser][0].$error.text()) {
+            result = result.replace(/^[^-+=].*\n?/gm, '');
+            if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
+              results.push('');
+            } else {
+              results.push('X');
+            }
+          } else {
+            results.push('X');
+          }
         }
       }
       return results;
