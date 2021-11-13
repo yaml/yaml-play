@@ -24,6 +24,10 @@ class window.Playground
         console.log(base64)
         console.log(e)
 
+    $(window).keydown (e)=>
+      if e.ctrlKey and e.keyCode == 13
+        @copy_tsv null, e, eatme
+
   @copy_tsv: (btn, e, eatme)->
     # e.stopPropagation()
     tsv = @make_tsv(eatme)
