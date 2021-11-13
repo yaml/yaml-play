@@ -14,13 +14,20 @@
       if (params.has('input')) {
         base64 = params.get('input').replace(/-/g, '+').replace(/_/g, '/');
         try {
-          return eatme.input = decodeURIComponent(escape(atob(base64)));
+          eatme.input = decodeURIComponent(escape(atob(base64)));
         } catch (error1) {
           e = error1;
           console.log(base64);
-          return console.log(e);
+          console.log(e);
         }
       }
+      return $(window).keydown((function(_this) {
+        return function(e) {
+          if (e.ctrlKey && e.keyCode === 13) {
+            return _this.copy_tsv(null, e, eatme);
+          }
+        };
+      })(this));
     };
 
     Playground.copy_tsv = function(btn, e, eatme) {
