@@ -62,8 +62,7 @@
       }
       for (j = 0, len = parsers.length; j < len; j++) {
         parser = parsers[j];
-        result = eatme.$panes[parser][0].$output.text().replace(/^(?![-+=](?:STR|DOC|MAP|SEQ|VAL|ALI))(.*\n?)/mg, "$1");
-        say(result);
+        result = eatme.$panes[parser][0].$output.text().replace(/^=COMMENT .*\n?/mg, '');
         if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
           results.push('');
         } else {
