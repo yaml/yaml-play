@@ -37,12 +37,12 @@
       refparser = tree;
       play = this.state_url(yaml);
       yaml = this.escape(yaml);
-      yaml = "\"'" + yaml.replace(/"/g, '""') + '"';
+      yaml = '"' + yaml.replace(/"/g, '""') + '"';
       if (tree === '') {
         tree = 'ERROR';
       } else {
         tree = this.indent(tree);
-        tree = "\"'" + tree.replace(/"/g, '""') + '"';
+        tree = '"' + tree.replace(/"/g, '""') + '"';
       }
       fields = [play, '', '', yaml, tree];
       fields.push.apply(fields, this.results(eatme, refparser));
@@ -50,13 +50,11 @@
     };
 
     Playground.results = function(eatme, expect) {
-      var eee, j, len, npm, parser, parsers, result, results, yeast;
+      var j, len, npm, parser, parsers, result, results, yeast;
       parsers = ['libyaml', 'libfyaml', 'yamlpp', 'npmyamlmaster', 'pyyaml', 'goyaml', 'nimyaml', 'hsyaml', 'snakeyaml', 'ruamel', 'yamldotnet'];
       results = [''];
       yeast = eatme.$panes['hsrefyeast'][0].$output.text();
       npm = eatme.$panes['libyaml'][0].$output.text();
-      eee = expect.replace(/\s+(\{\}|\[\])$/mg, '');
-      say([eee, npm, eee === npm]);
       if (yeast === '') {
         results.push(expect === '' ? '' : 'X');
       } else {
@@ -64,7 +62,7 @@
       }
       for (j = 0, len = parsers.length; j < len; j++) {
         parser = parsers[j];
-        result = eatme.$panes[parser][0].$output.text().replace(/^=COMMENT .*\n?/mg, '');
+        result = eatme.$panes[parser][0].$output.text().replace(/^(?![=+-](?:STR|DOC|MAP|SEQ|VAL|ALI)).*\n?/mg, '');
         if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
           results.push('');
         } else {
