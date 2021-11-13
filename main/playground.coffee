@@ -68,9 +68,9 @@ class window.Playground
     yeast = eatme.$panes['hsrefyeast'][0].$output.text()
     npm = eatme.$panes['libyaml'][0].$output.text()
     if yeast == ''
-      results.push(if expect == '' then '' else 'X')
+      results.push(if expect == '' then '' else 'x')
     else
-      results.push(if expect != '' then '' else 'X')
+      results.push(if expect != '' then '' else 'x')
 
     for parser in parsers
       result = eatme.$panes[parser][0].$output.text()
@@ -79,7 +79,15 @@ class window.Playground
          result == expect.replace(/\s+(\{\}|\[\])$/mg, '')
         results.push ''
       else
-        results.push 'X'
+        if result = eatme.$panes[parser][0].$error.text()
+          result = result.replace(/^[^-+=].*\n?/gm, '')
+          if result == expect or
+             result == expect.replace(/\s+(\{\}|\[\])$/mg, '')
+            results.push ''
+          else
+            results.push 'x'
+        else
+          results.push 'x'
 
     return results
 
