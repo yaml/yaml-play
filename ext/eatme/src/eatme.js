@@ -189,7 +189,6 @@
           pane.cm = cm = CodeMirror.fromTextArea($textarea[0], {
             lineNumbers: true
           });
-          cm.setSize(null, cm.getWrapperElement().offsetHeight - 28);
           do_calls = function() {
             var $to, i, len, ref, results;
             text = cm.getValue();
