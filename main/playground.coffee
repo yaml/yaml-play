@@ -264,9 +264,7 @@ class window.Playground
     )
 
     return mark: """
-      This pane requires a localhost sandbox server.
-
-      Run:
+      This pane requires a localhost sandbox server. Run:
 
       ```
       $ docker run --rm -d -p #{port}:#{port} \\
@@ -275,6 +273,7 @@ class window.Playground
 
       on the same computer as your web browser.
 
-      See #{help}  
-      for more instructions.
+      See #{help}.
+
+      [Chat with the YAML team](https://matrix.to/#/#chat:yaml.io).
       """
