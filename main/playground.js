@@ -88,6 +88,41 @@
       return results;
     };
 
+    Playground.show = function(eatme, $pane, data) {
+      var $box, pane, slug, text;
+      pane = $pane[0];
+      $box = null;
+      if (data.error) {
+        $box = pane.$error;
+      } else if (data.output) {
+        $box = pane.$output;
+      } else {
+        return;
+      }
+      text = pane.$output.text().replace(/\s+(\{\}|\[\])$/mg, '');
+      slug = pane.eatme.slug;
+      if (slug === 'refparser') {
+        this.refparser = text;
+        setTimeout((function(_this) {
+          return function() {
+            return delete _this.refparser;
+          };
+        })(this), 5000);
+      }
+      if (slug === 'hsrefyeast') {
+        if (text.match(/=(ERR|REST)/)) {
+          text = '';
+        } else {
+          text = this.refparser;
+        }
+      }
+      if ((this.refparser != null) && text === this.refparser) {
+        return $box.css('border-top', '5px solid green');
+      } else {
+        return $box.css('border-top', '5px solid red');
+      }
+    };
+
     Playground.escape = function(text) {
       text = text.replace(/(\ +)$/mg, (function(_this) {
         return function(m, $1) {

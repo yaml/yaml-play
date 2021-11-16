@@ -253,8 +253,9 @@
       }
       $show = $pane.children().last();
       if ($show[0] !== $box[0]) {
-        return $show.replaceWith($box);
+        $show.replaceWith($box);
       }
+      return this.code.show(this, $pane, show);
     };
 
     EatMe.empty = 1;
