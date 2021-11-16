@@ -89,7 +89,7 @@
     };
 
     Playground.show = function(eatme, $pane, data) {
-      var $box, pane, slug, text;
+      var $box, error, pane, slug, text;
       pane = $pane[0];
       pane.$output.css('border-top', 'none');
       pane.$error.css('border-top', 'none');
@@ -105,7 +105,11 @@
       } else {
         return;
       }
-      text = pane.$output.text().replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^([-+]DOC).+/mg, '$1');
+      text = pane.$output.text();
+      if (text.length === 0 && (error = pane.$error.text()).match(/^\+STR/m)) {
+        text = error.replace(/^[^-+=].*\n?/mg, '');
+      }
+      text = text.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^([-+]DOC).+/mg, '$1');
       if (slug === 'refparser') {
         this.refparser = text;
         setTimeout((function(_this) {
