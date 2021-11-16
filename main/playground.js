@@ -108,6 +108,9 @@
       text = pane.$output.text();
       if (text.length === 0 && (error = pane.$error.text()).match(/^\+STR/m)) {
         text = error.replace(/^[^-+=].*\n?/mg, '');
+        if (!text.match(/^-STR/m)) {
+          text = '';
+        }
       }
       text = text.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^([-+]DOC).+/mg, '$1');
       if (slug === 'refparser') {
