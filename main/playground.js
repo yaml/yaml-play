@@ -91,6 +91,8 @@
     Playground.show = function(eatme, $pane, data) {
       var $box, pane, slug, text;
       pane = $pane[0];
+      pane.$output.css('border-top', 'none');
+      pane.$error.css('border-top', 'none');
       $box = null;
       if (data.error) {
         $box = pane.$error;
@@ -99,7 +101,7 @@
       } else {
         return;
       }
-      text = pane.$output.text().replace(/\s+(\{\}|\[\])$/mg, '');
+      text = pane.$output.text().replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^([-+]DOC).+/mg, '$1');
       slug = pane.eatme.slug;
       if (slug === 'refparser') {
         this.refparser = text;
