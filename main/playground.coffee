@@ -95,6 +95,51 @@ class window.Playground
 
     return results
 
+  @show: (eatme, $pane, data)->
+    pane = $pane[0]
+    pane.$output.css('border-top', 'none')
+    pane.$error.css('border-top', 'none')
+
+    slug = pane.eatme.slug
+    return if slug == 'yamlcpp'
+
+    $box = null
+    if data.error
+      $box = pane.$error
+    else if data.output
+      $box = pane.$output
+    else
+      return
+
+    text = pane.$output.text()
+
+    if text.length == 0 and (error = pane.$error.text()).match(/^\+STR/m)
+      text = error
+        .replace(/^[^-+=].*\n?/mg, '')
+      text = '' unless text.match(/^-STR/m)
+
+    text = text
+      .replace(/\s+(\{\}|\[\])$/mg, '')
+      .replace(/^=COMMENT .*\n?/mg, '')
+      .replace(/^([-+]DOC).+/mg, '$1')
+
+    if slug == 'refparser'
+      @refparser = text
+      setTimeout =>
+        delete @refparser
+      , 5000
+
+    if slug == 'hsrefyeast'
+      if text.match(/=(ERR|REST)/)
+        text = ''
+      else
+        text = @refparser
+
+    if @refparser? and text == @refparser
+      $box.css('border-top', '5px solid green')
+    else
+      $box.css('border-top', '5px solid red')
+
   @escape: (text)->
     text = text.replace /(\ +)$/mg, (m, $1)=>
       @repeat("␣", $1.length)
