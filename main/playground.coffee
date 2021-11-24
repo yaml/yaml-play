@@ -36,8 +36,8 @@ class window.Playground
   @make_tsv: (eatme)->
     $panes = eatme.$panes
     yaml = $panes['yaml-input'][0].cm.getValue()
-    tree = $panes['refparser'][0].$output.text()
-    refparser = tree
+    tree = $panes['refparse'][0].$output.text()
+    refparse = tree
     play = @state_url(yaml)
     yaml = @escape(yaml)
     yaml = '"' + yaml.replace(/"/g, '""') + '"'
@@ -49,29 +49,29 @@ class window.Playground
       tree = '"' + tree.replace(/"/g, '""') + '"'
 
     fields = [ play, '', '', yaml, tree ]
-    fields.push @results(eatme, refparser)...
+    fields.push @results(eatme, refparse)...
 
     return fields.join("\t")
 
   @results: (eatme, expect)->
     parsers = [
-      'libyaml'
-      'libfyaml'
-      'yamlpp'
-      'npmyamlmaster'
-      'pyyaml'
+      'dotnet'
       'goyaml'
-      'nimyaml'
       'hsyaml'
-      'snakeyaml'
+      'libfyaml'
+      'libyaml'
+      'luayaml'
+      'npmyaml'
+      'nimyaml'
+      'ppyaml'
+      'pyyaml'
       'ruamel'
-      'yamldotnet'
+      'snake'
     ]
     results = ['']
 
-    yeast = eatme.$panes['hsrefyeast'][0].$output.text()
-    npm = eatme.$panes['libyaml'][0].$output.text()
-    if yeast == ''
+    refhs = eatme.$panes['refhs'][0].$output.text()
+    if refhs == ''
       results.push(if expect == '' then '' else 'x')
     else
       results.push(if expect != '' then '' else 'x')
@@ -123,19 +123,19 @@ class window.Playground
       .replace(/^=COMMENT .*\n?/mg, '')
       .replace(/^([-+]DOC).+/mg, '$1')
 
-    if slug == 'refparser'
-      @refparser = text
+    if slug == 'refparse'
+      @refparse = text
       setTimeout =>
-        delete @refparser
+        delete @refparse
       , 5000
 
-    if slug == 'hsrefyeast'
+    if slug == 'refhs'
       if text.match(/=(ERR|REST)/)
         text = ''
       else
-        text = @refparser
+        text = @refparse
 
-    if @refparser? and text == @refparser
+    if @refparse? and text == @refparse
       $box.css('border-top', '5px solid green')
     else
       $box.css('border-top', '5px solid red')
@@ -187,19 +187,19 @@ class window.Playground
       .replace(/\//g, '_')
     return "#{origin}#{pathname}?input=#{base64}"
 
-  @js_refparser_event: (text)->
+  @refparse_event: (text)->
     parser = new Parser(new TestReceiver)
     parser.parse(text)
     return parser.receiver.output()
 
-  @npmyamlmaster_json: (text)->
+  @npmyaml_json: (text)->
     data = npmYAML.parse(text)
     return JSON.stringify(data, null, 2)
 
-  @npmyamlmaster_event: (text)->
-      {events, error} = npmYAML.events(text)
-      throw error if error?
-      return events.join("\n") + "\n"
+#   @npmyaml_event: (text)->
+#       {events, error} = npmYAML.events(text)
+#       throw error if error?
+#       return events.join("\n") + "\n"
 
   @npmyaml1_json: (text)->
     data = npmYAML1.parse(text)
@@ -223,8 +223,8 @@ class window.Playground
     data = npmJSYAML.load(text)
     return JSON.stringify(data, null, 2)
 
-  @hs_refparser_yeast: (text)->
-    value = @localhost_server(text, 'cmd=yaml-test-parse-hsref')
+  @refhs_yeast: (text)->
+    value = @localhost_server(text, 'cmd=yaml-test-parse-refhs')
     if _.isString(value) and value.match(/\ =(?:ERR\ |REST)\|/)
       throw value
     else
@@ -233,7 +233,7 @@ class window.Playground
 #   @yamlcpp_event: (text)->
 #     return @sandbox_event(text, 'cmd=yaml-test-parse-yamlcpp')
 
-  @yamldotnet_event: (text)->
+  @dotnet_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-dotnet')
 
   @goyaml_event: (text)->
@@ -257,17 +257,17 @@ class window.Playground
   @npmyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-npmyaml')
 
+  @ppyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-ppyaml')
+
   @pyyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-pyyaml')
 
   @ruamel_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-ruamel')
 
-  @snakeyaml_event: (text)->
+  @snake_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-snake')
-
-  @yamlpp_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-yamlpp')
 
   @sandbox_event: (text, args)->
     value = @localhost_server(text, args)
