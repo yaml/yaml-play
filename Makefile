@@ -29,7 +29,7 @@ JEKYLL_BUILD := jekyll build --trace
 JEKYLL_SERVE := jekyll serve --host 0.0.0.0
 HISTORY_FILE := /tmp/docker-bash_history
 
-SANDBOX_VERSION := 0.1.0 # \
+SANDBOX_VERSION := 0.1.1 # \
   $(shell grep version bin/play-sandbox | head -n1 | cut -d= -f2)
 SANDBOX_PORT ?= 1337
 SANDBOX_IMAGE := yamlio/yaml-play-sandbox:$(SANDBOX_VERSION)
