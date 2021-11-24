@@ -3,7 +3,7 @@ FROM yamlio/yaml-play-sandbox-python:0.0.1 AS python
 
 
 # Build the main image 'yaml-play-sandbox':
-FROM yamlio/yaml-test-runtimes:0.0.5
+FROM yamlio/yaml-test-runtimes:0.1.1
 
 # Copy over Python package installs:
 COPY --from=python /export/ /

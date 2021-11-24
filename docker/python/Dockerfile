@@ -38,6 +38,7 @@ RUN pip3 install \
  && true
 
 RUN mkdir -p /export/usr/lib/python3.9/site-packages \
- && cp -Pr /usr/lib/python3.9/site-packages/* \
-           /export/usr/lib/python3.9/site-packages/ \
+ && cp -Pr \
+        /usr/lib/python3.9/site-packages/* \
+        /export/usr/lib/python3.9/site-packages/ \
  && true

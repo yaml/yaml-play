@@ -260,7 +260,7 @@
 
     Playground.hs_refparser_yeast = function(text) {
       var value;
-      value = this.localhost_server(text, 'cmd=hs-reference-yeast');
+      value = this.localhost_server(text, 'cmd=yaml-test-parse-hsref');
       if (_.isString(value) && value.match(/\ =(?:ERR\ |REST)\|/)) {
         throw value;
       } else {
@@ -268,52 +268,52 @@
       }
     };
 
-    Playground.yamlpp_event = function(text) {
-      return this.sandbox_event(text, 'cmd=perl-pp-event');
-    };
-
-    Playground.npmyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=js-yaml-event');
-    };
-
-    Playground.pyyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=py-pyyaml-event');
-    };
-
-    Playground.libyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=c-libyaml-event');
-    };
-
-    Playground.libfyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=c-libfyaml-event');
+    Playground.yamldotnet_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-dotnet');
     };
 
     Playground.goyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=go-yaml-test');
-    };
-
-    Playground.yamlcpp_event = function(text) {
-      return this.sandbox_event(text, 'cmd=cpp-yamlcpp-event');
-    };
-
-    Playground.nimyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=nim-nimyaml-event');
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-goyaml');
     };
 
     Playground.hsyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=hs-hsyaml-event');
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-hsyaml');
     };
 
-    Playground.snakeyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=java-snakeyaml-event');
+    Playground.libfyaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-libfyaml');
     };
 
-    Playground.yamldotnet_event = function(text) {
-      return this.sandbox_event(text, 'cmd=dotnet-yamldotnet-event');
+    Playground.libyaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-libyaml');
+    };
+
+    Playground.luayaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-luayaml');
+    };
+
+    Playground.nimyaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-nimyaml');
+    };
+
+    Playground.npmyaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-npmyaml');
+    };
+
+    Playground.pyyaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-pyyaml');
     };
 
     Playground.ruamel_event = function(text) {
-      return this.sandbox_event(text, 'cmd=py-ruamel-event');
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-ruamel');
+    };
+
+    Playground.snakeyaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-snake');
+    };
+
+    Playground.yamlpp_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-yamlpp');
     };
 
     Playground.sandbox_event = function(text, args) {
@@ -363,7 +363,7 @@
       }
       help = loc.replace(/\/[^\/]+\?.*/, "/#setting-up-a-local-sandbox");
       return {
-        mark: "This pane requires a localhost sandbox server. Run:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/yaml-play-sandbox:0.1.0 " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + ".\n\n[Chat with the YAML team](https://matrix.to/#/#chat:yaml.io)."
+        mark: "This pane requires a localhost sandbox server. Run:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/yaml-play-sandbox:0.1.1 " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + ".\n\n[Chat with the YAML team](https://matrix.to/#/#chat:yaml.io)."
       };
     };
 
