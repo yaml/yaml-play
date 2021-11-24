@@ -37,11 +37,11 @@
     };
 
     Playground.make_tsv = function(eatme) {
-      var $panes, fields, play, refparser, tree, yaml;
+      var $panes, fields, play, refparse, tree, yaml;
       $panes = eatme.$panes;
       yaml = $panes['yaml-input'][0].cm.getValue();
-      tree = $panes['refparser'][0].$output.text();
-      refparser = tree;
+      tree = $panes['refparse'][0].$output.text();
+      refparse = tree;
       play = this.state_url(yaml);
       yaml = this.escape(yaml);
       yaml = '"' + yaml.replace(/"/g, '""') + '"';
@@ -52,17 +52,16 @@
         tree = '"' + tree.replace(/"/g, '""') + '"';
       }
       fields = [play, '', '', yaml, tree];
-      fields.push.apply(fields, this.results(eatme, refparser));
+      fields.push.apply(fields, this.results(eatme, refparse));
       return fields.join("\t");
     };
 
     Playground.results = function(eatme, expect) {
-      var j, len, npm, parser, parsers, result, results, yeast;
-      parsers = ['libyaml', 'libfyaml', 'yamlpp', 'npmyamlmaster', 'pyyaml', 'goyaml', 'nimyaml', 'hsyaml', 'snakeyaml', 'ruamel', 'yamldotnet'];
+      var j, len, parser, parsers, refhs, result, results;
+      parsers = ['dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'npmyaml', 'nimyaml', 'ppyaml', 'pyyaml', 'ruamel', 'snake'];
       results = [''];
-      yeast = eatme.$panes['hsrefyeast'][0].$output.text();
-      npm = eatme.$panes['libyaml'][0].$output.text();
-      if (yeast === '') {
+      refhs = eatme.$panes['refhs'][0].$output.text();
+      if (refhs === '') {
         results.push(expect === '' ? '' : 'x');
       } else {
         results.push(expect !== '' ? '' : 'x');
@@ -113,22 +112,22 @@
         }
       }
       text = text.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^([-+]DOC).+/mg, '$1');
-      if (slug === 'refparser') {
-        this.refparser = text;
+      if (slug === 'refparse') {
+        this.refparse = text;
         setTimeout((function(_this) {
           return function() {
-            return delete _this.refparser;
+            return delete _this.refparse;
           };
         })(this), 5000);
       }
-      if (slug === 'hsrefyeast') {
+      if (slug === 'refhs') {
         if (text.match(/=(ERR|REST)/)) {
           text = '';
         } else {
-          text = this.refparser;
+          text = this.refparse;
         }
       }
-      if ((this.refparser != null) && text === this.refparser) {
+      if ((this.refparse != null) && text === this.refparse) {
         return $box.css('border-top', '5px solid green');
       } else {
         return $box.css('border-top', '5px solid red');
@@ -200,26 +199,17 @@
       return "" + origin + pathname + "?input=" + base64;
     };
 
-    Playground.js_refparser_event = function(text) {
+    Playground.refparse_event = function(text) {
       var parser;
       parser = new Parser(new TestReceiver);
       parser.parse(text);
       return parser.receiver.output();
     };
 
-    Playground.npmyamlmaster_json = function(text) {
+    Playground.npmyaml_json = function(text) {
       var data;
       data = npmYAML.parse(text);
       return JSON.stringify(data, null, 2);
-    };
-
-    Playground.npmyamlmaster_event = function(text) {
-      var error, events, ref;
-      ref = npmYAML.events(text), events = ref.events, error = ref.error;
-      if (error != null) {
-        throw error;
-      }
-      return events.join("\n") + "\n";
     };
 
     Playground.npmyaml1_json = function(text) {
@@ -258,9 +248,9 @@
       return JSON.stringify(data, null, 2);
     };
 
-    Playground.hs_refparser_yeast = function(text) {
+    Playground.refhs_yeast = function(text) {
       var value;
-      value = this.localhost_server(text, 'cmd=yaml-test-parse-hsref');
+      value = this.localhost_server(text, 'cmd=yaml-test-parse-refhs');
       if (_.isString(value) && value.match(/\ =(?:ERR\ |REST)\|/)) {
         throw value;
       } else {
@@ -268,7 +258,7 @@
       }
     };
 
-    Playground.yamldotnet_event = function(text) {
+    Playground.dotnet_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-dotnet');
     };
 
@@ -300,6 +290,10 @@
       return this.sandbox_event(text, 'cmd=yaml-test-parse-npmyaml');
     };
 
+    Playground.ppyaml_event = function(text) {
+      return this.sandbox_event(text, 'cmd=yaml-test-parse-ppyaml');
+    };
+
     Playground.pyyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-pyyaml');
     };
@@ -308,12 +302,8 @@
       return this.sandbox_event(text, 'cmd=yaml-test-parse-ruamel');
     };
 
-    Playground.snakeyaml_event = function(text) {
+    Playground.snake_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-snake');
-    };
-
-    Playground.yamlpp_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-yamlpp');
     };
 
     Playground.sandbox_event = function(text, args) {
