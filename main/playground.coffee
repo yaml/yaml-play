@@ -224,47 +224,50 @@ class window.Playground
     return JSON.stringify(data, null, 2)
 
   @hs_refparser_yeast: (text)->
-    value = @localhost_server(text, 'cmd=hs-reference-yeast')
+    value = @localhost_server(text, 'cmd=yaml-test-parse-hsref')
     if _.isString(value) and value.match(/\ =(?:ERR\ |REST)\|/)
       throw value
     else
       return value
 
-  @yamlpp_event: (text)->
-    return @sandbox_event(text, 'cmd=perl-pp-event')
-
-  @npmyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=js-yaml-event')
-
-  @pyyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=py-pyyaml-event')
-
-  @libyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=c-libyaml-event')
-
-  @libfyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=c-libfyaml-event')
-
-  @goyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=go-yaml-test')
-
-  @yamlcpp_event: (text)->
-    return @sandbox_event(text, 'cmd=cpp-yamlcpp-event')
-
-  @nimyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=nim-nimyaml-event')
-
-  @hsyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=hs-hsyaml-event')
-
-  @snakeyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=java-snakeyaml-event')
+#   @yamlcpp_event: (text)->
+#     return @sandbox_event(text, 'cmd=yaml-test-parse-yamlcpp')
 
   @yamldotnet_event: (text)->
-    return @sandbox_event(text, 'cmd=dotnet-yamldotnet-event')
+    return @sandbox_event(text, 'cmd=yaml-test-parse-dotnet')
+
+  @goyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-goyaml')
+
+  @hsyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-hsyaml')
+
+  @libfyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-libfyaml')
+
+  @libyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-libyaml')
+
+  @luayaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-luayaml')
+
+  @nimyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-nimyaml')
+
+  @npmyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-npmyaml')
+
+  @pyyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-pyyaml')
 
   @ruamel_event: (text)->
-    return @sandbox_event(text, 'cmd=py-ruamel-event')
+    return @sandbox_event(text, 'cmd=yaml-test-parse-ruamel')
+
+  @snakeyaml_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-snake')
+
+  @yamlpp_event: (text)->
+    return @sandbox_event(text, 'cmd=yaml-test-parse-yamlpp')
 
   @sandbox_event: (text, args)->
     value = @localhost_server(text, args)
