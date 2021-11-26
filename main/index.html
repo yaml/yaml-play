@@ -93,7 +93,7 @@ will be able to work with them.</p>
 <p>Calling a localhost server from a web page breaks some browser security rules,
 but it’s pretty simple to work around them for this.</p>
 
-<p>You’ll need to open this URL one time:</p>
+<p>Regardless of your browser, you’ll need to open this URL one time:</p>
 
 <ul>
   <li><a href="https://localhost:31337">https://localhost:31337</a></li>
@@ -106,10 +106,10 @@ but it’s pretty simple to work around them for this.</p>
   <p>Note: You should see the word <code class="language-plaintext highlighter-rouge">YAML</code> on the page if it works.</p>
 </blockquote>
 
-<p>The other thing you need to do is allow JavaScript to “allow invalid
-certificates for resources loaded from localhost”.
-So far, we have figured out how to do this on the Google Chrome and Firefox
-browsers.</p>
+<p>The other thing you (might, depending on your browser) need to do is configure
+JavaScript to “allow invalid certificates for resources loaded from localhost”.
+So far, we have tested and figured out how to do this on the Google Chrome,
+Firefox and Safari browsers.</p>
 
 <ul>
   <li>Google Chrome (also works for Chromium)
@@ -129,6 +129,11 @@ browsers.</p>
 name” box</li>
       <li>Change value from <code class="language-plaintext highlighter-rouge">true</code> to <code class="language-plaintext highlighter-rouge">false</code></li>
       <li>Restart Firefox</li>
+    </ul>
+  </li>
+  <li>Safari
+    <ul>
+      <li>Works without any extra special configuration changes</li>
     </ul>
   </li>
 </ul>
