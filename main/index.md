@@ -64,7 +64,7 @@ will be able to work with them.
 Calling a localhost server from a web page breaks some browser security rules,
 but it's pretty simple to work around them for this.
 
-You'll need to open this URL one time:
+Regardless of your browser, you'll need to open this URL one time:
 
 * <https://localhost:31337>
 * <http://localhost:1337> (for local `make serve`, see below)
@@ -73,10 +73,10 @@ and authorize the untrusted SSL certificate for it.
 
 > Note: You should see the word `YAML` on the page if it works.
 
-The other thing you need to do is allow JavaScript to "allow invalid
-certificates for resources loaded from localhost".
-So far, we have figured out how to do this on the Google Chrome and Firefox
-browsers.
+The other thing you (might, depending on your browser) need to do is configure
+JavaScript to "allow invalid certificates for resources loaded from localhost".
+So far, we have tested and figured out how to do this on the Google Chrome,
+Firefox and Safari browsers.
 
 * Google Chrome (also works for Chromium)
   * Enable `chrome://flags/#allow-insecure-localhost`
@@ -89,6 +89,9 @@ browsers.
     name" box
   * Change value from `true` to `false`
   * Restart Firefox
+
+* Safari
+  * Works without any extra special configuration changes
 
 That's everything.
 You should be all set to use all the playground things that need to run
