@@ -88,49 +88,47 @@
     };
 
     Playground.show = function(eatme, $pane, data) {
-      var $box, error, pane, slug, text;
+      var $box, error, output, pane, slug;
       pane = $pane[0];
       pane.$output.css('border-top', 'none');
       pane.$error.css('border-top', 'none');
       slug = pane.eatme.slug;
-      if (slug === 'yamlcpp') {
-        return;
-      }
+      output = data.output || '';
+      error = data.error || '';
       $box = null;
-      if (data.error) {
+      if (error) {
         $box = pane.$error;
-      } else if (data.output) {
+      } else if (output) {
         $box = pane.$output;
       } else {
         return;
       }
-      text = pane.$output.text();
-      if (text.length === 0 && (error = pane.$error.text()).match(/^\+STR/m)) {
-        text = error.replace(/^[^-+=].*\n?/mg, '');
-        if (!text.match(/^-STR/m)) {
-          text = '';
-        }
-      }
-      text = text.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^([-+]DOC).+/mg, '$1');
+      output = output.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^([-+]DOC).+/mg, '$1').replace(/^[^-+=].*\n?/gm, '');
       if (slug === 'refparse') {
-        this.refparse = text;
-        setTimeout((function(_this) {
+        this.refparse = output;
+        $box.css('border-top', '5px solid green');
+        return setTimeout((function(_this) {
           return function() {
             return delete _this.refparse;
           };
         })(this), 5000);
-      }
-      if (slug === 'refhs') {
-        if (text.match(/=(ERR|REST)/)) {
-          text = '';
-        } else {
-          text = this.refparse;
-        }
-      }
-      if ((this.refparse != null) && text === this.refparse) {
-        return $box.css('border-top', '5px solid green');
       } else {
-        return $box.css('border-top', '5px solid red');
+        return setTimeout((function(_this) {
+          return function() {
+            if (slug === 'refhs') {
+              if (error) {
+                output = '';
+              } else {
+                output = _this.refparse;
+              }
+            }
+            if ((_this.refparse != null) && output === _this.refparse) {
+              return $box.css('border-top', '5px solid green');
+            } else {
+              return $box.css('border-top', '5px solid red');
+            }
+          };
+        })(this), 500);
       }
     };
 
@@ -307,13 +305,7 @@
     };
 
     Playground.sandbox_event = function(text, args) {
-      var value;
-      value = this.localhost_server(text, args);
-      if (_.isString(value) && value.match(/^[^\+\-\=]/m)) {
-        throw value;
-      } else {
-        return value;
-      }
+      return this.localhost_server(text, args);
     };
 
     Playground.localhost_server = function(text, args) {
@@ -343,11 +335,10 @@
       if (resp.status === 200) {
         data = resp.responseJSON;
         if (data != null) {
-          if (data.error != null) {
-            throw data.error;
-          }
-          if (data.output != null) {
+          if (data.status === 0) {
             return data.output;
+          } else {
+            throw data.output;
           }
         }
       }
