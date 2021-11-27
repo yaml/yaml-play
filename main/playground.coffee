@@ -101,44 +101,42 @@ class window.Playground
     pane.$error.css('border-top', 'none')
 
     slug = pane.eatme.slug
-    return if slug == 'yamlcpp'
+    output = data.output || ''
+    error = data.error || ''
 
     $box = null
-    if data.error
+    if error
       $box = pane.$error
-    else if data.output
+    else if output
       $box = pane.$output
     else
       return
 
-    text = pane.$output.text()
-
-    if text.length == 0 and (error = pane.$error.text()).match(/^\+STR/m)
-      text = error
-        .replace(/^[^-+=].*\n?/mg, '')
-      text = '' unless text.match(/^-STR/m)
-
-    text = text
+    output = output
       .replace(/\s+(\{\}|\[\])$/mg, '')
       .replace(/^=COMMENT .*\n?/mg, '')
       .replace(/^([-+]DOC).+/mg, '$1')
+      .replace(/^[^-+=].*\n?/gm, '')
 
     if slug == 'refparse'
-      @refparse = text
+      @refparse = output
+      $box.css('border-top', '5px solid green')
       setTimeout =>
         delete @refparse
       , 5000
-
-    if slug == 'refhs'
-      if text.match(/=(ERR|REST)/)
-        text = ''
-      else
-        text = @refparse
-
-    if @refparse? and text == @refparse
-      $box.css('border-top', '5px solid green')
     else
-      $box.css('border-top', '5px solid red')
+      setTimeout =>
+        if slug == 'refhs'
+          if error
+            output = ''
+          else
+            output = @refparse
+
+        if @refparse? and output == @refparse
+          $box.css('border-top', '5px solid green')
+        else
+          $box.css('border-top', '5px solid red')
+      , 500
 
   @escape: (text)->
     text = text.replace /(\ +)$/mg, (m, $1)=>
@@ -270,11 +268,7 @@ class window.Playground
     return @sandbox_event(text, 'cmd=yaml-test-parse-snake')
 
   @sandbox_event: (text, args)->
-    value = @localhost_server(text, args)
-    if _.isString(value) and value.match(/^[^\+\-\=]/m)
-      throw value
-    else
-      return value
+    return @localhost_server(text, args)
 
   @localhost_server: (text, args)->
     loc = window.location.href
@@ -301,10 +295,10 @@ class window.Playground
     if resp.status == 200
       data = resp.responseJSON
       if data?
-        if data.error?
-          throw data.error
-        if data.output?
+        if data.status == 0
           return data.output
+        else
+          throw data.output
 
     help = loc.replace(
       /\/[^\/]+\?.*/,
