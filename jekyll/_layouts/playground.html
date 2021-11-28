@@ -38,10 +38,9 @@
 {% include {{ page.eatme }}.eatme.yaml %}
       `);
 {% endif %}
-      var conf_name = Playground.conf(conf);
       Playground.init({
         elem: 'pre',
-        conf: conf_name,
+        conf: Playground.conf(conf),
       });
     });
   </script>

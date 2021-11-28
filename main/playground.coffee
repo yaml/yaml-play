@@ -98,6 +98,8 @@ class window.Playground extends EatMe
   show: ($pane, data)->
     super($pane, data)
 
+    return unless @conf.opts.status
+
     pane = $pane[0]
     pane.$output.css('border-top', 'none')
     pane.$error.css('border-top', 'none')
