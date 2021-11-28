@@ -97,6 +97,9 @@
     Playground.prototype.show = function($pane, data) {
       var $box, error, output, pane, slug;
       Playground.__super__.show.call(this, $pane, data);
+      if (!this.conf.opts.status) {
+        return;
+      }
       pane = $pane[0];
       pane.$output.css('border-top', 'none');
       pane.$error.css('border-top', 'none');

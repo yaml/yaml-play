@@ -569,13 +569,14 @@
 
   EatMe.Config = (function() {
     function Config(conf) {
-      var ref;
+      var ref, ref1;
       ref = [conf, this, 'top level'], this.src = ref[0], this.trg = ref[1], this.lvl = ref[2];
       this.required_slug('slug');
       this.optional_num('cols', 1, 4);
       this.required_str('html');
       this.pane = [];
       this.panes = {};
+      this.opts = (ref1 = conf.opts) != null ? ref1 : {};
       this.set_panes();
       delete this.src;
       delete this.trg;
