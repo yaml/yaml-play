@@ -1,14 +1,14 @@
 ---
 ---
-class window.Playground
-  @init: (eatme) ->
+class window.Playground extends EatMe
 
+  init: ->
     # To get the clipboard button in the UI, you need to:
     # Enable chrome://#unsafely-treat-insecure-origin-as-secure
     # with http://0.0.0.0:4000
     # and https://play.yaml.io
     if navigator.clipboard
-      eatme.add_button 'copy-tsv',
+      @add_button 'copy-tsv',
         name: 'Copy to TSV'
         icon: 'segmented-nav'
       , 2
@@ -19,22 +19,22 @@ class window.Playground
         .replace(/-/g, '+')
         .replace(/_/g, '/')
       try
-        eatme.input = decodeURIComponent(escape(atob(base64)))
+        @input = decodeURIComponent(escape(atob(base64)))
       catch e
         console.log(base64)
         console.log(e)
 
     $(window).keydown (e)=>
       if e.ctrlKey and e.keyCode == 13
-        @copy_tsv null, e, eatme
+        @copy_tsv null, e
 
-  @copy_tsv: (btn, e, eatme)->
+  copy_tsv: (btn)->
     # e.stopPropagation()
-    tsv = @make_tsv(eatme)
+    tsv = @make_tsv()
     navigator.clipboard.writeText(tsv)
 
-  @make_tsv: (eatme)->
-    $panes = eatme.$panes
+  make_tsv: ->
+    $panes = @$panes
     yaml = $panes['yaml-input'][0].cm.getValue()
     tree = $panes['refparse'][0].$output.text()
     refparse = tree
@@ -49,11 +49,11 @@ class window.Playground
       tree = '"' + tree.replace(/"/g, '""') + '"'
 
     fields = [ play, '', '', yaml, tree ]
-    fields.push @results(eatme, refparse)...
+    fields.push @results(refparse)...
 
     return fields.join("\t")
 
-  @results: (eatme, expect)->
+  results: (expect)->
     parsers = [
       'dotnet'
       'goyaml'
@@ -70,20 +70,20 @@ class window.Playground
     ]
     results = ['']
 
-    refhs = eatme.$panes['refhs'][0].$output.text()
+    refhs = @$panes['refhs'][0].$output.text()
     if refhs == ''
       results.push(if expect == '' then '' else 'x')
     else
       results.push(if expect != '' then '' else 'x')
 
     for parser in parsers
-      result = eatme.$panes[parser][0].$output.text()
+      result = @$panes[parser][0].$output.text()
         .replace(/^=COMMENT .*\n?/mg, '')
       if result == expect or
          result == expect.replace(/\s+(\{\}|\[\])$/mg, '')
         results.push ''
       else
-        if result = eatme.$panes[parser][0].$error.text()
+        if result = @$panes[parser][0].$error.text()
           result = result.replace(/^[^-+=].*\n?/gm, '')
           if result == expect or
              result == expect.replace(/\s+(\{\}|\[\])$/mg, '')
@@ -95,7 +95,9 @@ class window.Playground
 
     return results
 
-  @show: (eatme, $pane, data)->
+  show: ($pane, data)->
+    super($pane, data)
+
     pane = $pane[0]
     pane.$output.css('border-top', 'none')
     pane.$error.css('border-top', 'none')
@@ -138,7 +140,7 @@ class window.Playground
           $box.css('border-top', '5px solid red')
       , 500
 
-  @escape: (text)->
+  escape: (text)->
     text = text.replace /(\ +)$/mg, (m, $1)=>
       @repeat("␣", $1.length)
 
@@ -156,7 +158,7 @@ class window.Playground
 
     return text
 
-  @indent: (text)->
+  indent: (text)->
     i = 0
     text = text.replace /^(.)/mg, (m, $1)=>
       if $1 == '+'
@@ -167,110 +169,105 @@ class window.Playground
         @repeat(' ', i) + $1
     return text.replace(/\n+$/, '')
 
-  @repeat: (text, n)->
+  repeat: (text, n)->
     str = ''
     i = 0
     while i++ < n
       str += text
     return str
 
-  @change: (text, pane)->
+  change: (text, pane)->
     newurl = @state_url(text)
     window.history.replaceState(null, null, newurl)
 
-  @state_url: (text)->
+  state_url: (text)->
     {origin, pathname} = window.location
     base64 = btoa(unescape(encodeURIComponent(text)))
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
     return "#{origin}#{pathname}?input=#{base64}"
 
-  @refparse_event: (text)->
+  refparse_event: (text)->
     parser = new Parser(new TestReceiver)
     parser.parse(text)
     return parser.receiver.output()
 
-  @npmyaml_json: (text)->
+  npmyaml_json: (text)->
     data = npmYAML.parse(text)
     return JSON.stringify(data, null, 2)
 
-#   @npmyaml_event: (text)->
-#       {events, error} = npmYAML.events(text)
-#       throw error if error?
-#       return events.join("\n") + "\n"
-
-  @npmyaml1_json: (text)->
+  npmyaml1_json: (text)->
     data = npmYAML1.parse(text)
     return JSON.stringify(data, null, 2)
 
-  @npmyaml1_event: (text)->
+  npmyaml1_event: (text)->
       {events, error} = npmYAML1.events(text)
       throw error if error?
       return events.join("\n")
 
-  @npmyaml2_json: (text)->
+  npmyaml2_json: (text)->
     data = npmYAML2.parse(text)
     return JSON.stringify(data, null, 2)
 
-  @npmyaml2_event: (text)->
+  npmyaml2_event: (text)->
       {events, error} = npmYAML2.events(text)
       throw error if error?
       return events.join("\n")
 
-  @npmjsyaml_json: (text)->
+  npmjsyaml_json: (text)->
     data = npmJSYAML.load(text)
     return JSON.stringify(data, null, 2)
 
-  @refhs_yeast: (text)->
+  refhs_yeast: (text)->
     value = @localhost_server(text, 'cmd=yaml-test-parse-refhs')
     if _.isString(value) and value.match(/\ =(?:ERR\ |REST)\|/)
       throw value
     else
       return value
 
-#   @yamlcpp_event: (text)->
+#   yamlcpp_event: (text)->
 #     return @sandbox_event(text, 'cmd=yaml-test-parse-yamlcpp')
 
-  @dotnet_event: (text)->
+  dotnet_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-dotnet')
 
-  @goyaml_event: (text)->
+  goyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-goyaml')
 
-  @hsyaml_event: (text)->
+  hsyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-hsyaml')
 
-  @libfyaml_event: (text)->
+  libfyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-libfyaml')
 
-  @libyaml_event: (text)->
+  libyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-libyaml')
 
-  @luayaml_event: (text)->
+  luayaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-luayaml')
 
-  @nimyaml_event: (text)->
+  nimyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-nimyaml')
 
-  @npmyaml_event: (text)->
+  npmyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-npmyaml')
 
-  @ppyaml_event: (text)->
+  ppyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-ppyaml')
 
-  @pyyaml_event: (text)->
+  pyyaml_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-pyyaml')
 
-  @ruamel_event: (text)->
+  ruamel_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-ruamel')
 
-  @snake_event: (text)->
+  snake_event: (text)->
     return @sandbox_event(text, 'cmd=yaml-test-parse-snake')
 
-  @sandbox_event: (text, args)->
+  sandbox_event: (text, args)->
     return @localhost_server(text, args)
 
-  @localhost_server: (text, args)->
+  localhost_server: (text, args)->
     loc = window.location.href
       .replace(/#$/, '')
 

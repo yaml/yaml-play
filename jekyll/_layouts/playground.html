@@ -32,17 +32,16 @@
   <script type="text/javascript">
     $(document).ready(()=> {
 {% if page.eatme.first %}
-      var conf = {{ page.eatme | jsonify}};
+      var conf = {{ page.eatme | jsonify }};
 {% else %}
       var conf = npmYAML.parse(`
 {% include {{ page.eatme }}.eatme.yaml %}
       `);
 {% endif %}
-      var conf_name = EatMe.conf(conf);
-      EatMe.init({
+      var conf_name = Playground.conf(conf);
+      Playground.init({
         elem: 'pre',
         conf: conf_name,
-        code: Playground,
       });
     });
   </script>
