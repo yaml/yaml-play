@@ -1,11 +1,18 @@
 (function() {
-  window.Playground = (function() {
-    function Playground() {}
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
-    Playground.init = function(eatme) {
+  window.Playground = (function(superClass) {
+    extend(Playground, superClass);
+
+    function Playground() {
+      return Playground.__super__.constructor.apply(this, arguments);
+    }
+
+    Playground.prototype.init = function() {
       var base64, e, params;
       if (navigator.clipboard) {
-        eatme.add_button('copy-tsv', {
+        this.add_button('copy-tsv', {
           name: 'Copy to TSV',
           icon: 'segmented-nav'
         }, 2);
@@ -14,7 +21,7 @@
       if (params.has('input')) {
         base64 = params.get('input').replace(/-/g, '+').replace(/_/g, '/');
         try {
-          eatme.input = decodeURIComponent(escape(atob(base64)));
+          this.input = decodeURIComponent(escape(atob(base64)));
         } catch (error1) {
           e = error1;
           console.log(base64);
@@ -24,21 +31,21 @@
       return $(window).keydown((function(_this) {
         return function(e) {
           if (e.ctrlKey && e.keyCode === 13) {
-            return _this.copy_tsv(null, e, eatme);
+            return _this.copy_tsv(null, e);
           }
         };
       })(this));
     };
 
-    Playground.copy_tsv = function(btn, e, eatme) {
+    Playground.prototype.copy_tsv = function(btn) {
       var tsv;
-      tsv = this.make_tsv(eatme);
+      tsv = this.make_tsv();
       return navigator.clipboard.writeText(tsv);
     };
 
-    Playground.make_tsv = function(eatme) {
+    Playground.prototype.make_tsv = function() {
       var $panes, fields, play, refparse, tree, yaml;
-      $panes = eatme.$panes;
+      $panes = this.$panes;
       yaml = $panes['yaml-input'][0].cm.getValue();
       tree = $panes['refparse'][0].$output.text();
       refparse = tree;
@@ -52,15 +59,15 @@
         tree = '"' + tree.replace(/"/g, '""') + '"';
       }
       fields = [play, '', '', yaml, tree];
-      fields.push.apply(fields, this.results(eatme, refparse));
+      fields.push.apply(fields, this.results(refparse));
       return fields.join("\t");
     };
 
-    Playground.results = function(eatme, expect) {
+    Playground.prototype.results = function(expect) {
       var j, len, parser, parsers, refhs, result, results;
       parsers = ['dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'npmyaml', 'nimyaml', 'ppyaml', 'pyyaml', 'ruamel', 'snake'];
       results = [''];
-      refhs = eatme.$panes['refhs'][0].$output.text();
+      refhs = this.$panes['refhs'][0].$output.text();
       if (refhs === '') {
         results.push(expect === '' ? '' : 'x');
       } else {
@@ -68,11 +75,11 @@
       }
       for (j = 0, len = parsers.length; j < len; j++) {
         parser = parsers[j];
-        result = eatme.$panes[parser][0].$output.text().replace(/^=COMMENT .*\n?/mg, '');
+        result = this.$panes[parser][0].$output.text().replace(/^=COMMENT .*\n?/mg, '');
         if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
           results.push('');
         } else {
-          if (result = eatme.$panes[parser][0].$error.text()) {
+          if (result = this.$panes[parser][0].$error.text()) {
             result = result.replace(/^[^-+=].*\n?/gm, '');
             if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
               results.push('');
@@ -87,8 +94,9 @@
       return results;
     };
 
-    Playground.show = function(eatme, $pane, data) {
+    Playground.prototype.show = function($pane, data) {
       var $box, error, output, pane, slug;
+      Playground.__super__.show.call(this, $pane, data);
       pane = $pane[0];
       pane.$output.css('border-top', 'none');
       pane.$error.css('border-top', 'none');
@@ -132,7 +140,7 @@
       }
     };
 
-    Playground.escape = function(text) {
+    Playground.prototype.escape = function(text) {
       text = text.replace(/(\ +)$/mg, (function(_this) {
         return function(m, $1) {
           return _this.repeat("␣", $1.length);
@@ -157,7 +165,7 @@
       return text;
     };
 
-    Playground.indent = function(text) {
+    Playground.prototype.indent = function(text) {
       var i;
       i = 0;
       text = text.replace(/^(.)/mg, (function(_this) {
@@ -174,7 +182,7 @@
       return text.replace(/\n+$/, '');
     };
 
-    Playground.repeat = function(text, n) {
+    Playground.prototype.repeat = function(text, n) {
       var i, str;
       str = '';
       i = 0;
@@ -184,39 +192,39 @@
       return str;
     };
 
-    Playground.change = function(text, pane) {
+    Playground.prototype.change = function(text, pane) {
       var newurl;
       newurl = this.state_url(text);
       return window.history.replaceState(null, null, newurl);
     };
 
-    Playground.state_url = function(text) {
+    Playground.prototype.state_url = function(text) {
       var base64, origin, pathname, ref;
       ref = window.location, origin = ref.origin, pathname = ref.pathname;
       base64 = btoa(unescape(encodeURIComponent(text))).replace(/\+/g, '-').replace(/\//g, '_');
       return "" + origin + pathname + "?input=" + base64;
     };
 
-    Playground.refparse_event = function(text) {
+    Playground.prototype.refparse_event = function(text) {
       var parser;
       parser = new Parser(new TestReceiver);
       parser.parse(text);
       return parser.receiver.output();
     };
 
-    Playground.npmyaml_json = function(text) {
+    Playground.prototype.npmyaml_json = function(text) {
       var data;
       data = npmYAML.parse(text);
       return JSON.stringify(data, null, 2);
     };
 
-    Playground.npmyaml1_json = function(text) {
+    Playground.prototype.npmyaml1_json = function(text) {
       var data;
       data = npmYAML1.parse(text);
       return JSON.stringify(data, null, 2);
     };
 
-    Playground.npmyaml1_event = function(text) {
+    Playground.prototype.npmyaml1_event = function(text) {
       var error, events, ref;
       ref = npmYAML1.events(text), events = ref.events, error = ref.error;
       if (error != null) {
@@ -225,13 +233,13 @@
       return events.join("\n");
     };
 
-    Playground.npmyaml2_json = function(text) {
+    Playground.prototype.npmyaml2_json = function(text) {
       var data;
       data = npmYAML2.parse(text);
       return JSON.stringify(data, null, 2);
     };
 
-    Playground.npmyaml2_event = function(text) {
+    Playground.prototype.npmyaml2_event = function(text) {
       var error, events, ref;
       ref = npmYAML2.events(text), events = ref.events, error = ref.error;
       if (error != null) {
@@ -240,13 +248,13 @@
       return events.join("\n");
     };
 
-    Playground.npmjsyaml_json = function(text) {
+    Playground.prototype.npmjsyaml_json = function(text) {
       var data;
       data = npmJSYAML.load(text);
       return JSON.stringify(data, null, 2);
     };
 
-    Playground.refhs_yeast = function(text) {
+    Playground.prototype.refhs_yeast = function(text) {
       var value;
       value = this.localhost_server(text, 'cmd=yaml-test-parse-refhs');
       if (_.isString(value) && value.match(/\ =(?:ERR\ |REST)\|/)) {
@@ -256,59 +264,59 @@
       }
     };
 
-    Playground.dotnet_event = function(text) {
+    Playground.prototype.dotnet_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-dotnet');
     };
 
-    Playground.goyaml_event = function(text) {
+    Playground.prototype.goyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-goyaml');
     };
 
-    Playground.hsyaml_event = function(text) {
+    Playground.prototype.hsyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-hsyaml');
     };
 
-    Playground.libfyaml_event = function(text) {
+    Playground.prototype.libfyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-libfyaml');
     };
 
-    Playground.libyaml_event = function(text) {
+    Playground.prototype.libyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-libyaml');
     };
 
-    Playground.luayaml_event = function(text) {
+    Playground.prototype.luayaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-luayaml');
     };
 
-    Playground.nimyaml_event = function(text) {
+    Playground.prototype.nimyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-nimyaml');
     };
 
-    Playground.npmyaml_event = function(text) {
+    Playground.prototype.npmyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-npmyaml');
     };
 
-    Playground.ppyaml_event = function(text) {
+    Playground.prototype.ppyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-ppyaml');
     };
 
-    Playground.pyyaml_event = function(text) {
+    Playground.prototype.pyyaml_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-pyyaml');
     };
 
-    Playground.ruamel_event = function(text) {
+    Playground.prototype.ruamel_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-ruamel');
     };
 
-    Playground.snake_event = function(text) {
+    Playground.prototype.snake_event = function(text) {
       return this.sandbox_event(text, 'cmd=yaml-test-parse-snake');
     };
 
-    Playground.sandbox_event = function(text, args) {
+    Playground.prototype.sandbox_event = function(text, args) {
       return this.localhost_server(text, args);
     };
 
-    Playground.localhost_server = function(text, args) {
+    Playground.prototype.localhost_server = function(text, args) {
       var data, e, help, loc, port, resp, scheme;
       loc = window.location.href.replace(/#$/, '');
       if (window.location.href.match(/^https/)) {
@@ -350,6 +358,6 @@
 
     return Playground;
 
-  })();
+  })(EatMe);
 
 }).call(this);
