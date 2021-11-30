@@ -114,7 +114,7 @@
       } else {
         return;
       }
-      output = output.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^([-+]DOC).+/mg, '$1').replace(/^[^-+=].*\n?/gm, '');
+      output = output.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^[^-+=].*\n?/gm, '');
       if (slug === 'refparse') {
         this.refparse = output;
         $box.css('border-top', '5px solid green');
