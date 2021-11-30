@@ -221,55 +221,55 @@ class window.Playground extends EatMe
     return JSON.stringify(data, null, 2)
 
   refhs_yeast: (text)->
-    value = @localhost_server(text, 'cmd=yaml-test-parse-refhs')
+    value = @localhost_server(text, 'yaml-test-parse-refhs')
     if _.isString(value) and value.match(/\ =(?:ERR\ |REST)\|/)
       throw value
     else
       return value
 
 #   yamlcpp_event: (text)->
-#     return @sandbox_event(text, 'cmd=yaml-test-parse-yamlcpp')
+#     return @sandbox_event(text, 'yaml-test-parse-yamlcpp')
 
   dotnet_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-dotnet')
+    return @sandbox_event(text, 'yaml-test-parse-dotnet')
 
   goyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-goyaml')
+    return @sandbox_event(text, 'yaml-test-parse-goyaml')
 
   hsyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-hsyaml')
+    return @sandbox_event(text, 'yaml-test-parse-hsyaml')
 
   libfyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-libfyaml')
+    return @sandbox_event(text, 'yaml-test-parse-libfyaml')
 
   libyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-libyaml')
+    return @sandbox_event(text, 'yaml-test-parse-libyaml')
 
   luayaml_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-luayaml')
+    return @sandbox_event(text, 'yaml-test-parse-luayaml')
 
   nimyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-nimyaml')
+    return @sandbox_event(text, 'yaml-test-parse-nimyaml')
 
   npmyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-npmyaml')
+    return @sandbox_event(text, 'yaml-test-parse-npmyaml')
 
   ppyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-ppyaml')
+    return @sandbox_event(text, 'yaml-test-parse-ppyaml')
 
   pyyaml_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-pyyaml')
+    return @sandbox_event(text, 'yaml-test-parse-pyyaml')
 
   ruamel_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-ruamel')
+    return @sandbox_event(text, 'yaml-test-parse-ruamel')
 
   snake_event: (text)->
-    return @sandbox_event(text, 'cmd=yaml-test-parse-snake')
+    return @sandbox_event(text, 'yaml-test-parse-snake')
 
-  sandbox_event: (text, args)->
-    return @localhost_server(text, args)
+  sandbox_event: (text, parser)->
+    return @localhost_server(text, parser)
 
-  localhost_server: (text, args)->
+  localhost_server: (text, parser)->
     loc = window.location.href
       .replace(/#$/, '')
 
@@ -279,6 +279,9 @@ class window.Playground extends EatMe
     else
       scheme = 'http'
       port = 1337
+
+    version = @conf.opts.sandbox
+    args = "version=#{version}&parser=#{parser}"
 
     try
       resp = $.ajax(
@@ -309,7 +312,7 @@ class window.Playground extends EatMe
 
       ```
       $ docker run --rm -d -p #{port}:#{port} \\
-          yamlio/yaml-play-sandbox:0.1.1 #{scheme}
+          yamlio/yaml-play-sandbox:#{version} #{scheme}
       ```
 
       on the same computer as your web browser.

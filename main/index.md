@@ -52,7 +52,7 @@ Assuming you have [Docker installed](https://docs.docker.com/get-docker/), just
 run this command from a terminal:
 
 ```
-docker run --rm -d -p 31337:31337 yamlio/yaml-play-sandbox:0.1.1 https
+docker run --rm -d -p 31337:31337 yamlio/yaml-play-sandbox:{{site.sandbox_version}} https
 ```
 
 This will start a local YAML Playground backend server, and your playgrounds

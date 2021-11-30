@@ -38,6 +38,9 @@
 {% include {{ page.eatme }}.eatme.yaml %}
       `);
 {% endif %}
+{% if page.eatme.opts.sandbox %}
+      conf.opts.sandbox = '{{site.sandbox_version}}';
+{% endif %}
       Playground.init({
         elem: 'pre',
         conf: Playground.conf(conf),

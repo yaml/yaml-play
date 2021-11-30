@@ -5,6 +5,8 @@ SHELL := bash
 export ROOT := $(shell git rev-parse --show-toplevel)
 export PATH := $(ROOT)/bin:$(PATH)
 
+include Config.mk
+
 #------------------------------------------------------------------------------
 # Makefile variables defined here:
 #------------------------------------------------------------------------------
@@ -29,8 +31,6 @@ JEKYLL_BUILD := jekyll build --trace
 JEKYLL_SERVE := jekyll serve --host 0.0.0.0
 HISTORY_FILE := /tmp/docker-bash_history
 
-SANDBOX_VERSION := 0.1.1 # \
-  $(shell grep version bin/play-sandbox | head -n1 | cut -d= -f2)
 SANDBOX_PORT ?= 1337
 SANDBOX_IMAGE := yamlio/yaml-play-sandbox:$(SANDBOX_VERSION)
 SANDBOX_RUN := \
@@ -121,6 +121,7 @@ _config.yml: jekyll/_config.yml
 	echo >> $@
 	echo '# Added by build system:' >> $@
 	echo "baseurl: '$(BASEURL)'" >> $@
+	echo "sandbox_version: '$(SANDBOX_VERSION)'" >> $@
 
 favicon.svg: $(EXT)/yaml-common/image/yaml-logo.svg
 	cp $< $@
