@@ -1,9 +1,14 @@
 SHELL := bash
+.SECONDEXPANSION:
+.DELETE_ON_ERROR:
 
-ROOT := $(shell git rev-parse --show-toplevel)
+export ROOT := $(shell git rev-parse --show-toplevel)
+export PATH := $(ROOT)/bin:$(PATH)
 
 DOCKER_NS ?= yamlio
 DOCKER_IMAGE := $(DOCKER_NS)/$(DOCKER_NAME):$(DOCKER_TAG)
+
+include $(ROOT)/Config.mk
 
 default:
 
@@ -13,7 +18,11 @@ ifdef DOCKER_DEPS
 endif
 
 docker-build:: $(DOCKER_DEPS)
-	docker build -t $(DOCKER_IMAGE) .
+	docker build \
+	    --build-arg SANDBOX_VERSION=$(SANDBOX_VERSION) \
+	    --build-arg RUNTIMES_VERSION=$(RUNTIMES_VERSION) \
+	    -t $(DOCKER_IMAGE) \
+	    .
 
 docker-shell:: docker-build
 	touch /tmp/docker-bash-history

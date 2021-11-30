@@ -8,7 +8,7 @@ import subprocess
 
 dir = os.path.dirname(os.path.realpath(__file__))
 
-string = 'some data'
+required_version = open('/sandbox_version').read().rstrip()
 
 app = Flask(__name__)
 app.debug = True
@@ -23,10 +23,14 @@ def hello():
 
 @app.route('/', methods=['POST'])
 def processYaml():
-  cmd = request.args.get('cmd')
+  version = request.args.get('version')
+  if version != required_version:
+    raise(Exception("Requires sandbox version %s" % required_version))
+
+  bin = request.args.get('parser')
   yaml = request.form.get('text')
 
-  command = ['timeout', '1', '/usr/local/bin/' + cmd]
+  command = ['timeout', '1', '/usr/local/bin/' + bin]
 
   result = subprocess.run(
     command,

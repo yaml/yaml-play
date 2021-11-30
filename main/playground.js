@@ -259,7 +259,7 @@
 
     Playground.prototype.refhs_yeast = function(text) {
       var value;
-      value = this.localhost_server(text, 'cmd=yaml-test-parse-refhs');
+      value = this.localhost_server(text, 'yaml-test-parse-refhs');
       if (_.isString(value) && value.match(/\ =(?:ERR\ |REST)\|/)) {
         throw value;
       } else {
@@ -268,59 +268,59 @@
     };
 
     Playground.prototype.dotnet_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-dotnet');
+      return this.sandbox_event(text, 'yaml-test-parse-dotnet');
     };
 
     Playground.prototype.goyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-goyaml');
+      return this.sandbox_event(text, 'yaml-test-parse-goyaml');
     };
 
     Playground.prototype.hsyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-hsyaml');
+      return this.sandbox_event(text, 'yaml-test-parse-hsyaml');
     };
 
     Playground.prototype.libfyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-libfyaml');
+      return this.sandbox_event(text, 'yaml-test-parse-libfyaml');
     };
 
     Playground.prototype.libyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-libyaml');
+      return this.sandbox_event(text, 'yaml-test-parse-libyaml');
     };
 
     Playground.prototype.luayaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-luayaml');
+      return this.sandbox_event(text, 'yaml-test-parse-luayaml');
     };
 
     Playground.prototype.nimyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-nimyaml');
+      return this.sandbox_event(text, 'yaml-test-parse-nimyaml');
     };
 
     Playground.prototype.npmyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-npmyaml');
+      return this.sandbox_event(text, 'yaml-test-parse-npmyaml');
     };
 
     Playground.prototype.ppyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-ppyaml');
+      return this.sandbox_event(text, 'yaml-test-parse-ppyaml');
     };
 
     Playground.prototype.pyyaml_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-pyyaml');
+      return this.sandbox_event(text, 'yaml-test-parse-pyyaml');
     };
 
     Playground.prototype.ruamel_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-ruamel');
+      return this.sandbox_event(text, 'yaml-test-parse-ruamel');
     };
 
     Playground.prototype.snake_event = function(text) {
-      return this.sandbox_event(text, 'cmd=yaml-test-parse-snake');
+      return this.sandbox_event(text, 'yaml-test-parse-snake');
     };
 
-    Playground.prototype.sandbox_event = function(text, args) {
-      return this.localhost_server(text, args);
+    Playground.prototype.sandbox_event = function(text, parser) {
+      return this.localhost_server(text, parser);
     };
 
-    Playground.prototype.localhost_server = function(text, args) {
-      var data, e, help, loc, port, resp, scheme;
+    Playground.prototype.localhost_server = function(text, parser) {
+      var args, data, e, help, loc, port, resp, scheme, version;
       loc = window.location.href.replace(/#$/, '');
       if (window.location.href.match(/^https/)) {
         scheme = 'https';
@@ -329,6 +329,8 @@
         scheme = 'http';
         port = 1337;
       }
+      version = this.conf.opts.sandbox;
+      args = "version=" + version + "&parser=" + parser;
       try {
         resp = $.ajax({
           type: 'POST',
@@ -355,7 +357,7 @@
       }
       help = loc.replace(/\/[^\/]+\?.*/, "/#setting-up-a-local-sandbox");
       return {
-        mark: "This pane requires a localhost sandbox server. Run:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/yaml-play-sandbox:0.1.1 " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + ".\n\n[Chat with the YAML team](https://matrix.to/#/#chat:yaml.io)."
+        mark: "This pane requires a localhost sandbox server. Run:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/yaml-play-sandbox:" + version + " " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + ".\n\n[Chat with the YAML team](https://matrix.to/#/#chat:yaml.io)."
       };
     };
 
