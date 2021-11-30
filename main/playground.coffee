@@ -119,7 +119,6 @@ class window.Playground extends EatMe
     output = output
       .replace(/\s+(\{\}|\[\])$/mg, '')
       .replace(/^=COMMENT .*\n?/mg, '')
-      .replace(/^([-+]DOC).+/mg, '$1')
       .replace(/^[^-+=].*\n?/gm, '')
 
     if slug == 'refparse'
