@@ -115,6 +115,9 @@
         return;
       }
       output = output.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^[^-+=].*\n?/gm, '');
+      if (slug === 'goyaml') {
+        output = output.replace(/^\+DOC ---/mg, '+DOC');
+      }
       if (slug === 'refparse') {
         this.refparse = output;
         $box.css('border-top', '5px solid green');
