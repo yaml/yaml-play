@@ -11,6 +11,9 @@
 
     Playground.prototype.init = function() {
       var base64, e, params;
+      Playground.__super__.init.apply(this, arguments);
+      this.status = {};
+      this.current = -1;
       if (navigator.clipboard) {
         this.add_button('copy-tsv', {
           name: 'Copy to TSV',
@@ -43,8 +46,10 @@
       return navigator.clipboard.writeText(tsv);
     };
 
+    Playground.prototype.parsers = ['refparse', 'refhs', 'dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'nimyaml', 'npmyaml', 'ppyaml', 'pyyaml', 'ruamel', 'snake'];
+
     Playground.prototype.make_tsv = function() {
-      var $panes, fields, play, refparse, tree, yaml;
+      var $panes, fields, j, len, parser, play, ref, refparse, tree, yaml;
       $panes = this.$panes;
       yaml = $panes['yaml-input'][0].cm.getValue();
       tree = $panes['refparse'][0].$output.text();
@@ -59,43 +64,16 @@
         tree = '"' + tree.replace(/"/g, '""') + '"';
       }
       fields = [play, '', '', yaml, tree];
-      fields.push.apply(fields, this.results(refparse));
+      ref = this.parsers;
+      for (j = 0, len = ref.length; j < len; j++) {
+        parser = ref[j];
+        fields.push(this.status[parser]);
+      }
       return fields.join("\t");
     };
 
-    Playground.prototype.results = function(expect) {
-      var j, len, parser, parsers, refhs, result, results;
-      parsers = ['dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'nimyaml', 'npmyaml', 'ppyaml', 'pyyaml', 'ruamel', 'snake'];
-      results = [''];
-      refhs = this.$panes['refhs'][0].$output.text();
-      if (refhs === '') {
-        results.push(expect === '' ? '' : 'x');
-      } else {
-        results.push(expect !== '' ? '' : 'x');
-      }
-      for (j = 0, len = parsers.length; j < len; j++) {
-        parser = parsers[j];
-        result = this.$panes[parser][0].$output.text().replace(/^=COMMENT .*\n?/mg, '');
-        if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
-          results.push('');
-        } else {
-          if (result = this.$panes[parser][0].$error.text()) {
-            result = result.replace(/^[^-+=].*\n?/gm, '');
-            if (result === expect || result === expect.replace(/\s+(\{\}|\[\])$/mg, '')) {
-              results.push('');
-            } else {
-              results.push('x');
-            }
-          } else {
-            results.push('x');
-          }
-        }
-      }
-      return results;
-    };
-
     Playground.prototype.show = function($pane, data) {
-      var $box, error, output, pane, slug;
+      var $box, check, error, output, pane, slug;
       Playground.__super__.show.call(this, $pane, data);
       if (!this.conf.opts.status) {
         return;
@@ -118,17 +96,18 @@
       if (slug === 'goyaml') {
         output = output.replace(/^\+DOC ---/mg, '+DOC');
       }
+      this.status[slug] = '';
       if (slug === 'refparse') {
+        this.current = this.iteration;
         this.refparse = output;
-        $box.css('border-top', '5px solid green');
-        return setTimeout((function(_this) {
-          return function() {
-            return delete _this.refparse;
-          };
-        })(this), 5000);
+        return $box.css('border-top', '5px solid green');
       } else {
-        return setTimeout((function(_this) {
+        check = (function(_this) {
           return function() {
+            if (_this.current !== _this.iteration) {
+              setTimeout(check, 100);
+              return;
+            }
             if (slug === 'refhs') {
               if (error) {
                 output = '';
@@ -137,12 +116,15 @@
               }
             }
             if ((_this.refparse != null) && output === _this.refparse) {
-              return $box.css('border-top', '5px solid green');
+              $box.css('border-top', '5px solid green');
+              return _this.status[slug] = '';
             } else {
-              return $box.css('border-top', '5px solid red');
+              $box.css('border-top', '5px solid red');
+              return _this.status[slug] = 'x';
             }
           };
-        })(this), 500);
+        })(this);
+        return check();
       }
     };
 

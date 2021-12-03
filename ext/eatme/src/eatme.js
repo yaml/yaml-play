@@ -63,7 +63,9 @@
       });
     };
 
-    EatMe.prototype.init = function() {};
+    EatMe.prototype.init = function() {
+      return this.iteration = 0;
+    };
 
     function EatMe(from1, conf1) {
       this.from = from1;
@@ -193,12 +195,13 @@
           });
           do_calls = function() {
             var $to, i, len, ref, results;
+            self.iteration += 1;
             text = cm.getValue();
             if (self.change != null) {
               self.change(text, pane);
             }
-            results = [];
             ref = pane.calls;
+            results = [];
             for (i = 0, len = ref.length; i < len; i++) {
               call = ref[i];
               func = call[0], $to = call[1];
@@ -584,11 +587,11 @@
     }
 
     Config.prototype.set_panes = function() {
-      var i, len, obj, objs, pane, ref, results1;
+      var i, len, obj, objs, pane, ref, results;
       if (((objs = this.src.pane) == null) || !_.isArray(objs)) {
         throw "EatMe.Config requires 'pane' array";
       }
-      results1 = [];
+      results = [];
       for (i = 0, len = objs.length; i < len; i++) {
         obj = objs[i];
         if (!_.isPlainObject(obj)) {
@@ -605,9 +608,9 @@
         this.optional_num('colx', 1, 4);
         this.set_type();
         this.pane.push(pane);
-        results1.push(this.panes[this.trg.slug] = pane);
+        results.push(this.panes[this.trg.slug] = pane);
       }
-      return results1;
+      return results;
     };
 
     Config.prototype.set_type = function() {
