@@ -3,6 +3,11 @@
 class window.Playground extends EatMe
 
   init: ->
+    super
+
+    @status = {}
+    @current = -1
+
     # To get the clipboard button in the UI, you need to:
     # Enable chrome://#unsafely-treat-insecure-origin-as-secure
     # with http://0.0.0.0:4000
@@ -33,6 +38,23 @@ class window.Playground extends EatMe
     tsv = @make_tsv()
     navigator.clipboard.writeText(tsv)
 
+  parsers: [
+    'refparse'
+    'refhs'
+    'dotnet'
+    'goyaml'
+    'hsyaml'
+    'libfyaml'
+    'libyaml'
+    'luayaml'
+    'nimyaml'
+    'npmyaml'
+    'ppyaml'
+    'pyyaml'
+    'ruamel'
+    'snake'
+  ]
+
   make_tsv: ->
     $panes = @$panes
     yaml = $panes['yaml-input'][0].cm.getValue()
@@ -49,51 +71,11 @@ class window.Playground extends EatMe
       tree = '"' + tree.replace(/"/g, '""') + '"'
 
     fields = [ play, '', '', yaml, tree ]
-    fields.push @results(refparse)...
+
+    for parser in @parsers
+      fields.push @status[parser]
 
     return fields.join("\t")
-
-  results: (expect)->
-    parsers = [
-      'dotnet'
-      'goyaml'
-      'hsyaml'
-      'libfyaml'
-      'libyaml'
-      'luayaml'
-      'npmyaml'
-      'nimyaml'
-      'ppyaml'
-      'pyyaml'
-      'ruamel'
-      'snake'
-    ]
-    results = ['']
-
-    refhs = @$panes['refhs'][0].$output.text()
-    if refhs == ''
-      results.push(if expect == '' then '' else 'x')
-    else
-      results.push(if expect != '' then '' else 'x')
-
-    for parser in parsers
-      result = @$panes[parser][0].$output.text()
-        .replace(/^=COMMENT .*\n?/mg, '')
-      if result == expect or
-         result == expect.replace(/\s+(\{\}|\[\])$/mg, '')
-        results.push ''
-      else
-        if result = @$panes[parser][0].$error.text()
-          result = result.replace(/^[^-+=].*\n?/gm, '')
-          if result == expect or
-             result == expect.replace(/\s+(\{\}|\[\])$/mg, '')
-            results.push ''
-          else
-            results.push 'x'
-        else
-          results.push 'x'
-
-    return results
 
   show: ($pane, data)->
     super($pane, data)
@@ -125,14 +107,17 @@ class window.Playground extends EatMe
       output = output
         .replace(/^\+DOC ---/mg, '+DOC')
 
+    @status[slug] = ''
     if slug == 'refparse'
+      @current = @iteration
       @refparse = output
       $box.css('border-top', '5px solid green')
-      setTimeout =>
-        delete @refparse
-      , 5000
     else
-      setTimeout =>
+      check = =>
+        if @current != @iteration
+          setTimeout check, 100
+          return
+
         if slug == 'refhs'
           if error
             output = ''
@@ -141,9 +126,11 @@ class window.Playground extends EatMe
 
         if @refparse? and output == @refparse
           $box.css('border-top', '5px solid green')
+          @status[slug] = ''
         else
           $box.css('border-top', '5px solid red')
-      , 500
+          @status[slug] = 'x'
+      check()
 
   escape: (text)->
     text = text.replace /(\ +)$/mg, (m, $1)=>
