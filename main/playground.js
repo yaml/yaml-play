@@ -65,7 +65,7 @@
 
     Playground.prototype.results = function(expect) {
       var j, len, parser, parsers, refhs, result, results;
-      parsers = ['dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'npmyaml', 'nimyaml', 'ppyaml', 'pyyaml', 'ruamel', 'snake'];
+      parsers = ['dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'nimyaml', 'npmyaml', 'ppyaml', 'pyyaml', 'ruamel', 'snake'];
       results = [''];
       refhs = this.$panes['refhs'][0].$output.text();
       if (refhs === '') {

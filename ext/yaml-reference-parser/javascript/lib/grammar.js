@@ -6,359 +6,61 @@
   var Grammar;
 
   global.Grammar = Grammar = (function() {
+    var b_carriage_return, b_char, b_char_s, b_comment, b_line_feed, c_byte_order_mark, c_directives_end, c_document_end, c_flow_indicator, c_flow_indicator_s, c_indicator, c_named_tag_handle, c_nb_comment_text, c_ns_esc_char, c_ns_local_tag_prefix, c_primary_tag_handle, c_printable, c_quoted_quote, c_secondary_tag_handle, c_tag_handle, line_break, nb_char, nb_double_char, nb_json, nb_ns_single_in_line, nb_single_char, ns_anchor_name, ns_ascii_letter_s, ns_char, ns_dec_digit, ns_dec_digit_s, ns_directive_name, ns_directive_parameter, ns_double_char, ns_global_tag_prefix, ns_hex_digit, ns_single_char, ns_tag_char, ns_uri_char, ns_word_char, ns_word_char_s, r2c, r2s, re_b_char, re_b_comment, re_c_directives_end, re_c_document_end, re_c_flow_indicator, re_c_forbidden, re_c_ns_alias_node, re_c_ns_anchor_property, re_c_tag_handle, re_line_break, re_nb_char, re_nb_double_one_line, re_nb_ns_double_in_line, re_nb_single_one_line, re_ns_ascii_letter, re_ns_char, re_ns_dec_digit, re_ns_double_char, re_ns_flow_map_entry, re_ns_flow_pair, re_ns_plain_safe_in, re_ns_reserved_directive, re_ns_tag_prefix, re_ns_word_char, re_ns_yaml_directive, re_ns_yaml_version, re_s_indent, re_s_indent_n, re_s_white, s_separate_spaces, s_space, s_white, ws_lookahead;
+
     class Grammar {
       TOP() {
         return this.l_yaml_stream;
       }
 
-      c_printable() {
-        debug_rule("c_printable");
-        return this.any(this.chr("\u{09}"), this.chr("\u{0A}"), this.chr("\u{0D}"), this.rng("\u{20}", "\u{7E}"), this.chr("\u{85}"), this.rng("\u{A0}", "\u{D7FF}"), this.rng("\u{E000}", "\u{FFFD}"), this.rng("\u{010000}", "\u{10FFFF}"));
-      }
-
-      nb_json() {
-        debug_rule("nb_json");
-        return this.any(this.chr("\u{09}"), this.rng("\u{20}", "\u{10FFFF}"));
-      }
-
-      c_byte_order_mark() {
-        debug_rule("c_byte_order_mark");
-        return this.chr("\u{FEFF}");
-      }
-
-      c_sequence_entry() {
-        debug_rule("c_sequence_entry");
-        return this.chr('-');
-      }
-
-      c_mapping_key() {
-        debug_rule("c_mapping_key");
-        return this.chr('?');
-      }
-
-      c_mapping_value() {
-        debug_rule("c_mapping_value");
-        return this.chr(':');
-      }
-
-      c_collect_entry() {
-        debug_rule("c_collect_entry");
-        return this.chr(',');
-      }
-
-      c_sequence_start() {
-        debug_rule("c_sequence_start");
-        return this.chr('[');
-      }
-
-      c_sequence_end() {
-        debug_rule("c_sequence_end");
-        return this.chr(']');
-      }
-
-      c_mapping_start() {
-        debug_rule("c_mapping_start");
-        return this.chr('{');
-      }
-
-      c_mapping_end() {
-        debug_rule("c_mapping_end");
-        return this.chr('}');
-      }
-
-      c_comment() {
-        debug_rule("c_comment");
-        return this.chr('#');
-      }
-
-      c_anchor() {
-        debug_rule("c_anchor");
-        return this.chr('&');
-      }
-
-      c_alias() {
-        debug_rule("c_alias");
-        return this.chr('*');
-      }
-
-      c_tag() {
-        debug_rule("c_tag");
-        return this.chr('!');
-      }
-
-      c_literal() {
-        debug_rule("c_literal");
-        return this.chr('|');
-      }
-
-      c_folded() {
-        debug_rule("c_folded");
-        return this.chr('>');
-      }
-
-      c_single_quote() {
-        debug_rule("c_single_quote");
-        return this.chr("'");
-      }
-
-      c_double_quote() {
-        debug_rule("c_double_quote");
-        return this.chr('"');
-      }
-
-      c_directive() {
-        debug_rule("c_directive");
-        return this.chr('%');
-      }
-
-      c_reserved() {
-        debug_rule("c_reserved");
-        return this.any(this.chr('@'), this.chr('`'));
-      }
-
-      c_indicator() {
-        debug_rule("c_indicator");
-        return this.any(this.chr('-'), this.chr('?'), this.chr(':'), this.chr(','), this.chr('['), this.chr(']'), this.chr('{'), this.chr('}'), this.chr('#'), this.chr('&'), this.chr('*'), this.chr('!'), this.chr('|'), this.chr('>'), this.chr("'"), this.chr('"'), this.chr('%'), this.chr('@'), this.chr('`'));
-      }
-
-      c_flow_indicator() {
-        debug_rule("c_flow_indicator");
-        return this.any(this.chr(','), this.chr('['), this.chr(']'), this.chr('{'), this.chr('}'));
-      }
-
-      b_line_feed() {
-        debug_rule("b_line_feed");
-        return this.chr("\u{0A}");
-      }
-
-      b_carriage_return() {
-        debug_rule("b_carriage_return");
-        return this.chr("\u{0D}");
-      }
-
-      b_char() {
-        debug_rule("b_char");
-        return this.any(this.b_line_feed, this.b_carriage_return);
-      }
-
       nb_char() {
         debug_rule("nb_char");
-        return this.but(this.c_printable, this.b_char, this.c_byte_order_mark);
-      }
-
-      b_break() {
-        debug_rule("b_break");
-        return this.any(this.all(this.b_carriage_return, this.b_line_feed), this.b_carriage_return, this.b_line_feed);
+        return this.rgx(re_nb_char);
       }
 
       b_as_line_feed() {
         debug_rule("b_as_line_feed");
-        return this.b_break;
-      }
-
-      b_non_content() {
-        debug_rule("b_non_content");
-        return this.b_break;
-      }
-
-      s_space() {
-        debug_rule("s_space");
-        return this.chr("\u{20}");
-      }
-
-      s_tab() {
-        debug_rule("s_tab");
-        return this.chr("\u{09}");
+        return this.rgx(re_line_break);
       }
 
       s_white() {
         debug_rule("s_white");
-        return this.any(this.s_space, this.s_tab);
+        return this.rgx(re_s_white);
       }
 
       ns_char() {
         debug_rule("ns_char");
-        return this.but(this.nb_char, this.s_white);
-      }
-
-      ns_dec_digit() {
-        debug_rule("ns_dec_digit");
-        return this.rng("\u{30}", "\u{39}");
-      }
-
-      ns_hex_digit() {
-        debug_rule("ns_hex_digit");
-        return this.any(this.ns_dec_digit, this.rng("\u{41}", "\u{46}"), this.rng("\u{61}", "\u{66}"));
-      }
-
-      ns_ascii_letter() {
-        debug_rule("ns_ascii_letter");
-        return this.any(this.rng("\u{41}", "\u{5A}"), this.rng("\u{61}", "\u{7A}"));
-      }
-
-      ns_word_char() {
-        debug_rule("ns_word_char");
-        return this.any(this.ns_dec_digit, this.ns_ascii_letter, this.chr('-'));
-      }
-
-      ns_uri_char() {
-        debug_rule("ns_uri_char");
-        return this.any(this.all(this.chr('%'), this.ns_hex_digit, this.ns_hex_digit), this.ns_word_char, this.chr('#'), this.chr(';'), this.chr('/'), this.chr('?'), this.chr(':'), this.chr('@'), this.chr('&'), this.chr('='), this.chr('+'), this.chr('$'), this.chr(','), this.chr('_'), this.chr('.'), this.chr('!'), this.chr('~'), this.chr('*'), this.chr("'"), this.chr('('), this.chr(')'), this.chr('['), this.chr(']'));
-      }
-
-      ns_tag_char() {
-        debug_rule("ns_tag_char");
-        return this.but(this.ns_uri_char, this.chr('!'), this.c_flow_indicator);
-      }
-
-      c_escape() {
-        debug_rule("c_escape");
-        return this.chr("\\");
-      }
-
-      ns_esc_null() {
-        debug_rule("ns_esc_null");
-        return this.chr('0');
-      }
-
-      ns_esc_bell() {
-        debug_rule("ns_esc_bell");
-        return this.chr('a');
-      }
-
-      ns_esc_backspace() {
-        debug_rule("ns_esc_backspace");
-        return this.chr('b');
-      }
-
-      ns_esc_horizontal_tab() {
-        debug_rule("ns_esc_horizontal_tab");
-        return this.any(this.chr('t'), this.chr("\u{09}"));
-      }
-
-      ns_esc_line_feed() {
-        debug_rule("ns_esc_line_feed");
-        return this.chr('n');
-      }
-
-      ns_esc_vertical_tab() {
-        debug_rule("ns_esc_vertical_tab");
-        return this.chr('v');
-      }
-
-      ns_esc_form_feed() {
-        debug_rule("ns_esc_form_feed");
-        return this.chr('f');
-      }
-
-      ns_esc_carriage_return() {
-        debug_rule("ns_esc_carriage_return");
-        return this.chr('r');
-      }
-
-      ns_esc_escape() {
-        debug_rule("ns_esc_escape");
-        return this.chr('e');
-      }
-
-      ns_esc_space() {
-        debug_rule("ns_esc_space");
-        return this.chr("\u{20}");
-      }
-
-      ns_esc_double_quote() {
-        debug_rule("ns_esc_double_quote");
-        return this.chr('"');
-      }
-
-      ns_esc_slash() {
-        debug_rule("ns_esc_slash");
-        return this.chr('/');
-      }
-
-      ns_esc_backslash() {
-        debug_rule("ns_esc_backslash");
-        return this.chr("\\");
-      }
-
-      ns_esc_next_line() {
-        debug_rule("ns_esc_next_line");
-        return this.chr('N');
-      }
-
-      ns_esc_non_breaking_space() {
-        debug_rule("ns_esc_non_breaking_space");
-        return this.chr('_');
-      }
-
-      ns_esc_line_separator() {
-        debug_rule("ns_esc_line_separator");
-        return this.chr('L');
-      }
-
-      ns_esc_paragraph_separator() {
-        debug_rule("ns_esc_paragraph_separator");
-        return this.chr('P');
-      }
-
-      ns_esc_8_bit() {
-        debug_rule("ns_esc_8_bit");
-        return this.all(this.chr('x'), this.rep(2, 2, this.ns_hex_digit));
-      }
-
-      ns_esc_16_bit() {
-        debug_rule("ns_esc_16_bit");
-        return this.all(this.chr('u'), this.rep(4, 4, this.ns_hex_digit));
-      }
-
-      ns_esc_32_bit() {
-        debug_rule("ns_esc_32_bit");
-        return this.all(this.chr('U'), this.rep(8, 8, this.ns_hex_digit));
-      }
-
-      c_ns_esc_char() {
-        debug_rule("c_ns_esc_char");
-        return this.all(this.chr("\\"), this.any(this.ns_esc_null, this.ns_esc_bell, this.ns_esc_backspace, this.ns_esc_horizontal_tab, this.ns_esc_line_feed, this.ns_esc_vertical_tab, this.ns_esc_form_feed, this.ns_esc_carriage_return, this.ns_esc_escape, this.ns_esc_space, this.ns_esc_double_quote, this.ns_esc_slash, this.ns_esc_backslash, this.ns_esc_next_line, this.ns_esc_non_breaking_space, this.ns_esc_line_separator, this.ns_esc_paragraph_separator, this.ns_esc_8_bit, this.ns_esc_16_bit, this.ns_esc_32_bit));
-      }
-
-      s_indent(n) {
-        debug_rule("s_indent", n);
-        return this.rep(n, n, this.s_space);
+        return this.rgx(re_ns_char);
       }
 
       s_indent_lt(n) {
         debug_rule("s_indent_lt", n);
-        return this.may(this.all(this.rep(0, null, this.s_space), this.lt(this.len(this.match), n)));
+        return this.all(this.rgx(re_s_indent), this.lt(this.len(this.match), n));
       }
 
       s_indent_le(n) {
         debug_rule("s_indent_le", n);
-        return this.may(this.all(this.rep(0, null, this.s_space), this.le(this.len(this.match), n)));
+        return this.all(this.rgx(re_s_indent), this.le(this.len(this.match), n));
       }
 
       s_separate_in_line() {
         debug_rule("s_separate_in_line");
-        return this.any(this.rep(1, null, this.s_white), this.start_of_line);
+        return this.any(this.rgx(RegExp(`^${s_separate_spaces}`)), this.start_of_line);
       }
 
       s_line_prefix(n, c) {
         debug_rule("s_line_prefix", n, c);
         return this.case(c, {
-          'block-in': [this.s_block_line_prefix, n],
-          'block-out': [this.s_block_line_prefix, n],
+          'block-in': this.rgx(re_s_indent_n(n)),
+          'block-out': this.rgx(re_s_indent_n(n)),
           'flow-in': [this.s_flow_line_prefix, n],
           'flow-out': [this.s_flow_line_prefix, n]
         });
       }
 
-      s_block_line_prefix(n) {
-        debug_rule("s_block_line_prefix", n);
-        return [this.s_indent, n];
-      }
-
       s_flow_line_prefix(n) {
         debug_rule("s_flow_line_prefix", n);
-        return this.all([this.s_indent, n], this.rep(0, 1, this.s_separate_in_line));
+        return this.all(this.rgx(re_s_indent_n(n)), this.rep(0, 1, this.s_separate_in_line));
       }
 
       l_empty(n, c) {
@@ -368,17 +70,12 @@
 
       b_l_trimmed(n, c) {
         debug_rule("b_l_trimmed", n, c);
-        return this.all(this.b_non_content, this.rep(1, null, [this.l_empty, n, c]));
-      }
-
-      b_as_space() {
-        debug_rule("b_as_space");
-        return this.b_break;
+        return this.all(this.rgx(re_line_break), this.rep(1, null, [this.l_empty, n, c]));
       }
 
       b_l_folded(n, c) {
         debug_rule("b_l_folded", n, c);
-        return this.any([this.b_l_trimmed, n, c], this.b_as_space);
+        return this.any([this.b_l_trimmed, n, c], this.rgx(re_line_break));
       }
 
       s_flow_folded(n) {
@@ -386,24 +83,14 @@
         return this.all(this.rep(0, 1, this.s_separate_in_line), [this.b_l_folded, n, "flow-in"], [this.s_flow_line_prefix, n]);
       }
 
-      c_nb_comment_text() {
-        debug_rule("c_nb_comment_text");
-        return this.all(this.chr('#'), this.rep(0, null, this.nb_char));
-      }
-
-      b_comment() {
-        debug_rule("b_comment");
-        return this.any(this.b_non_content, this.end_of_stream);
-      }
-
       s_b_comment() {
         debug_rule("s_b_comment");
-        return this.all(this.rep(0, 1, this.all(this.s_separate_in_line, this.rep(0, 1, this.c_nb_comment_text))), this.b_comment);
+        return this.all(this.rep(0, 1, this.all(this.s_separate_in_line, this.rgx2(RegExp(`^${c_nb_comment_text}?`)))), this.rgx2(re_b_comment));
       }
 
       l_comment() {
         debug_rule("l_comment");
-        return this.all(this.s_separate_in_line, this.rep(0, 1, this.c_nb_comment_text), this.b_comment);
+        return this.all(this.s_separate_in_line, this.rgx(RegExp(`^${c_nb_comment_text}*${b_comment}`)));
       }
 
       s_l_comments() {
@@ -430,72 +117,32 @@
 
       l_directive() {
         debug_rule("l_directive");
-        return this.all(this.chr('%'), this.any(this.ns_yaml_directive, this.ns_tag_directive, this.ns_reserved_directive), this.s_l_comments);
-      }
-
-      ns_reserved_directive() {
-        debug_rule("ns_reserved_directive");
-        return this.all(this.ns_directive_name, this.rep(0, null, this.all(this.s_separate_in_line, this.ns_directive_parameter)));
-      }
-
-      ns_directive_name() {
-        debug_rule("ns_directive_name");
-        return this.rep(1, null, this.ns_char);
-      }
-
-      ns_directive_parameter() {
-        debug_rule("ns_directive_parameter");
-        return this.rep(1, null, this.ns_char);
-      }
-
-      ns_yaml_directive() {
-        debug_rule("ns_yaml_directive");
-        return this.all(this.chr('Y'), this.chr('A'), this.chr('M'), this.chr('L'), this.s_separate_in_line, this.ns_yaml_version);
+        return this.all(this.chr('%'), this.any(this.ns_yaml_directive, this.ns_tag_directive, this.rgx(re_ns_reserved_directive)), this.s_l_comments);
       }
 
       ns_yaml_version() {
         debug_rule("ns_yaml_version");
-        return this.all(this.rep(1, null, this.ns_dec_digit), this.chr('.'), this.rep2(1, null, this.ns_dec_digit));
+        return this.rgx(re_ns_yaml_version);
+      }
+
+      ns_yaml_directive() {
+        debug_rule("ns_yaml_directive");
+        return this.all(this.rgx(re_ns_yaml_directive), this.ns_yaml_version);
       }
 
       ns_tag_directive() {
         debug_rule("ns_tag_directive");
-        return this.all(this.chr('T'), this.chr('A'), this.chr('G'), this.s_separate_in_line, this.c_tag_handle, this.s_separate_in_line, this.ns_tag_prefix);
+        return this.all(this.rgx(RegExp(`^TAG${s_separate_spaces}`)), this.c_tag_handle, this.s_separate_in_line, this.ns_tag_prefix);
       }
 
       c_tag_handle() {
         debug_rule("c_tag_handle");
-        return this.any(this.c_named_tag_handle, this.c_secondary_tag_handle, this.c_primary_tag_handle);
-      }
-
-      c_primary_tag_handle() {
-        debug_rule("c_primary_tag_handle");
-        return this.chr('!');
-      }
-
-      c_secondary_tag_handle() {
-        debug_rule("c_secondary_tag_handle");
-        return this.all(this.chr('!'), this.chr('!'));
-      }
-
-      c_named_tag_handle() {
-        debug_rule("c_named_tag_handle");
-        return this.all(this.chr('!'), this.rep(1, null, this.ns_word_char), this.chr('!'));
+        return this.rgx(re_c_tag_handle);
       }
 
       ns_tag_prefix() {
         debug_rule("ns_tag_prefix");
-        return this.any(this.c_ns_local_tag_prefix, this.ns_global_tag_prefix);
-      }
-
-      c_ns_local_tag_prefix() {
-        debug_rule("c_ns_local_tag_prefix");
-        return this.all(this.chr('!'), this.rep(0, null, this.ns_uri_char));
-      }
-
-      ns_global_tag_prefix() {
-        debug_rule("ns_global_tag_prefix");
-        return this.all(this.ns_tag_char, this.rep(0, null, this.ns_uri_char));
+        return this.rgx(re_ns_tag_prefix);
       }
 
       c_ns_properties(n, c) {
@@ -505,42 +152,17 @@
 
       c_ns_tag_property() {
         debug_rule("c_ns_tag_property");
-        return this.any(this.c_verbatim_tag, this.c_ns_shorthand_tag, this.c_non_specific_tag);
-      }
-
-      c_verbatim_tag() {
-        debug_rule("c_verbatim_tag");
-        return this.all(this.chr('!'), this.chr('<'), this.rep(1, null, this.ns_uri_char), this.chr('>'));
-      }
-
-      c_ns_shorthand_tag() {
-        debug_rule("c_ns_shorthand_tag");
-        return this.all(this.c_tag_handle, this.rep(1, null, this.ns_tag_char));
-      }
-
-      c_non_specific_tag() {
-        debug_rule("c_non_specific_tag");
-        return this.chr('!');
+        return this.rgx(RegExp(`^(?:(!<${ns_uri_char}+>)|(${c_tag_handle}${ns_tag_char}+)|!)`));
       }
 
       c_ns_anchor_property() {
         debug_rule("c_ns_anchor_property");
-        return this.all(this.chr('&'), this.ns_anchor_name);
-      }
-
-      ns_anchor_char() {
-        debug_rule("ns_anchor_char");
-        return this.but(this.ns_char, this.c_flow_indicator);
-      }
-
-      ns_anchor_name() {
-        debug_rule("ns_anchor_name");
-        return this.rep(1, null, this.ns_anchor_char);
+        return this.rgx(re_c_ns_anchor_property);
       }
 
       c_ns_alias_node() {
         debug_rule("c_ns_alias_node");
-        return this.all(this.chr('*'), this.ns_anchor_name);
+        return this.rgx(re_c_ns_alias_node);
       }
 
       e_scalar() {
@@ -553,16 +175,6 @@
         return this.e_scalar;
       }
 
-      nb_double_char() {
-        debug_rule("nb_double_char");
-        return this.any(this.c_ns_esc_char, this.but(this.nb_json, this.chr("\\"), this.chr('"')));
-      }
-
-      ns_double_char() {
-        debug_rule("ns_double_char");
-        return this.but(this.nb_double_char, this.s_white);
-      }
-
       c_double_quoted(n, c) {
         debug_rule("c_double_quoted", n, c);
         return this.all(this.chr('"'), [this.nb_double_text, n, c], this.chr('"'));
@@ -571,21 +183,16 @@
       nb_double_text(n, c) {
         debug_rule("nb_double_text", n, c);
         return this.case(c, {
-          'block-key': this.nb_double_one_line,
+          'block-key': this.rgx(re_nb_double_one_line),
           'flow-in': [this.nb_double_multi_line, n],
-          'flow-key': this.nb_double_one_line,
+          'flow-key': this.rgx(re_nb_double_one_line),
           'flow-out': [this.nb_double_multi_line, n]
         });
       }
 
-      nb_double_one_line() {
-        debug_rule("nb_double_one_line");
-        return this.rep(0, null, this.nb_double_char);
-      }
-
       s_double_escaped(n) {
         debug_rule("s_double_escaped", n);
-        return this.all(this.rep(0, null, this.s_white), this.chr("\\"), this.b_non_content, this.rep2(0, null, [this.l_empty, n, "flow-in"]), [this.s_flow_line_prefix, n]);
+        return this.all(this.rep(0, null, this.s_white), this.chr("\\"), this.rgx(re_line_break), this.rep2(0, null, [this.l_empty, n, "flow-in"]), [this.s_flow_line_prefix, n]);
       }
 
       s_double_break(n) {
@@ -593,34 +200,14 @@
         return this.any([this.s_double_escaped, n], [this.s_flow_folded, n]);
       }
 
-      nb_ns_double_in_line() {
-        debug_rule("nb_ns_double_in_line");
-        return this.rep(0, null, this.all(this.rep(0, null, this.s_white), this.ns_double_char));
-      }
-
       s_double_next_line(n) {
         debug_rule("s_double_next_line", n);
-        return this.all([this.s_double_break, n], this.rep(0, 1, this.all(this.ns_double_char, this.nb_ns_double_in_line, this.any([this.s_double_next_line, n], this.rep(0, null, this.s_white)))));
+        return this.all([this.s_double_break, n], this.rep(0, 1, this.all(this.rgx(re_ns_double_char), this.rgx(re_nb_ns_double_in_line), this.any([this.s_double_next_line, n], this.rep(0, null, this.s_white)))));
       }
 
       nb_double_multi_line(n) {
         debug_rule("nb_double_multi_line", n);
-        return this.all(this.nb_ns_double_in_line, this.any([this.s_double_next_line, n], this.rep(0, null, this.s_white)));
-      }
-
-      c_quoted_quote() {
-        debug_rule("c_quoted_quote");
-        return this.all(this.chr("'"), this.chr("'"));
-      }
-
-      nb_single_char() {
-        debug_rule("nb_single_char");
-        return this.any(this.c_quoted_quote, this.but(this.nb_json, this.chr("'")));
-      }
-
-      ns_single_char() {
-        debug_rule("ns_single_char");
-        return this.but(this.nb_single_char, this.s_white);
+        return this.all(this.rgx(re_nb_ns_double_in_line), this.any([this.s_double_next_line, n], this.rep(0, null, this.s_white)));
       }
 
       c_single_quoted(n, c) {
@@ -631,56 +218,36 @@
       nb_single_text(n, c) {
         debug_rule("nb_single_text", n, c);
         return this.case(c, {
-          'block-key': this.nb_single_one_line,
+          'block-key': this.rgx(re_nb_single_one_line),
           'flow-in': [this.nb_single_multi_line, n],
-          'flow-key': this.nb_single_one_line,
+          'flow-key': this.rgx(re_nb_single_one_line),
           'flow-out': [this.nb_single_multi_line, n]
         });
       }
 
-      nb_single_one_line() {
-        debug_rule("nb_single_one_line");
-        return this.rep(0, null, this.nb_single_char);
-      }
-
-      nb_ns_single_in_line() {
-        debug_rule("nb_ns_single_in_line");
-        return this.rep(0, null, this.all(this.rep(0, null, this.s_white), this.ns_single_char));
-      }
-
       s_single_next_line(n) {
         debug_rule("s_single_next_line", n);
-        return this.all([this.s_flow_folded, n], this.rep(0, 1, this.all(this.ns_single_char, this.nb_ns_single_in_line, this.any([this.s_single_next_line, n], this.rep(0, null, this.s_white)))));
+        return this.all([this.s_flow_folded, n], this.rep(0, 1, this.all(this.rgx(RegExp(`^${ns_single_char}${nb_ns_single_in_line}`)), this.any([this.s_single_next_line, n], this.rep(0, null, this.s_white)))));
       }
 
       nb_single_multi_line(n) {
         debug_rule("nb_single_multi_line", n);
-        return this.all(this.nb_ns_single_in_line, this.any([this.s_single_next_line, n], this.rep(0, null, this.s_white)));
+        return this.all(this.rgx(nb_ns_single_in_line), this.any([this.s_single_next_line, n], this.rep(0, null, this.s_white)));
       }
 
       ns_plain_first(c) {
         debug_rule("ns_plain_first", c);
-        return this.any(this.but(this.ns_char, this.c_indicator), this.all(this.any(this.chr('?'), this.chr(':'), this.chr('-')), this.chk('=', [this.ns_plain_safe, c])));
+        return this.any(this.rgx(RegExp(`^(?!${c_indicator})${ns_char}`)), this.all(this.rgx(/^[\?\:\-]/), this.chk('=', [this.ns_plain_safe, c])));
       }
 
       ns_plain_safe(c) {
         debug_rule("ns_plain_safe", c);
         return this.case(c, {
-          'block-key': this.ns_plain_safe_out,
-          'flow-in': this.ns_plain_safe_in,
-          'flow-key': this.ns_plain_safe_in,
-          'flow-out': this.ns_plain_safe_out
+          'block-key': this.ns_char,
+          'flow-in': this.rgx(re_ns_plain_safe_in),
+          'flow-key': this.rgx(re_ns_plain_safe_in),
+          'flow-out': this.ns_char
         });
-      }
-
-      ns_plain_safe_out() {
-        debug_rule("ns_plain_safe_out");
-        return this.ns_char;
-      }
-
-      ns_plain_safe_in() {
-        debug_rule("ns_plain_safe_in");
-        return this.but(this.ns_char, this.c_flow_indicator);
       }
 
       ns_plain_char(c) {
@@ -755,7 +322,7 @@
 
       ns_flow_map_entry(n, c) {
         debug_rule("ns_flow_map_entry", n, c);
-        return this.any(this.all(this.chr('?'), this.chk('=', this.any(this.end_of_stream, this.s_white, this.b_break)), [this.s_separate, n, c], [this.ns_flow_map_explicit_entry, n, c]), [this.ns_flow_map_implicit_entry, n, c]);
+        return this.any(this.all(this.rgx(re_ns_flow_map_entry), [this.s_separate, n, c], [this.ns_flow_map_explicit_entry, n, c]), [this.ns_flow_map_implicit_entry, n, c]);
       }
 
       ns_flow_map_explicit_entry(n, c) {
@@ -795,7 +362,7 @@
 
       ns_flow_pair(n, c) {
         debug_rule("ns_flow_pair", n, c);
-        return this.any(this.all(this.chr('?'), this.chk('=', this.any(this.end_of_stream, this.s_white, this.b_break)), [this.s_separate, n, c], [this.ns_flow_map_explicit_entry, n, c]), [this.ns_flow_pair_entry, n, c]);
+        return this.any(this.all(this.rgx(re_ns_flow_pair), [this.s_separate, n, c], [this.ns_flow_map_explicit_entry, n, c]), [this.ns_flow_pair_entry, n, c]);
       }
 
       ns_flow_pair_entry(n, c) {
@@ -855,7 +422,7 @@
 
       c_b_block_header(n) {
         debug_rule("c_b_block_header", n);
-        return this.all(this.any(this.all([this.c_indentation_indicator, n], this.c_chomping_indicator, this.chk('=', this.any(this.end_of_stream, this.s_white, this.b_break))), this.all(this.c_chomping_indicator, [this.c_indentation_indicator, n], this.chk('=', this.any(this.end_of_stream, this.s_white, this.b_break)))), this.s_b_comment);
+        return this.all(this.any(this.all([this.c_indentation_indicator, n], this.c_chomping_indicator, this.chk('=', this.any(this.end_of_stream, this.s_white, this.rgx(re_line_break)))), this.all(this.c_chomping_indicator, [this.c_indentation_indicator, n], this.chk('=', this.any(this.end_of_stream, this.s_white, this.rgx(re_line_break))))), this.s_b_comment);
       }
 
       c_indentation_indicator(n) {
@@ -873,7 +440,7 @@
         return this.case(t, {
           'clip': this.any(this.b_as_line_feed, this.end_of_stream),
           'keep': this.any(this.b_as_line_feed, this.end_of_stream),
-          'strip': this.any(this.b_non_content, this.end_of_stream)
+          'strip': this.any(this.rgx(re_line_break), this.end_of_stream)
         });
       }
 
@@ -888,7 +455,7 @@
 
       l_strip_empty(n) {
         debug_rule("l_strip_empty", n);
-        return this.all(this.rep(0, null, this.all([this.s_indent_le, n], this.b_non_content)), this.rep2(0, 1, [this.l_trail_comments, n]));
+        return this.all(this.rep(0, null, this.all([this.s_indent_le, n], this.rgx(re_line_break))), this.rep2(0, 1, [this.l_trail_comments, n]));
       }
 
       l_keep_empty(n) {
@@ -898,7 +465,7 @@
 
       l_trail_comments(n) {
         debug_rule("l_trail_comments", n);
-        return this.all([this.s_indent_lt, n], this.c_nb_comment_text, this.b_comment, this.rep(0, null, this.l_comment));
+        return this.all([this.s_indent_lt, n], this.rgx(RegExp(`^${c_nb_comment_text}${b_comment}`)), this.rep(0, null, this.l_comment));
       }
 
       c_l_literal(n) {
@@ -908,7 +475,7 @@
 
       l_nb_literal_text(n) {
         debug_rule("l_nb_literal_text", n);
-        return this.all(this.rep(0, null, [this.l_empty, n, "block-in"]), [this.s_indent, n], this.rep2(1, null, this.nb_char));
+        return this.all(this.rep(0, null, [this.l_empty, n, "block-in"]), this.rgx(re_s_indent_n(n)), this.rep2(1, null, this.nb_char));
       }
 
       b_nb_literal_next(n) {
@@ -928,7 +495,7 @@
 
       s_nb_folded_text(n) {
         debug_rule("s_nb_folded_text", n);
-        return this.all([this.s_indent, n], this.ns_char, this.rep(0, null, this.nb_char));
+        return this.all(this.rgx(re_s_indent_n(n)), this.ns_char, this.rep(0, null, this.nb_char));
       }
 
       l_nb_folded_lines(n) {
@@ -938,7 +505,7 @@
 
       s_nb_spaced_text(n) {
         debug_rule("s_nb_spaced_text", n);
-        return this.all([this.s_indent, n], this.s_white, this.rep(0, null, this.nb_char));
+        return this.all(this.rgx(re_s_indent_n(n)), this.s_white, this.rep(0, null, this.nb_char));
       }
 
       b_l_spaced(n) {
@@ -972,7 +539,7 @@
           return false;
         }
         debug_rule("l_block_sequence", n);
-        return this.all(this.rep(1, null, this.all([this.s_indent, this.add(n, m)], [this.c_l_block_seq_entry, this.add(n, m)])));
+        return this.all(this.rep(1, null, this.all(this.rgx(re_s_indent_n(n + m)), [this.c_l_block_seq_entry, this.add(n, m)])));
       }
 
       c_l_block_seq_entry(n) {
@@ -984,12 +551,12 @@
         var m;
         m = this.call([this.auto_detect_indent, n], 'number');
         debug_rule("s_l_block_indented", n, c);
-        return this.any(this.all([this.s_indent, m], this.any([this.ns_l_compact_sequence, this.add(n, this.add(1, m))], [this.ns_l_compact_mapping, this.add(n, this.add(1, m))])), [this.s_l_block_node, n, c], this.all(this.e_node, this.s_l_comments));
+        return this.any(this.all(this.rgx(re_s_indent_n(m)), this.any([this.ns_l_compact_sequence, this.add(n, this.add(1, m))], [this.ns_l_compact_mapping, this.add(n, this.add(1, m))])), [this.s_l_block_node, n, c], this.all(this.e_node, this.s_l_comments));
       }
 
       ns_l_compact_sequence(n) {
         debug_rule("ns_l_compact_sequence", n);
-        return this.all([this.c_l_block_seq_entry, n], this.rep(0, null, this.all([this.s_indent, n], [this.c_l_block_seq_entry, n])));
+        return this.all([this.c_l_block_seq_entry, n], this.rep(0, null, this.all(this.rgx(re_s_indent_n(n)), [this.c_l_block_seq_entry, n])));
       }
 
       l_block_mapping(n) {
@@ -998,7 +565,7 @@
           return false;
         }
         debug_rule("l_block_mapping", n);
-        return this.all(this.rep(1, null, this.all([this.s_indent, this.add(n, m)], [this.ns_l_block_map_entry, this.add(n, m)])));
+        return this.all(this.rep(1, null, this.all(this.rgx(re_s_indent_n(n + m)), [this.ns_l_block_map_entry, this.add(n, m)])));
       }
 
       ns_l_block_map_entry(n) {
@@ -1013,22 +580,17 @@
 
       c_l_block_map_explicit_key(n) {
         debug_rule("c_l_block_map_explicit_key", n);
-        return this.all(this.chr('?'), this.chk('=', this.any(this.end_of_stream, this.s_white, this.b_break)), [this.s_l_block_indented, n, "block-out"]);
+        return this.all(this.chr('?'), this.chk('=', this.any(this.end_of_stream, this.s_white, this.rgx(re_line_break))), [this.s_l_block_indented, n, "block-out"]);
       }
 
       l_block_map_explicit_value(n) {
         debug_rule("l_block_map_explicit_value", n);
-        return this.all([this.s_indent, n], this.chr(':'), [this.s_l_block_indented, n, "block-out"]);
+        return this.all(this.rgx(re_s_indent_n(n)), this.chr(':'), [this.s_l_block_indented, n, "block-out"]);
       }
 
       ns_l_block_map_implicit_entry(n) {
         debug_rule("ns_l_block_map_implicit_entry", n);
-        return this.all(this.any(this.ns_s_block_map_implicit_key, this.e_node), [this.c_l_block_map_implicit_value, n]);
-      }
-
-      ns_s_block_map_implicit_key() {
-        debug_rule("ns_s_block_map_implicit_key");
-        return this.any([this.c_s_implicit_json_key, "block-key"], [this.ns_s_implicit_yaml_key, "block-key"]);
+        return this.all(this.any(this.any([this.c_s_implicit_json_key, "block-key"], [this.ns_s_implicit_yaml_key, "block-key"]), this.e_node), [this.c_l_block_map_implicit_value, n]);
       }
 
       c_l_block_map_implicit_value(n) {
@@ -1038,7 +600,7 @@
 
       ns_l_compact_mapping(n) {
         debug_rule("ns_l_compact_mapping", n);
-        return this.all([this.ns_l_block_map_entry, n], this.rep(0, null, this.all([this.s_indent, n], [this.ns_l_block_map_entry, n])));
+        return this.all([this.ns_l_block_map_entry, n], this.rep(0, null, this.all(this.rgx(re_s_indent_n(n)), [this.ns_l_block_map_entry, n])));
       }
 
       s_l_block_node(n, c) {
@@ -1076,17 +638,17 @@
 
       l_document_prefix() {
         debug_rule("l_document_prefix");
-        return this.all(this.rep(0, 1, this.c_byte_order_mark), this.rep2(0, null, this.l_comment));
+        return this.all(this.rep(0, 1, this.chr(c_byte_order_mark)), this.rep2(0, null, this.l_comment));
       }
 
       c_directives_end() {
         debug_rule("c_directives_end");
-        return this.all(this.chr('-'), this.chr('-'), this.chr('-'), this.chk('=', this.any(this.end_of_stream, this.s_white, this.b_break)));
+        return this.rgx(re_c_directives_end);
       }
 
       c_document_end() {
         debug_rule("c_document_end");
-        return this.all(this.chr('.'), this.chr('.'), this.chr('.'));
+        return this.rgx(re_c_document_end);
       }
 
       l_document_suffix() {
@@ -1096,7 +658,7 @@
 
       c_forbidden() {
         debug_rule("c_forbidden");
-        return this.all(this.start_of_line, this.any(this.c_directives_end, this.c_document_end), this.any(this.b_char, this.s_white, this.end_of_stream));
+        return this.all(this.start_of_line, this.rgx(re_c_forbidden));
       }
 
       l_bare_document() {
@@ -1126,143 +688,79 @@
 
     };
 
+    r2s = function(re) {
+      if (!re instanceof RegExp) {
+        throw `Not a regex ${re}`;
+      }
+      return String(re).slice(2, -1);
+    };
+
+    r2c = function(re) {
+      if (!re instanceof RegExp) {
+        throw `Not a regex ${re}`;
+      }
+      return String(re).slice(3, -2);
+    };
+
     // [001]
     // c-printable ::=
     //   x:9 | x:A | x:D | [x:20-x:7E]
     //   | x:85 | [x:A0-x:D7FF] | [x:E000-x:FFFD]
     //   | [x:10000-x:10FFFF]
-    Grammar.prototype.c_printable.num = 1;
+    c_printable = r2s(/^[\u0009\u000a\u000d\u0020-\u007e\u0085\u00a0-\ud7ff\ue000-\ufffd]/); // \u{010000}-\u{10FFFF}
 
     // [002]
     // nb-json ::=
     //   x:9 | [x:20-x:10FFFF]
-    Grammar.prototype.nb_json.num = 2;
+    nb_json = r2s(/^[\u0009\u0020-\uffff]/); // \u{20}-\u{10FFFF}
 
     // [003]
     // c-byte-order-mark ::=
     //   x:FEFF
-    Grammar.prototype.c_byte_order_mark.num = 3;
-
-    // [004]
-    // c-sequence-entry ::=
-    //   '-'
-    Grammar.prototype.c_sequence_entry.num = 4;
-
-    // [005]
-    // c-mapping-key ::=
-    //   '?'
-    Grammar.prototype.c_mapping_key.num = 5;
-
-    // [006]
-    // c-mapping-value ::=
-    //   ':'
-    Grammar.prototype.c_mapping_value.num = 6;
-
-    // [007]
-    // c-collect-entry ::=
-    //   ','
-    Grammar.prototype.c_collect_entry.num = 7;
-
-    // [008]
-    // c-sequence-start ::=
-    //   '['
-    Grammar.prototype.c_sequence_start.num = 8;
-
-    // [009]
-    // c-sequence-end ::=
-    //   ']'
-    Grammar.prototype.c_sequence_end.num = 9;
-
-    // [010]
-    // c-mapping-start ::=
-    //   '{'
-    Grammar.prototype.c_mapping_start.num = 10;
-
-    // [011]
-    // c-mapping-end ::=
-    //   '}'
-    Grammar.prototype.c_mapping_end.num = 11;
-
-    // [012]
-    // c-comment ::=
-    //   '#'
-    Grammar.prototype.c_comment.num = 12;
-
-    // [013]
-    // c-anchor ::=
-    //   '&'
-    Grammar.prototype.c_anchor.num = 13;
-
-    // [014]
-    // c-alias ::=
-    //   '*'
-    Grammar.prototype.c_alias.num = 14;
-
-    // [015]
-    // c-tag ::=
-    //   '!'
-    Grammar.prototype.c_tag.num = 15;
-
-    // [016]
-    // c-literal ::=
-    //   '|'
-    Grammar.prototype.c_literal.num = 16;
-
-    // [017]
-    // c-folded ::=
-    //   '>'
-    Grammar.prototype.c_folded.num = 17;
-
-    // [018]
-    // c-single-quote ::=
-    //   '''
-    Grammar.prototype.c_single_quote.num = 18;
-
-    // [019]
-    // c-double-quote ::=
-    //   '"'
-    Grammar.prototype.c_double_quote.num = 19;
-
-    // [020]
-    // c-directive ::=
-    //   '%'
-    Grammar.prototype.c_directive.num = 20;
-
-    // [021]
-    // c-reserved ::=
-    //   '@' | '`'
-    Grammar.prototype.c_reserved.num = 21;
+    c_byte_order_mark = "\u{FEFF}";
 
     // [022]
     // c-indicator ::=
     //   '-' | '?' | ':' | ',' | '[' | ']' | '{' | '}'
     //   | '#' | '&' | '*' | '!' | '|' | '>' | ''' | '"'
     //   | '%' | '@' | '`'
-    Grammar.prototype.c_indicator.num = 22;
+    c_indicator = r2s(/^[\-\?\:\,\[\]\{\}\#\&\*\!\|\>\'\"\%\@\`]/);
 
     // [023]
     // c-flow-indicator ::=
     //   ',' | '[' | ']' | '{' | '}'
-    Grammar.prototype.c_flow_indicator.num = 23;
+    re_c_flow_indicator = /^[\,\[\]\{\}]/;
+
+    c_flow_indicator = r2s(re_c_flow_indicator);
+
+    c_flow_indicator_s = r2c(re_c_flow_indicator);
 
     // [024]
     // b-line-feed ::=
     //   x:A
-    Grammar.prototype.b_line_feed.num = 24;
+    b_line_feed = "\u{0A}";
 
     // [025]
     // b-carriage-return ::=
     //   x:D
-    Grammar.prototype.b_carriage_return.num = 25;
+    b_carriage_return = "\u{0D}";
 
     // [026]
     // b-char ::=
     //   b-line-feed | b-carriage-return
-    Grammar.prototype.b_char.num = 26;
+    re_b_char = /^[\u000a\u000d]/;
+
+    b_char = r2s(re_b_char);
+
+    b_char_s = r2c(re_b_char);
 
     // [027]
     // nb-char ::=
     //   c-printable - b-char - c-byte-order-mark
+    re_nb_char = RegExp(`^(?:(?![${b_char_s}${c_byte_order_mark}])${c_printable})`);
+
+    nb_char = r2s(re_nb_char);
+
     Grammar.prototype.nb_char.num = 27;
 
     // [028]
@@ -1270,178 +768,80 @@
     //   ( b-carriage-return b-line-feed )
     //   | b-carriage-return
     //   | b-line-feed
-    Grammar.prototype.b_break.num = 28;
+    re_line_break = RegExp(`^(?:${b_carriage_return}${b_line_feed}|${b_carriage_return}|${b_line_feed})`);
+
+    line_break = r2s(re_line_break);
 
     // [029]
     // b-as-line-feed ::=
     //   b-break
     Grammar.prototype.b_as_line_feed.num = 29;
 
-    // [030]
-    // b-non-content ::=
-    //   b-break
-    Grammar.prototype.b_non_content.num = 30;
-
     // [031]
     // s-space ::=
     //   x:20
-    Grammar.prototype.s_space.num = 31;
-
-    // [032]
-    // s-tab ::=
-    //   x:9
-    Grammar.prototype.s_tab.num = 32;
+    s_space = "\u{20}";
 
     // [033]
     // s-white ::=
     //   s-space | s-tab
+    re_s_white = RegExp(`^[${s_space}\\t]`);
+
+    s_white = r2s(re_s_white);
+
     Grammar.prototype.s_white.num = 33;
 
     // [034]
     // ns-char ::=
     //   nb-char - s-white
+    re_ns_char = RegExp(`^(?:(?!${s_white})${nb_char})`);
+
+    ns_char = r2s(re_ns_char);
+
     Grammar.prototype.ns_char.num = 34;
 
     // [035]
     // ns-dec-digit ::=
     //   [x:30-x:39]
-    Grammar.prototype.ns_dec_digit.num = 35;
+    re_ns_dec_digit = /^[0-9]/;
+
+    ns_dec_digit = r2s(re_ns_dec_digit);
+
+    ns_dec_digit_s = r2c(re_ns_dec_digit);
 
     // [036]
     // ns-hex-digit ::=
     //   ns-dec-digit
     //   | [x:41-x:46] | [x:61-x:66]
-    Grammar.prototype.ns_hex_digit.num = 36;
+    ns_hex_digit = r2s(RegExp(`^[${ns_dec_digit_s}A-Fa-f]`));
 
     // [037]
     // ns-ascii-letter ::=
     //   [x:41-x:5A] | [x:61-x:7A]
-    Grammar.prototype.ns_ascii_letter.num = 37;
+    re_ns_ascii_letter = /^[\u0041-\u005a\u0061-\u007a]/;
+
+    ns_ascii_letter_s = r2c(re_ns_ascii_letter);
 
     // [038]
     // ns-word-char ::=
     //   ns-dec-digit | ns-ascii-letter | '-'
-    Grammar.prototype.ns_word_char.num = 38;
+    re_ns_word_char = RegExp(`^[\\-${ns_dec_digit_s}${ns_ascii_letter_s}]`);
+
+    ns_word_char = r2s(re_ns_word_char);
+
+    ns_word_char_s = r2c(re_ns_word_char);
 
     // [039]
     // ns-uri-char ::=
     //   '%' ns-hex-digit ns-hex-digit | ns-word-char | '#'
     //   | ';' | '/' | '?' | ':' | '@' | '&' | '=' | '+' | '$' | ','
     //   | '_' | '.' | '!' | '~' | '*' | ''' | '(' | ')' | '[' | ']'
-    Grammar.prototype.ns_uri_char.num = 39;
+    ns_uri_char = r2s(RegExp(`^(?:%${ns_hex_digit}{2}|[${ns_word_char_s}\\#\\;\\/\\?\\:\\@\\&\\=\\+\\$\\,\\_\\.\\!\\~\\*\\'\\(\\)\\[\\]])`));
 
     // [040]
     // ns-tag-char ::=
     //   ns-uri-char - '!' - c-flow-indicator
-    Grammar.prototype.ns_tag_char.num = 40;
-
-    // [041]
-    // c-escape ::=
-    //   '\'
-    Grammar.prototype.c_escape.num = 41;
-
-    // [042]
-    // ns-esc-null ::=
-    //   '0'
-    Grammar.prototype.ns_esc_null.num = 42;
-
-    // [043]
-    // ns-esc-bell ::=
-    //   'a'
-    Grammar.prototype.ns_esc_bell.num = 43;
-
-    // [044]
-    // ns-esc-backspace ::=
-    //   'b'
-    Grammar.prototype.ns_esc_backspace.num = 44;
-
-    // [045]
-    // ns-esc-horizontal-tab ::=
-    //   't' | x:9
-    Grammar.prototype.ns_esc_horizontal_tab.num = 45;
-
-    // [046]
-    // ns-esc-line-feed ::=
-    //   'n'
-    Grammar.prototype.ns_esc_line_feed.num = 46;
-
-    // [047]
-    // ns-esc-vertical-tab ::=
-    //   'v'
-    Grammar.prototype.ns_esc_vertical_tab.num = 47;
-
-    // [048]
-    // ns-esc-form-feed ::=
-    //   'f'
-    Grammar.prototype.ns_esc_form_feed.num = 48;
-
-    // [049]
-    // ns-esc-carriage-return ::=
-    //   'r'
-    Grammar.prototype.ns_esc_carriage_return.num = 49;
-
-    // [050]
-    // ns-esc-escape ::=
-    //   'e'
-    Grammar.prototype.ns_esc_escape.num = 50;
-
-    // [051]
-    // ns-esc-space ::=
-    //   x:20
-    Grammar.prototype.ns_esc_space.num = 51;
-
-    // [052]
-    // ns-esc-double-quote ::=
-    //   '"'
-    Grammar.prototype.ns_esc_double_quote.num = 52;
-
-    // [053]
-    // ns-esc-slash ::=
-    //   '/'
-    Grammar.prototype.ns_esc_slash.num = 53;
-
-    // [054]
-    // ns-esc-backslash ::=
-    //   '\'
-    Grammar.prototype.ns_esc_backslash.num = 54;
-
-    // [055]
-    // ns-esc-next-line ::=
-    //   'N'
-    Grammar.prototype.ns_esc_next_line.num = 55;
-
-    // [056]
-    // ns-esc-non-breaking-space ::=
-    //   '_'
-    Grammar.prototype.ns_esc_non_breaking_space.num = 56;
-
-    // [057]
-    // ns-esc-line-separator ::=
-    //   'L'
-    Grammar.prototype.ns_esc_line_separator.num = 57;
-
-    // [058]
-    // ns-esc-paragraph-separator ::=
-    //   'P'
-    Grammar.prototype.ns_esc_paragraph_separator.num = 58;
-
-    // [059]
-    // ns-esc-8-bit ::=
-    //   'x'
-    //   ( ns-hex-digit{2} )
-    Grammar.prototype.ns_esc_8_bit.num = 59;
-
-    // [060]
-    // ns-esc-16-bit ::=
-    //   'u'
-    //   ( ns-hex-digit{4} )
-    Grammar.prototype.ns_esc_16_bit.num = 60;
-
-    // [061]
-    // ns-esc-32-bit ::=
-    //   'U'
-    //   ( ns-hex-digit{8} )
-    Grammar.prototype.ns_esc_32_bit.num = 61;
+    ns_tag_char = r2s(RegExp(`^(?:(?!!|${c_flow_indicator})${ns_uri_char})`));
 
     // [062]
     // c-ns-esc-char ::=
@@ -1454,12 +854,14 @@
     //   | ns-esc-next-line | ns-esc-non-breaking-space
     //   | ns-esc-line-separator | ns-esc-paragraph-separator
     //   | ns-esc-8-bit | ns-esc-16-bit | ns-esc-32-bit )
-    Grammar.prototype.c_ns_esc_char.num = 62;
+    c_ns_esc_char = r2s(RegExp(`^\\\\(?:[0abt\\u0009nvfre\\u0020\\"\\/\\\\N_LP]|x${ns_hex_digit}{2}|u${ns_hex_digit}{4}|U${ns_hex_digit}{8})`));
 
     // [063]
-    // s-indent(n) ::=
-    //   s-space{n}
-    Grammar.prototype.s_indent.num = 63;
+    re_s_indent = RegExp(`^${s_space}*`);
+
+    re_s_indent_n = function(n) {
+      return RegExp(`^${s_space}{${n}}`);
+    };
 
     // [064]
     // s-indent(<n) ::=
@@ -1474,6 +876,8 @@
     // [066]
     // s-separate-in-line ::=
     //   s-white+ | <start_of_line>
+    s_separate_spaces = r2s(RegExp(`^${s_white}+`));
+
     Grammar.prototype.s_separate_in_line.num = 66;
 
     // [067]
@@ -1483,11 +887,6 @@
     //   ( c = flow-out => s-flow-line-prefix(n) )
     //   ( c = flow-in => s-flow-line-prefix(n) )
     Grammar.prototype.s_line_prefix.num = 67;
-
-    // [068]
-    // s-block-line-prefix(n) ::=
-    //   s-indent(n)
-    Grammar.prototype.s_block_line_prefix.num = 68;
 
     // [069]
     // s-flow-line-prefix(n) ::=
@@ -1506,11 +905,6 @@
     //   b-non-content l-empty(n,c)+
     Grammar.prototype.b_l_trimmed.num = 71;
 
-    // [072]
-    // b-as-space ::=
-    //   b-break
-    Grammar.prototype.b_as_space.num = 72;
-
     // [073]
     // b-l-folded(n,c) ::=
     //   b-l-trimmed(n,c) | b-as-space
@@ -1526,12 +920,14 @@
     // [075]
     // c-nb-comment-text ::=
     //   '#' nb-char*
-    Grammar.prototype.c_nb_comment_text.num = 75;
+    c_nb_comment_text = r2s(RegExp(`^(?:\\#${nb_char}*)`));
 
     // [076]
     // b-comment ::=
     //   b-non-content | <end_of_file>
-    Grammar.prototype.b_comment.num = 76;
+    re_b_comment = RegExp(`^(?:${line_break}|$)`);
+
+    b_comment = r2s(re_b_comment);
 
     // [077]
     // s-b-comment ::=
@@ -1578,32 +974,36 @@
     //   s-l-comments
     Grammar.prototype.l_directive.num = 82;
 
-    // [083]
-    // ns-reserved-directive ::=
-    //   ns-directive-name
-    //   ( s-separate-in-line ns-directive-parameter )*
-    Grammar.prototype.ns_reserved_directive.num = 83;
-
     // [084]
     // ns-directive-name ::=
     //   ns-char+
-    Grammar.prototype.ns_directive_name.num = 84;
+    ns_directive_name = r2s(RegExp(`^${ns_char}+`));
 
     // [085]
     // ns-directive-parameter ::=
     //   ns-char+
-    Grammar.prototype.ns_directive_parameter.num = 85;
+    ns_directive_parameter = r2s(RegExp(`^${ns_char}+`));
+
+    // [083]
+    // ns-reserved-directive ::=
+    //   ns-directive-name
+    //   ( s-separate-in-line ns-directive-parameter )*
+    re_ns_reserved_directive = RegExp(`^${ns_directive_name}(?:${s_separate_spaces}${ns_directive_parameter})*`);
+
+    // [087]
+    // ns-yaml-version ::=
+    //   ns-dec-digit+ '.' ns-dec-digit+
+    re_ns_yaml_version = RegExp(`^${ns_dec_digit}+\\.${ns_dec_digit}+`);
+
+    Grammar.prototype.ns_yaml_version.num = 87;
 
     // [086]
     // ns-yaml-directive ::=
     //   'Y' 'A' 'M' 'L'
     //   s-separate-in-line ns-yaml-version
-    Grammar.prototype.ns_yaml_directive.num = 86;
+    re_ns_yaml_directive = RegExp(`^(?:YAML${s_separate_spaces})`);
 
-    // [087]
-    // ns-yaml-version ::=
-    //   ns-dec-digit+ '.' ns-dec-digit+
-    Grammar.prototype.ns_yaml_version.num = 87;
+    Grammar.prototype.ns_yaml_directive.num = 86;
 
     // [088]
     // ns-tag-directive ::=
@@ -1612,42 +1012,48 @@
     //   s-separate-in-line ns-tag-prefix
     Grammar.prototype.ns_tag_directive.num = 88;
 
+    // [090]
+    // c-primary-tag-handle ::=
+    //   '!'
+    c_primary_tag_handle = r2s(/^!/);
+
+    // [091]
+    // c-secondary-tag-handle ::=
+    //   '!' '!'
+    c_secondary_tag_handle = r2s(/^!!/);
+
+    // [092]
+    // c-named-tag-handle ::=
+    //   '!' ns-word-char+ '!'
+    c_named_tag_handle = r2s(RegExp(`^!${ns_word_char}+!`));
+
     // [089]
     // c-tag-handle ::=
     //   c-named-tag-handle
     //   | c-secondary-tag-handle
     //   | c-primary-tag-handle
+    re_c_tag_handle = RegExp(`^(?:${c_named_tag_handle}|${c_secondary_tag_handle}|${c_primary_tag_handle})`);
+
+    c_tag_handle = r2s(re_c_tag_handle);
+
     Grammar.prototype.c_tag_handle.num = 89;
-
-    // [090]
-    // c-primary-tag-handle ::=
-    //   '!'
-    Grammar.prototype.c_primary_tag_handle.num = 90;
-
-    // [091]
-    // c-secondary-tag-handle ::=
-    //   '!' '!'
-    Grammar.prototype.c_secondary_tag_handle.num = 91;
-
-    // [092]
-    // c-named-tag-handle ::=
-    //   '!' ns-word-char+ '!'
-    Grammar.prototype.c_named_tag_handle.num = 92;
-
-    // [093]
-    // ns-tag-prefix ::=
-    //   c-ns-local-tag-prefix | ns-global-tag-prefix
-    Grammar.prototype.ns_tag_prefix.num = 93;
 
     // [094]
     // c-ns-local-tag-prefix ::=
     //   '!' ns-uri-char*
-    Grammar.prototype.c_ns_local_tag_prefix.num = 94;
+    c_ns_local_tag_prefix = r2s(RegExp(`^!${ns_uri_char}*`));
 
     // [095]
     // ns-global-tag-prefix ::=
     //   ns-tag-char ns-uri-char*
-    Grammar.prototype.ns_global_tag_prefix.num = 95;
+    ns_global_tag_prefix = r2s(RegExp(`^${ns_tag_char}${ns_uri_char}*`));
+
+    // [093]
+    // ns-tag-prefix ::=
+    //   c-ns-local-tag-prefix | ns-global-tag-prefix
+    re_ns_tag_prefix = RegExp(`^(?:${c_ns_local_tag_prefix}|${ns_global_tag_prefix})`);
+
+    Grammar.prototype.ns_tag_prefix.num = 93;
 
     // [096]
     // c-ns-properties(n,c) ::=
@@ -1664,39 +1070,23 @@
     //   | c-non-specific-tag
     Grammar.prototype.c_ns_tag_property.num = 97;
 
-    // [098]
-    // c-verbatim-tag ::=
-    //   '!' '<' ns-uri-char+ '>'
-    Grammar.prototype.c_verbatim_tag.num = 98;
-
-    // [099]
-    // c-ns-shorthand-tag ::=
-    //   c-tag-handle ns-tag-char+
-    Grammar.prototype.c_ns_shorthand_tag.num = 99;
-
-    // [100]
-    // c-non-specific-tag ::=
-    //   '!'
-    Grammar.prototype.c_non_specific_tag.num = 100;
+    // [103]
+    // ns-anchor-name ::=
+    //   ns-anchor-char+
+    ns_anchor_name = r2s(RegExp(`^(?:(?!${c_flow_indicator})${ns_char})+`));
 
     // [101]
     // c-ns-anchor-property ::=
     //   '&' ns-anchor-name
+    re_c_ns_anchor_property = RegExp(`^\\&${ns_anchor_name}`);
+
     Grammar.prototype.c_ns_anchor_property.num = 101;
-
-    // [102]
-    // ns-anchor-char ::=
-    //   ns-char - c-flow-indicator
-    Grammar.prototype.ns_anchor_char.num = 102;
-
-    // [103]
-    // ns-anchor-name ::=
-    //   ns-anchor-char+
-    Grammar.prototype.ns_anchor_name.num = 103;
 
     // [104]
     // c-ns-alias-node ::=
     //   '*' ns-anchor-name
+    re_c_ns_alias_node = RegExp(`^\\*${ns_anchor_name}`);
+
     Grammar.prototype.c_ns_alias_node.num = 104;
 
     // [105]
@@ -1712,12 +1102,14 @@
     // [107]
     // nb-double-char ::=
     //   c-ns-esc-char | ( nb-json - '\' - '"' )
-    Grammar.prototype.nb_double_char.num = 107;
+    nb_double_char = r2s(RegExp(`^(?:${c_ns_esc_char}|(?![\\\\\\"])${nb_json})`));
 
     // [108]
     // ns-double-char ::=
     //   nb-double-char - s-white
-    Grammar.prototype.ns_double_char.num = 108;
+    re_ns_double_char = RegExp(`^(?!${s_white})${nb_double_char}`);
+
+    ns_double_char = r2s(re_ns_double_char);
 
     // [109]
     // c-double-quoted(n,c) ::=
@@ -1736,7 +1128,7 @@
     // [111]
     // nb-double-one-line ::=
     //   nb-double-char*
-    Grammar.prototype.nb_double_one_line.num = 111;
+    re_nb_double_one_line = RegExp(`^${nb_double_char}*`);
 
     // [112]
     // s-double-escaped(n) ::=
@@ -1753,7 +1145,7 @@
     // [114]
     // nb-ns-double-in-line ::=
     //   ( s-white* ns-double-char )*
-    Grammar.prototype.nb_ns_double_in_line.num = 114;
+    re_nb_ns_double_in_line = RegExp(`^(?:${s_white}*${ns_double_char})*`);
 
     // [115]
     // s-double-next-line(n) ::=
@@ -1771,17 +1163,17 @@
     // [117]
     // c-quoted-quote ::=
     //   ''' '''
-    Grammar.prototype.c_quoted_quote.num = 117;
+    c_quoted_quote = r2s(/^''/);
 
     // [118]
     // nb-single-char ::=
     //   c-quoted-quote | ( nb-json - ''' )
-    Grammar.prototype.nb_single_char.num = 118;
+    nb_single_char = r2s(RegExp(`^(?:${c_quoted_quote}|(?:(?!')${nb_json}))`));
 
     // [119]
     // ns-single-char ::=
     //   nb-single-char - s-white
-    Grammar.prototype.ns_single_char.num = 119;
+    ns_single_char = r2s(RegExp(`^(?:(?!${s_white})${nb_single_char})`));
 
     // [120]
     // c-single-quoted(n,c) ::=
@@ -1800,12 +1192,12 @@
     // [122]
     // nb-single-one-line ::=
     //   nb-single-char*
-    Grammar.prototype.nb_single_one_line.num = 122;
+    re_nb_single_one_line = RegExp(`^${nb_single_char}*`);
 
     // [123]
     // nb-ns-single-in-line ::=
     //   ( s-white* ns-single-char )*
-    Grammar.prototype.nb_ns_single_in_line.num = 123;
+    nb_ns_single_in_line = r2s(RegExp(`^(?:${s_white}*${ns_single_char})*`));
 
     // [124]
     // s-single-next-line(n) ::=
@@ -1835,15 +1227,10 @@
     //   ( c = flow-key => ns-plain-safe-in )
     Grammar.prototype.ns_plain_safe.num = 127;
 
-    // [128]
-    // ns-plain-safe-out ::=
-    //   ns-char
-    Grammar.prototype.ns_plain_safe_out.num = 128;
-
     // [129]
     // ns-plain-safe-in ::=
     //   ns-char - c-flow-indicator
-    Grammar.prototype.ns_plain_safe_in.num = 129;
+    re_ns_plain_safe_in = RegExp(`^(?:(?!${c_flow_indicator})${ns_char})`);
 
     // [130]
     // ns-plain-char(c) ::=
@@ -1930,6 +1317,10 @@
     //   ( '?' s-separate(n,c)
     //   ns-flow-map-explicit-entry(n,c) )
     //   | ns-flow-map-implicit-entry(n,c)
+    ws_lookahead = r2s(RegExp(`^(?=$|${s_white}|${line_break})`));
+
+    re_ns_flow_map_entry = RegExp(`^\\?${ws_lookahead}`);
+
     Grammar.prototype.ns_flow_map_entry.num = 142;
 
     // [143]
@@ -1988,6 +1379,8 @@
     //   ( '?' s-separate(n,c)
     //   ns-flow-map-explicit-entry(n,c) )
     //   | ns-flow-pair-entry(n,c)
+    re_ns_flow_pair = RegExp(`^\\?${ws_lookahead}`);
+
     Grammar.prototype.ns_flow_pair.num = 150;
 
     // [151]
@@ -2270,12 +1663,6 @@
     //   c-l-block-map-implicit-value(n)
     Grammar.prototype.ns_l_block_map_implicit_entry.num = 192;
 
-    // [193]
-    // ns-s-block-map-implicit-key ::=
-    //   c-s-implicit-json-key(block-key)
-    //   | ns-s-implicit-yaml-key(block-key)
-    Grammar.prototype.ns_s_block_map_implicit_key.num = 193;
-
     // [194]
     // c-l-block-map-implicit-value(n) ::=
     //   ':' (
@@ -2335,11 +1722,19 @@
     // [203]
     // c-directives-end ::=
     //   '-' '-' '-'
+    re_c_directives_end = RegExp(`^---(?=$|${s_white}|${line_break})`);
+
+    c_directives_end = r2s(re_c_directives_end);
+
     Grammar.prototype.c_directives_end.num = 203;
 
     // [204]
     // c-document-end ::=
     //   '.' '.' '.'
+    re_c_document_end = /^\.\.\./;
+
+    c_document_end = r2s(re_c_document_end);
+
     Grammar.prototype.c_document_end.num = 204;
 
     // [205]
@@ -2352,6 +1747,8 @@
     //   <start_of_line>
     //   ( c-directives-end | c-document-end )
     //   ( b-char | s-white | <end_of_file> )
+    re_c_forbidden = RegExp(`^(?:${c_directives_end}|${c_document_end})(?:${b_char}|${s_white}|$)`);
+
     Grammar.prototype.c_forbidden.num = 206;
 
     // [207]

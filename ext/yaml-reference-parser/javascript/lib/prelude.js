@@ -31,6 +31,8 @@
 
   global.isString = _.isString;
 
+  global.isRegex = _.isRegExp;
+
   global.isFunction = _.isFunction;
 
   global.isArray = _.isArray;
@@ -50,6 +52,9 @@
     if (_.isString(value)) {
       return 'string';
     }
+    if (_.isRegex(value)) {
+      return 'regex';
+    }
     if (_.isFunction(value)) {
       return 'function';
     }
@@ -65,6 +70,9 @@
   global.stringify = function(o) {
     if (o === "\ufeff") {
       return "\\uFEFF";
+    }
+    if (isRegex(o)) {
+      return String(o);
     }
     if (isFunction(o)) {
       return `@${o.trace || o.name}`;
