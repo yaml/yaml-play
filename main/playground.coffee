@@ -103,10 +103,6 @@ class window.Playground extends EatMe
       .replace(/^=COMMENT .*\n?/mg, '')
       .replace(/^[^-+=].*\n?/gm, '')
 
-    if slug == 'goyaml'
-      output = output
-        .replace(/^\+DOC ---/mg, '+DOC')
-
     @status[slug] = ''
     if slug == 'refparse'
       @current = @iteration
