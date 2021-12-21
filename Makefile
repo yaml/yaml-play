@@ -36,6 +36,7 @@ SANDBOX_SCHEME := https
 SANDBOX_PORT ?= 31337
 SANDBOX_URL := $(shell gp url $(SANDBOX_PORT))
 export SANDBOX_URL
+export FAST_TEST := 1
 endif
 
 SANDBOX_SCHEME ?= http
