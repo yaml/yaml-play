@@ -34,7 +34,7 @@ HISTORY_FILE := /tmp/docker-bash_history
 ifdef GITPOD_HOST
 SANDBOX_SCHEME := https
 SANDBOX_PORT ?= 31337
-SANDBOX_URL := $(shell gp $(SANDBOX_PORT))
+SANDBOX_URL := $(shell gp url $(SANDBOX_PORT))
 export SANDBOX_URL
 endif
 

@@ -7,8 +7,10 @@ tasks:
 
 ports:
 - port: 4000
-  onOpen: open-preview
+  visibility: public
+  # onOpen: open-preview
 - port: 31337
+  visibility: public
 
 github:
   prebuilds:
