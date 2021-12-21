@@ -77,15 +77,21 @@ ifdef FAST_TEST
 else ifneq (,$(wildcard $(TMPEXT)/$(NPM_YAML)))
 	# This line intentionally left blank
 else ifneq ($(shell command -v npm),)
-	git clone $(NPM_YAML_REPO) $@
-	git -C $(NPM_YAML) worktree add -f v2 v2.0.0-6
-	git -C $(NPM_YAML) worktree add -f v1 v1.10.2
+	git clone -q $(NPM_YAML_REPO) $@
 	patch $@/config/rollup.browser-config.js < npm-yaml-rollup-master.patch
 	(cd $@ && npm install . && npm run build)
-	patch $@/v1/rollup.browser-config.js < npm-yaml-rollup-v1.patch
-	(cd $@/v1 && npm install . && npm run build)
+	[[ -d $@/browser/dist ]]
+	#
+	git -C $(NPM_YAML) worktree add -f v2 v2.0.0-6
 	patch $@/v2/config/rollup.browser-config.js < npm-yaml-rollup-v2.patch
 	(cd $@/v2 && npm install . && npm run build)
+	[[ -d $@/v2/browser/dist ]]
+	#
+	git -C $(NPM_YAML) worktree add -f v1 v1.10.2
+	patch $@/v1/rollup.browser-config.js < npm-yaml-rollup-v1.patch
+	(cd $@/v1 && npm install . && npm run build)
+	[[ -d $@/v1/browser/dist ]]
+	#
 	mkdir -p $(TMPEXT)
 	mv $@ $(TMPEXT)/
 else
