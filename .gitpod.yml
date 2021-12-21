@@ -1,0 +1,12 @@
+tasks:
+- init: |
+    make build
+    env | sort
+  command: |
+    echo "Hello!"
+    echo 'Run: make serve'
+
+github:
+  prebuilds:
+    master: true
+    branches: true
