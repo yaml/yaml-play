@@ -269,7 +269,7 @@ class window.Playground extends EatMe
     version = @conf.opts.sandbox
     args = "version=#{version}&parser=#{parser}"
 
-    sandbox_url = "#{scheme}://localhost:#{port}/?#{args}"
+    sandbox_url = "#{scheme}://localhost:#{port}/run/?#{args}"
     say @conf.opts.sandbox_url
     if url = @conf.opts.sandbox_url
       sandbox_url = url

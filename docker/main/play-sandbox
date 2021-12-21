@@ -12,7 +12,7 @@ required_version = open('/sandbox_version').read().rstrip()
 
 app = Flask(__name__)
 app.debug = True
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 def log(*msg):
   print(*msg, file=sys.stderr)
@@ -21,7 +21,7 @@ def log(*msg):
 def hello():
   return 'YAML'
 
-@app.route('/', methods=['POST'])
+@app.route('/run/', methods=['POST'])
 def processYaml():
   version = request.args.get('version')
   if version != required_version:
