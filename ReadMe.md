@@ -1,6 +1,8 @@
 YAML Playground Website Generation
 ==================================
 
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/yaml/yaml-play/tree/gitpod)
+
 This directory is responsible for publishing the content of this (yaml-play)
 repository to <https://play.yaml.io/>.
 
