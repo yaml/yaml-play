@@ -81,6 +81,8 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, startOnN
                 // Could here handle preceding comments differently
                 if (anchor || tag)
                     onError(token, 'BAD_PROP_ORDER', `Anchors and tags must be after the ${token.source} indicator`);
+                if (found)
+                    onError(token, 'UNEXPECTED_TOKEN', `Unexpected ${token.source} in ${flow || 'collection'}`);
                 found = token;
                 atNewline = false;
                 hasSpace = false;

@@ -226,6 +226,13 @@
       };
     }
 
+    may(func) {
+      var may;
+      return may = function() {
+        return this.call(func);
+      };
+    }
+
     // Repeat a rule a certain number of times:
     rep(min, max, func) {
       var rep;
@@ -310,35 +317,6 @@
 
     the_end() {
       return this.pos >= this.end || (this.state_curr().doc && this.start_of_line() && this.input.slice(this.pos).match(/^(?:---|\.\.\.)(?=\s|$)/));
-    }
-
-    rgx(regex) {
-      var rgx;
-      rgx = function() {
-        var m;
-        if (this.the_end()) {
-          return false;
-        }
-        if (m = this.input.slice(this.pos).match(regex)) {
-          this.pos += m[0].length;
-          return true;
-        }
-        return false;
-      };
-      return name_('rgx', rgx, `rgx(${stringify(regex)})`);
-    }
-
-    rgx2(regex) {
-      var rgx;
-      rgx = function() {
-        var m;
-        if (m = this.input.slice(this.pos).match(regex)) {
-          this.pos += m[0].length;
-          return true;
-        }
-        return false;
-      };
-      return name_('rgx', rgx, `rgx(${stringify(regex)})`);
     }
 
     // Match a single char:
@@ -660,9 +638,6 @@
       }
       if (!(this.trace_on || call === this.trace_start())) {
         return;
-      }
-      if (call.startsWith('rgx')) {
-        call = call.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
       }
       level = this.state_curr().lvl;
       indent = _.repeat(' ', level);

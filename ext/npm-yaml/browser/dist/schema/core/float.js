@@ -20,7 +20,10 @@ const floatExp = {
     format: 'EXP',
     test: /^[-+]?(?:\.[0-9]+|[0-9]+(?:\.[0-9]*)?)[eE][-+]?[0-9]+$/,
     resolve: str => parseFloat(str),
-    stringify: ({ value }) => Number(value).toExponential()
+    stringify(node) {
+        const num = Number(node.value);
+        return isFinite(num) ? num.toExponential() : stringifyNumber(node);
+    }
 };
 const float = {
     identify: value => typeof value === 'number',

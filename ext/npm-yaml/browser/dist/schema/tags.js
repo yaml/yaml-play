@@ -14,13 +14,13 @@ import { schema as schema$2 } from './yaml-1.1/schema.js';
 import { set } from './yaml-1.1/set.js';
 import { floatTime, intTime, timestamp } from './yaml-1.1/timestamp.js';
 
-const schemas = {
-    core: schema,
-    failsafe: [map, seq, string],
-    json: schema$1,
-    yaml11: schema$2,
-    'yaml-1.1': schema$2
-};
+const schemas = new Map([
+    ['core', schema],
+    ['failsafe', [map, seq, string]],
+    ['json', schema$1],
+    ['yaml11', schema$2],
+    ['yaml-1.1', schema$2]
+]);
 const tagsByName = {
     binary,
     bool: boolTag,
@@ -48,12 +48,12 @@ const coreKnownTags = {
     'tag:yaml.org,2002:timestamp': timestamp
 };
 function getTags(customTags, schemaName) {
-    let tags = schemas[schemaName];
+    let tags = schemas.get(schemaName);
     if (!tags) {
         if (Array.isArray(customTags))
             tags = [];
         else {
-            const keys = Object.keys(schemas)
+            const keys = Array.from(schemas.keys())
                 .filter(key => key !== 'yaml11')
                 .map(key => JSON.stringify(key))
                 .join(', ');

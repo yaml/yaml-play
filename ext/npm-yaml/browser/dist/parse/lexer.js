@@ -416,6 +416,7 @@ class Lexer {
             case ':': {
                 const next = this.charAt(1);
                 if (this.flowKey || isEmpty(next) || next === ',') {
+                    this.flowKey = false;
                     yield* this.pushCount(1);
                     yield* this.pushSpaces(true);
                     return 'flow';
@@ -623,6 +624,8 @@ class Lexer {
                 if (isEmpty(this.charAt(1))) {
                     if (this.flowLevel === 0)
                         this.indentNext = this.indentValue + 1;
+                    else if (this.flowKey)
+                        this.flowKey = false;
                     return ((yield* this.pushCount(1)) +
                         (yield* this.pushSpaces(true)) +
                         (yield* this.pushIndicators()));

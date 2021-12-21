@@ -1,6 +1,6 @@
 import { isNode } from '../nodes/Node.js';
 import { createStringifyContext, stringify } from './stringify.js';
-import { stringifyComment, addComment } from './stringifyComment.js';
+import { indentComment, lineComment } from './stringifyComment.js';
 
 function stringifyDocument(doc, options) {
     const lines = [];
@@ -16,20 +16,24 @@ function stringifyDocument(doc, options) {
     }
     if (hasDirectives)
         lines.push('---');
+    const ctx = createStringifyContext(doc, options);
+    const { commentString } = ctx.options;
     if (doc.commentBefore) {
         if (lines.length !== 1)
             lines.unshift('');
-        lines.unshift(stringifyComment(doc.commentBefore, ''));
+        const cs = commentString(doc.commentBefore);
+        lines.unshift(indentComment(cs, ''));
     }
-    const ctx = createStringifyContext(doc, options);
     let chompKeep = false;
     let contentComment = null;
     if (doc.contents) {
         if (isNode(doc.contents)) {
             if (doc.contents.spaceBefore && hasDirectives)
                 lines.push('');
-            if (doc.contents.commentBefore)
-                lines.push(stringifyComment(doc.contents.commentBefore, ''));
+            if (doc.contents.commentBefore) {
+                const cs = commentString(doc.contents.commentBefore);
+                lines.push(indentComment(cs, ''));
+            }
             // top-level block scalars need to be indented if followed by a comment
             ctx.forceBlockIndent = !!doc.comment;
             contentComment = doc.contents.comment;
@@ -37,7 +41,7 @@ function stringifyDocument(doc, options) {
         const onChompKeep = contentComment ? undefined : () => (chompKeep = true);
         let body = stringify(doc.contents, ctx, () => (contentComment = null), onChompKeep);
         if (contentComment)
-            body = addComment(body, '', contentComment);
+            body += lineComment(body, '', commentString(contentComment));
         if ((body[0] === '|' || body[0] === '>') &&
             lines[lines.length - 1] === '---') {
             // Top-level block scalars with a preceding doc marker ought to use the
@@ -56,7 +60,7 @@ function stringifyDocument(doc, options) {
     if (dc) {
         if ((!chompKeep || contentComment) && lines[lines.length - 1] !== '')
             lines.push('');
-        lines.push(stringifyComment(dc, ''));
+        lines.push(indentComment(commentString(dc), ''));
     }
     return lines.join('\n') + '\n';
 }

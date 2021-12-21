@@ -16,7 +16,7 @@ function resolveFlowCollection({ composeNode, composeEmptyNode }, ctx, fc, onErr
         ? new YAMLMap(ctx.schema)
         : new YAMLSeq(ctx.schema);
     coll.flow = true;
-    let offset = fc.offset;
+    let offset = fc.offset + fc.start.source.length;
     for (let i = 0; i < fc.items.length; ++i) {
         const collItem = fc.items[i];
         const { start, key, sep, value } = collItem;
@@ -40,6 +40,7 @@ function resolveFlowCollection({ composeNode, composeEmptyNode }, ctx, fc, onErr
                     else
                         coll.comment = props.comment;
                 }
+                offset = props.end;
                 continue;
             }
             if (!isMap && ctx.options.strict && containsNewline(key))
@@ -169,7 +170,12 @@ function resolveFlowCollection({ composeNode, composeEmptyNode }, ctx, fc, onErr
     if (ce && ce.source === expectedEnd)
         cePos = ce.offset + ce.source.length;
     else {
-        onError(offset + 1, 'MISSING_CHAR', `Expected ${fcName} to end with ${expectedEnd}`);
+        const atRoot = fc.indent === -1;
+        const name = fcName[0].toUpperCase() + fcName.substring(1);
+        const msg = atRoot
+            ? `${name} must end with a ${expectedEnd}`
+            : `${name} in block collection must be sufficiently indented and end with a ${expectedEnd}`;
+        onError(offset, atRoot ? 'MISSING_CHAR' : 'BAD_INDENT', msg);
         if (ce && ce.source.length !== 1)
             ee.unshift(ce);
     }

@@ -1,14 +1,18 @@
-const stringifyComment = (comment, indent) => /^\n+$/.test(comment)
-    ? comment.substring(1)
-    : comment.replace(/^(?!$)(?: $)?/gm, `${indent}#`);
-function addComment(str, indent, comment) {
-    return !comment
-        ? str
-        : comment.includes('\n')
-            ? `${str}\n` + stringifyComment(comment, indent)
-            : str.endsWith(' ')
-                ? `${str}#${comment}`
-                : `${str} #${comment}`;
+/**
+ * Stringifies a comment.
+ *
+ * Empty comment lines are left empty,
+ * lines consisting of a single space are replaced by `#`,
+ * and all other lines are prefixed with a `#`.
+ */
+const stringifyComment = (str) => str.replace(/^(?!$)(?: $)?/gm, '#');
+function indentComment(comment, indent) {
+    if (/^\n+$/.test(comment))
+        return comment.substring(1);
+    return indent ? comment.replace(/^(?! *$)/gm, indent) : comment;
 }
+const lineComment = (str, indent, comment) => comment.includes('\n')
+    ? '\n' + indentComment(comment, indent)
+    : (str.endsWith(' ') ? '' : ' ') + comment;
 
-export { addComment, stringifyComment };
+export { indentComment, lineComment, stringifyComment };

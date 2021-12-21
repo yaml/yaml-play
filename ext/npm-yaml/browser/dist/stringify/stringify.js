@@ -1,14 +1,12 @@
 import { anchorIsValid } from '../doc/anchors.js';
 import { isPair, isAlias, isNode, isScalar, isCollection } from '../nodes/Node.js';
+import { stringifyComment } from './stringifyComment.js';
 import { stringifyString } from './stringifyString.js';
 
-const createStringifyContext = (doc, options) => ({
-    anchors: new Set(),
-    doc,
-    indent: '',
-    indentStep: typeof options.indent === 'number' ? ' '.repeat(options.indent) : '  ',
-    options: Object.assign({
+function createStringifyContext(doc, options) {
+    const opt = Object.assign({
         blockQuote: true,
+        commentString: stringifyComment,
         defaultKeyType: null,
         defaultStringType: 'PLAIN',
         directives: null,
@@ -23,8 +21,15 @@ const createStringifyContext = (doc, options) => ({
         singleQuote: null,
         trueStr: 'true',
         verifyAliasOrder: true
-    }, options)
-});
+    }, doc.schema.toStringOptions, options);
+    return {
+        anchors: new Set(),
+        doc,
+        indent: '',
+        indentStep: typeof opt.indent === 'number' ? ' '.repeat(opt.indent) : '  ',
+        options: opt
+    };
+}
 function getTagObject(tags, item) {
     if (item.tag) {
         const match = tags.filter(t => t.tag === item.tag);

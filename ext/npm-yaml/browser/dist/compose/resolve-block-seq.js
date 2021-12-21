@@ -1,5 +1,6 @@
 import { YAMLSeq } from '../nodes/YAMLSeq.js';
 import { resolveProps } from './resolve-props.js';
+import { flowIndentCheck } from './util-flow-indent-check.js';
 
 function resolveBlockSeq({ composeNode, composeEmptyNode }, ctx, bs, onError) {
     const seq = new YAMLSeq(ctx.schema);
@@ -30,6 +31,8 @@ function resolveBlockSeq({ composeNode, composeEmptyNode }, ctx, bs, onError) {
         const node = value
             ? composeNode(ctx, value, props, onError)
             : composeEmptyNode(ctx, offset, start, null, props, onError);
+        if (ctx.schema.compat)
+            flowIndentCheck(bs.indent, value, onError);
         offset = node.range[2];
         seq.items.push(node);
     }

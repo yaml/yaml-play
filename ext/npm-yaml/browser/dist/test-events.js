@@ -81,7 +81,8 @@ function addEvents(events, doc, errPos, node) {
     if (isNode(node) && node.tag)
         props += ` <${node.tag}>`;
     if (isMap(node)) {
-        events.push(`+MAP${props}`);
+        const ev = node.flow ? '+MAP {}' : '+MAP';
+        events.push(`${ev}${props}`);
         node.items.forEach(({ key, value }) => {
             addEvents(events, doc, errPos, key);
             addEvents(events, doc, errPos, value);
@@ -89,7 +90,8 @@ function addEvents(events, doc, errPos, node) {
         events.push('-MAP');
     }
     else if (isSeq(node)) {
-        events.push(`+SEQ${props}`);
+        const ev = node.flow ? '+SEQ []' : '+SEQ';
+        events.push(`${ev}${props}`);
         node.items.forEach(item => {
             addEvents(events, doc, errPos, item);
         });

@@ -93,9 +93,6 @@
         return;
       }
       output = output.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^[^-+=].*\n?/gm, '');
-      if (slug === 'goyaml') {
-        output = output.replace(/^\+DOC ---/mg, '+DOC');
-      }
       this.status[slug] = '';
       if (slug === 'refparse') {
         this.current = this.iteration;

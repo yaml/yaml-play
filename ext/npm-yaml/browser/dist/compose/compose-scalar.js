@@ -1,4 +1,4 @@
-import { isScalar, SCALAR } from '../nodes/Node.js';
+import { SCALAR, isScalar } from '../nodes/Node.js';
 import { Scalar } from '../nodes/Scalar.js';
 import { resolveBlockScalar } from './resolve-block-scalar.js';
 import { resolveFlowScalar } from './resolve-flow-scalar.js';
@@ -12,7 +12,9 @@ function composeScalar(ctx, token, tagToken, onError) {
         : null;
     const tag = tagToken && tagName
         ? findScalarTagByName(ctx.schema, value, tagName, tagToken, onError)
-        : findScalarTagByTest(ctx.schema, value, token.type === 'scalar');
+        : token.type === 'scalar'
+            ? findScalarTagByTest(ctx, value, token, onError)
+            : ctx.schema[SCALAR];
     let scalar;
     try {
         const res = tag.resolve(value, msg => onError(tagToken || token, 'TAG_RESOLVE_FAILED', msg), ctx.options);
@@ -61,15 +63,19 @@ function findScalarTagByName(schema, value, tagName, tagToken, onError) {
     onError(tagToken, 'TAG_RESOLVE_FAILED', `Unresolved tag: ${tagName}`, tagName !== 'tag:yaml.org,2002:str');
     return schema[SCALAR];
 }
-function findScalarTagByTest(schema, value, apply) {
-    var _a;
-    if (apply) {
-        for (const tag of schema.tags) {
-            if (tag.default && ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(value)))
-                return tag;
+function findScalarTagByTest({ directives, schema }, value, token, onError) {
+    const tag = schema.tags.find(tag => { var _a; return tag.default && ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(value)); }) || schema[SCALAR];
+    if (schema.compat) {
+        const compat = schema.compat.find(tag => { var _a; return tag.default && ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(value)); }) ||
+            schema[SCALAR];
+        if (tag.tag !== compat.tag) {
+            const ts = directives.tagString(tag.tag);
+            const cs = directives.tagString(compat.tag);
+            const msg = `Value may be parsed as either ${ts} or ${cs}`;
+            onError(token, 'TAG_RESOLVE_FAILED', msg, true);
         }
     }
-    return schema[SCALAR];
+    return tag;
 }
 
 export { composeScalar };

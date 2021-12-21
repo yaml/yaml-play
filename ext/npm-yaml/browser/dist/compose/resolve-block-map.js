@@ -2,6 +2,7 @@ import { Pair } from '../nodes/Pair.js';
 import { YAMLMap } from '../nodes/YAMLMap.js';
 import { resolveProps } from './resolve-props.js';
 import { containsNewline } from './util-contains-newline.js';
+import { flowIndentCheck } from './util-flow-indent-check.js';
 import { mapIncludes } from './util-map-includes.js';
 
 const startColMsg = 'All mapping items must start at the same column';
@@ -48,6 +49,8 @@ function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError) {
         const keyNode = key
             ? composeNode(ctx, key, keyProps, onError)
             : composeEmptyNode(ctx, keyStart, start, null, keyProps, onError);
+        if (ctx.schema.compat)
+            flowIndentCheck(bm.indent, key, onError);
         if (mapIncludes(ctx, map.items, keyNode))
             onError(keyStart, 'DUPLICATE_KEY', 'Map keys must be unique');
         // value properties
@@ -71,6 +74,8 @@ function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError) {
             const valueNode = value
                 ? composeNode(ctx, value, valueProps, onError)
                 : composeEmptyNode(ctx, offset, sep, null, valueProps, onError);
+            if (ctx.schema.compat)
+                flowIndentCheck(bm.indent, value, onError);
             offset = valueNode.range[2];
             const pair = new Pair(keyNode, valueNode);
             if (ctx.options.keepSourceTokens)

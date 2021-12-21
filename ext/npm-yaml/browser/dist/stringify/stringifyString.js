@@ -147,7 +147,7 @@ function quotedString(value, ctx) {
     return qs(value, ctx);
 }
 function blockString({ comment, type, value }, ctx, onComment, onChompKeep) {
-    const { lineWidth, blockQuote } = ctx.options;
+    const { blockQuote, commentString, lineWidth } = ctx.options;
     // 1. Block can't end in whitespace unless the last line is non-empty.
     // 2. Strings consisting of only whitespace are best rendered explicitly.
     if (!blockQuote || /\n[\t ]+$/.test(value) || /^\s*$/.test(value)) {
@@ -212,7 +212,7 @@ function blockString({ comment, type, value }, ctx, onComment, onChompKeep) {
     const indentSize = indent ? '2' : '1'; // root is at -1
     let header = (literal ? '|' : '>') + (startWithSpace ? indentSize : '') + chomp;
     if (comment) {
-        header += ' #' + comment.replace(/ ?[\r\n]+/g, ' ');
+        header += ' ' + commentString(comment.replace(/ ?[\r\n]+/g, ' '));
         if (onComment)
             onComment();
     }
@@ -229,7 +229,6 @@ function blockString({ comment, type, value }, ctx, onComment, onChompKeep) {
     return `${header}\n${indent}${body}`;
 }
 function plainString(item, ctx, onComment, onChompKeep) {
-    var _a;
     const { type, value } = item;
     const { actualString, implicitKey, indent, inFlow } = ctx;
     if ((implicitKey && /[\n[\]{},]/.test(value)) ||
@@ -264,12 +263,10 @@ function plainString(item, ctx, onComment, onChompKeep) {
     // booleans get parsed with those types in v1.2 (e.g. '42', 'true' & '0.9e-3'),
     // and others in v1.1.
     if (actualString) {
-        for (const tag of ctx.doc.schema.tags) {
-            if (tag.default &&
-                tag.tag !== 'tag:yaml.org,2002:str' &&
-                ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(str)))
-                return quotedString(value, ctx);
-        }
+        const test = (tag) => { var _a; return tag.default && tag.tag !== 'tag:yaml.org,2002:str' && ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(str)); };
+        const { compat, tags } = ctx.doc.schema;
+        if (tags.some(test) || (compat === null || compat === void 0 ? void 0 : compat.some(test)))
+            return quotedString(value, ctx);
     }
     return implicitKey
         ? str

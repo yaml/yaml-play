@@ -104,7 +104,7 @@ class YAMLMap extends Collection {
         if (!ctx.allNullValues && this.hasAllNullValues(false))
             ctx = Object.assign({}, ctx, { allNullValues: true });
         return stringifyCollection(this, ctx, {
-            blockItem: n => n.str,
+            blockItemPrefix: '',
             flowChars: { start: '{', end: '}' },
             itemIndent: ctx.indent || '',
             onChompKeep,
