@@ -1,12 +1,17 @@
 tasks:
-- init: |
-    make build
-    env | sort
+- init: make build
+
   command: |
-    echo "Hello!"
-    echo 'Run: make serve'
+    echo 'make serve &'
+    echo "$(gp url 4000)/main/parser"
+
+ports:
+- port: 4000
+  onOpen: open-preview
+- port: 31337
 
 github:
   prebuilds:
-    master: true
+    main: true
+    gitpod: true
     branches: true

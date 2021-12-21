@@ -40,6 +40,7 @@
 {% endif %}
 {% if page.eatme.opts.sandbox %}
       conf.opts.sandbox = '{{site.sandbox_version}}';
+      conf.opts.sandbox_url = '{{site.sandbox_url}}';
 {% endif %}
       Playground.init({
         elem: 'pre',

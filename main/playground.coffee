@@ -269,10 +269,15 @@ class window.Playground extends EatMe
     version = @conf.opts.sandbox
     args = "version=#{version}&parser=#{parser}"
 
+    sandbox_url = "#{scheme}://localhost:#{port}/?#{args}"
+    say @conf.opts.sandbox_url
+    if url = @conf.opts.sandbox_url
+      sandbox_url = url
+
     try
       resp = $.ajax(
         type: 'POST'
-        url: "#{scheme}://localhost:#{port}/?#{args}"
+        url: sandbox_url
         data: { text: text }
         dataType: 'json'
         async: false

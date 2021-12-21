@@ -31,10 +31,19 @@ JEKYLL_BUILD := jekyll build --trace
 JEKYLL_SERVE := jekyll serve --host 0.0.0.0
 HISTORY_FILE := /tmp/docker-bash_history
 
+ifdef GITPOD_HOST
+SANDBOX_SCHEME := https
+SANDBOX_PORT ?= 31337
+SANDBOX_URL := $(shell gp $(SANDBOX_PORT))
+export SANDBOX_URL
+endif
+
+SANDBOX_SCHEME ?= http
 SANDBOX_PORT ?= 1337
 SANDBOX_IMAGE := yamlio/yaml-play-sandbox:$(SANDBOX_VERSION)
 SANDBOX_RUN := \
-  docker run --rm -d -p $(SANDBOX_PORT):$(SANDBOX_PORT) $(SANDBOX_IMAGE) http
+  docker run --rm -d -p $(SANDBOX_PORT):$(SANDBOX_PORT) $(SANDBOX_IMAGE) $(SANDBOX_SCHEME)
+
 
 #------------------------------------------------------------------------------
 # Gather all the build files:
@@ -122,6 +131,9 @@ _config.yml: jekyll/_config.yml
 	echo '# Added by build system:' >> $@
 	echo "baseurl: '$(BASEURL)'" >> $@
 	echo "sandbox_version: '$(SANDBOX_VERSION)'" >> $@
+ifdef SANDBOX_URL
+	echo "sandbox_url: '$(SANDBOX_URL)'" >> $@
+endif
 
 favicon.svg: $(EXT)/yaml-common/image/yaml-logo.svg
 	cp $< $@
