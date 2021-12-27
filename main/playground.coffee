@@ -114,6 +114,10 @@ class window.Playground extends EatMe
           setTimeout check, 100
           return
 
+        if slug == 'goyaml' and @refparse.match /^\+DOC$/m
+          output = output
+            .replace(/^\+DOC ---/m, '+DOC')
+
         if slug == 'refhs'
           if error
             output = ''
