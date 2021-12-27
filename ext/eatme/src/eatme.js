@@ -191,6 +191,7 @@
           var cm, do_calls;
           pane.cm = cm = CodeMirror.fromTextArea($textarea[0], {
             lineNumbers: true,
+            showTrailingSpace: true,
             tabSize: 4
           });
           do_calls = function() {
