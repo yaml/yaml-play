@@ -105,6 +105,9 @@
               setTimeout(check, 100);
               return;
             }
+            if (slug === 'goyaml' && _this.refparse.match(/^\+DOC$/m)) {
+              output = output.replace(/^\+DOC ---/m, '+DOC');
+            }
             if (slug === 'refhs') {
               if (error) {
                 output = '';
