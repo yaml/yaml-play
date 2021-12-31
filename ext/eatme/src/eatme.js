@@ -210,7 +210,7 @@
             }
             return results;
           };
-          cm.on('change', $.debounce(400, do_calls));
+          cm.on('change', $.debounce(1000, do_calls));
           return setTimeout(function() {
             do_calls();
             cm.focus();

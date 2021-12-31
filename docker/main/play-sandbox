@@ -42,6 +42,9 @@ def processYaml():
   status = result.returncode
   output = result.stdout.decode()
 
+  if status == 124 or status == 143:
+    output = "TIMEOUT - PROCESS TERMINATED\n\n" + output
+
   resp = {
     'status': status,
     'output': output,
