@@ -206,11 +206,12 @@
             for (i = 0, len = ref.length; i < len; i++) {
               call = ref[i];
               func = call[0], $to = call[1];
+              func = func.replace(/-/g, '_');
               results.push(self.call(func, text, $to));
             }
             return results;
           };
-          cm.on('change', $.debounce(1000, do_calls));
+          cm.on('change', $.debounce(300, do_calls));
           return setTimeout(function() {
             do_calls();
             cm.focus();
@@ -224,23 +225,11 @@
     };
 
     EatMe.prototype.call = function(func, text, $to) {
-      var e, error, show;
-      func = func.replace(/-/g, '_');
-      try {
-        show = this[func](text);
-        if (_.isString(show)) {
-          show = {
-            output: show
-          };
-        }
-      } catch (error1) {
-        e = error1;
-        error = (e.stack || e.msg || e).toString();
-        show = {
-          error: error
+      return this[func](text, (function(_this) {
+        return function(resp) {
+          return _this.show($to, resp);
         };
-      }
-      return this.show($to, show);
+      })(this));
     };
 
     EatMe.prototype.show = function($pane, show) {
