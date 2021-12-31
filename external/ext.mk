@@ -8,7 +8,7 @@ EXT_FILES := \
     ext/eatme/src/eatme.scss \
     ext/eatme/src/eatme.coffee \
     \
-    ext/yaml-reference-parser/1.2/javascript/lib/ \
+    ext/yaml-reference-parser/parser-1.2/javascript/lib/ \
     \
     ext/npm-yaml/browser/dist/ \
     ext/npm-yaml/v1/browser/dist/ \
