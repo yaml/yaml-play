@@ -35,6 +35,12 @@ This is a useful when reporting problems you come across.
 
 ## Setting up a Local Sandbox
 
+> **TL;DR for Mac Users**
+>
+> If you are on a Mac, run the docker command below and use the Safari browser.
+> At this time it seems that Safari isn't as over-cautious with regard to ajax
+> calls to your localhost (which require the tweaks described below).
+
 YAML frameworks are implemented in many programming languages.
 We want to be able to let you try all of them.
 This means we need a backend server to run the code.
