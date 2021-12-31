@@ -77,6 +77,13 @@ class window.Playground extends EatMe
 
     return fields.join("\t")
 
+  call: (func, text, $to)->
+    $to
+      .find('.eatme-box')
+      .css('border-top', '5px solid black')
+
+    super(func, text, $to)
+
   show: ($pane, data)->
     super($pane, data)
 
@@ -179,90 +186,89 @@ class window.Playground extends EatMe
       .replace(/\//g, '_')
     return "#{origin}#{pathname}?input=#{base64}"
 
-  refparse_event: (text)->
+  refparse_event: (text, cb)->
     parser = new Parser(new TestReceiver)
-    parser.parse(text)
-    return parser.receiver.output()
+    try
+      parser.parse(text)
+      cb(output: parser.receiver.output())
+    catch e
+      cb(error: e)
 
-  npmyaml_json: (text)->
+  npmyaml_json: (text, cb)->
     data = npmYAML.parse(text)
-    return JSON.stringify(data, null, 2)
+    cb(JSON.stringify(data, null, 2))
 
-  npmyaml1_json: (text)->
+  npmyaml1_json: (text, cb)->
     data = npmYAML1.parse(text)
-    return JSON.stringify(data, null, 2)
+    cb(JSON.stringify(data, null, 2))
 
-  npmyaml1_event: (text)->
-      {events, error} = npmYAML1.events(text)
-      throw error if error?
-      return events.join("\n")
+  npmyaml1_event: (text, cb)->
+    {events, error} = npmYAML1.events(text)
+    throw error if error?
+    cb(events.join("\n"))
 
-  npmyaml2_json: (text)->
+  npmyaml2_json: (text, cb)->
     data = npmYAML2.parse(text)
-    return JSON.stringify(data, null, 2)
+    cb(JSON.stringify(data, null, 2))
 
-  npmyaml2_event: (text)->
-      {events, error} = npmYAML2.events(text)
-      throw error if error?
-      return events.join("\n")
+  npmyaml2_event: (text, cb)->
+    {events, error} = npmYAML2.events(text)
+    throw error if error?
+    cb(events.join("\n"))
 
-  npmjsyaml_json: (text)->
+  npmjsyaml_json: (text, cb)->
     data = npmJSYAML.load(text)
-    return JSON.stringify(data, null, 2)
+    cb(JSON.stringify(data, null, 2))
 
-  refhs_yeast: (text)->
-    value = @localhost_server(text, 'yaml-test-parse-refhs')
-    if _.isString(value) and value.match(/\ =(?:ERR\ |REST)\|/)
-      throw value
-    else
-      return value
+  refhs_yeast: (text, cb)->
+    @localhost_server text, 'yaml-test-parse-refhs', (value)=>
+      if value.output? and value.output.match(/\ =(?:ERR\ |REST)\|/)
+        value = error: value.output
+      cb(value)
 
-#   yamlcpp_event: (text)->
-#     return @sandbox_event(text, 'yaml-test-parse-yamlcpp')
+#   yamlcpp_event: (text, cb)->
+#     cb(@sandbox_event(text, 'yaml-test-parse-yamlcpp'))
 
-  dotnet_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-dotnet')
+  dotnet_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-dotnet', cb)
 
-  goyaml_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-goyaml')
+  goyaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-goyaml', cb)
 
-  hsyaml_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-hsyaml')
+  hsyaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-hsyaml', cb)
 
-  libfyaml_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-libfyaml')
+  libfyaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-libfyaml', cb)
 
-  libyaml_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-libyaml')
+  libyaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-libyaml', cb)
 
-  luayaml_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-luayaml')
+  luayaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-luayaml', cb)
 
-  nimyaml_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-nimyaml')
+  nimyaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-nimyaml', cb)
 
-  npmyaml_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-npmyaml')
+  npmyaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-npmyaml', cb)
 
-  ppyaml_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-ppyaml')
+  ppyaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-ppyaml', cb)
 
-  pyyaml_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-pyyaml')
+  pyyaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-pyyaml', cb)
 
-  ruamel_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-ruamel')
+  ruamel_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-ruamel', cb)
 
-  snake_event: (text)->
-    return @sandbox_event(text, 'yaml-test-parse-snake')
+  snake_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-snake', cb)
 
-  sandbox_event: (text, parser)->
-    return @localhost_server(text, parser)
+  sandbox_event: (text, parser, cb)->
+    @localhost_server(text, parser, cb)
 
-  localhost_server: (text, parser)->
-    loc = window.location.href
-      .replace(/#$/, '')
-
+  localhost_server: (text, parser, cb)->
     if window.location.href.match(/^https/)
       scheme = 'https'
       port = 31337
@@ -273,41 +279,42 @@ class window.Playground extends EatMe
     version = @conf.opts.sandbox
     args = "version=#{version}&parser=#{parser}"
 
-    try
-      resp = $.ajax(
-        type: 'POST'
-        url: "#{scheme}://localhost:#{port}/?#{args}"
-        data: { text: text }
-        dataType: 'json'
-        async: false
-      )
-    catch e
-      window.ajax_error = e
+    resp = $.ajax
+      type: 'POST'
+      url: "#{scheme}://localhost:#{port}/?#{args}"
+      data: { text: text }
+      dataType: 'json'
+      error: =>
+        @server_error(scheme, port, version, cb)
+      success: (data, status)=>
+        if status == 'success'
+          if data?
+            if data.status == 0
+              cb(output: data.output)
+            else
+              cb(error: data.output)
+            return
 
-    if resp.status == 200
-      data = resp.responseJSON
-      if data?
-        if data.status == 0
-          return data.output
-        else
-          throw data.output
+  server_error: (scheme, port, version, cb)->
+    loc = window.location.href
+      .replace(/#$/, '')
 
     help = loc.replace(
-      /\/[^\/]+\?.*/,
-      "/#setting-up-a-local-sandbox",
+        /\/[^\/]+\?.*/,
+        "/#setting-up-a-local-sandbox",
     )
 
-    return mark: """
-      This pane requires a localhost sandbox server. Run:
+    cb mark: """
+        This pane requires a localhost sandbox server. Run:
 
-      ```
-      $ docker run --rm -d -p #{port}:#{port} \\
-          yamlio/yaml-play-sandbox:#{version} #{scheme}
-      ```
+        ```
+        $ docker run --rm -d -p #{port}:#{port} \\
+            yamlio/yaml-play-sandbox:#{version} #{scheme}
+        ```
 
-      on the same computer as your web browser.
+        on the same computer as your web browser.
 
-      See #{help}.
+        See #{help}.
 
-      [Chat with the YAML team](https://matrix.to/#/#chat:yaml.io).
-      """
+        [Chat with the YAML team](https://matrix.to/#/#chat:yaml.io).
+        """
