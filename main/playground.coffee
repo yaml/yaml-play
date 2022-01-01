@@ -281,7 +281,7 @@ class window.Playground extends EatMe
 
     resp = $.ajax
       type: 'POST'
-      url: "#{scheme}://localhost:#{port}/?#{args}"
+      url: "#{scheme}://0.0.0.0:#{port}/?#{args}"
       data: { text: text }
       dataType: 'json'
       error: =>
