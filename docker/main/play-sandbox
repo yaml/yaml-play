@@ -19,7 +19,7 @@ def log(*msg):
 
 @app.route('/', methods=['GET'])
 def hello():
-  return 'YAML'
+    return 'Success! Now try the playground again.'
 
 @app.route('/', methods=['POST'])
 def processYaml():
@@ -45,12 +45,23 @@ def processYaml():
   if status == 124 or status == 143:
     output = "TIMEOUT - PROCESS TERMINATED\n\n" + output
 
-  resp = {
+  data = {
     'status': status,
     'output': output,
   }
 
-  return json.dumps(resp)
+  response = app.response_class(
+    response=json.dumps(data),
+    status=200,
+    mimetype='application/json'
+  )
+
+  origin = request.headers.get('Origin', '')
+  app.logger.info(origin)
+  if origin.endswith('play.yaml.io'):
+    response.headers['Access-Control-Allow-Origin'] = origin
+
+  return response
 
 if __name__ == "__main__":
   host = '0.0.0.0'

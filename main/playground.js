@@ -334,7 +334,7 @@
       args = "version=" + version + "&parser=" + parser;
       return resp = $.ajax({
         type: 'POST',
-        url: scheme + "://localhost:" + port + "/?" + args,
+        url: scheme + "://0.0.0.0:" + port + "/?" + args,
         data: {
           text: text
         },
@@ -369,7 +369,7 @@
       loc = window.location.href.replace(/#$/, '');
       help = loc.replace(/\/[^\/]+\?.*/, "/#setting-up-a-local-sandbox");
       return cb({
-        mark: "This pane requires a localhost sandbox server. Run:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/yaml-play-sandbox:" + version + " " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + ".\n\n[Chat with the YAML team](https://matrix.to/#/#chat:yaml.io)."
+        mark: "This pane requires a localhost sandbox server. Run:\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/yaml-play-sandbox:" + version + " " + scheme + "\n```\non the same computer as your web browser, then click:\n" + scheme + "://0.0.0.0:" + port + " and accept the insecure certificate.\n\nSee " + help + " for more help, or\n[Chat with the YAML team](https://matrix.to/#/#chat:yaml.io)."
       });
     };
 
