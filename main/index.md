@@ -35,12 +35,6 @@ This is a useful when reporting problems you come across.
 
 ## Setting up a Local Sandbox
 
-> **TL;DR for Mac Users**
->
-> If you are on a Mac, run the docker command below and use the Safari browser.
-> At this time it seems that Safari isn't as over-cautious with regard to ajax
-> calls to your localhost (which require the tweaks described below).
-
 YAML frameworks are implemented in many programming languages.
 We want to be able to let you try all of them.
 This means we need a backend server to run the code.
@@ -48,63 +42,31 @@ This means we need a backend server to run the code.
 This, of course, has lots of security and hosting concerns.
 
 The way we get around all that is to have you host the backend yourself!
-Docker makes this trivial to do, and also assures that the only evil you can do
-is to your own machine. :)
+Docker makes this trivial to do.
 
 The playground will inform you when you need to run Docker, but we'll cover it
 here.
 
-Assuming you have [Docker installed](https://docs.docker.com/get-docker/), just
-run this command from a terminal:
+Assuming you have
+<a href="https://docs.docker.com/get-docker/" target="_blank">Docker installed</a>,
+just run this command from a terminal:
 
 ```
 docker run --rm -d -p 31337:31337 yamlio/yaml-play-sandbox:{{site.sandbox_version}} https
 ```
 
-This will start a local YAML Playground backend server, and your playgrounds
+This will start a local YAML Playground Sandbox Server, and your playgrounds
 will be able to work with them.
 
+The sandbox web server (Python Flask) uses https and has a self-signed
+certificate.
+You'll need to approve it with your browser after you start the server.
 
-### Required Browser Tweaks
+Simply click
+<a href="https://localhost:31337" target="_blank">https://localhost:31337</a>
+and follow the browser instructions to allow it.
 
-Calling a localhost server from a web page breaks some browser security rules,
-but it's pretty simple to work around them for this.
-
-Regardless of your browser, you'll need to open this URL one time:
-
-* <https://localhost:31337>
-* <http://localhost:1337> (for local `make serve`, see below)
-
-and authorize the untrusted SSL certificate for it.
-
-> Note: You should see the word `YAML` on the page if it works.
-
-The other thing you (might, depending on your browser) need to do is configure
-JavaScript to "allow invalid certificates for resources loaded from localhost".
-So far, we have tested and figured out how to do this on the Google Chrome,
-Firefox and Safari browsers.
-
-* Google Chrome (also works for Chromium)
-  * Enable `chrome://flags/#allow-insecure-localhost`
-  * Disable `chrome://flags/#block-insecure-private-network-requests`
-    * Needed for local `make serve` server (see below)
-
-* Firefox
-  * Open the `about:config` URL
-  * Search for `security.fileuri.strict_origin_policy` in the "Search preference
-    name" box
-  * Change value from `true` to `false`
-  * Restart Firefox
-
-* Safari
-  * Works without any extra special configuration changes
-
-That's everything.
-You should be all set to use all the playground things that need to run
-untrusted input on a server!
-
-We'll keep looking for ways to make this simpler.
-If you have ideas, let us know!
+After that, reload the playground page and everything should work as planned.
 
 
 ## Running the Playground Locally
@@ -122,7 +84,11 @@ $ cd yaml-play
 $ make serve
 ```
 
-Your local playground will be served at <http://0.0.0.0:4000/main/>.
+Your local playground will be served at
+<a href="http://0.0.0.0:4000/main/" target="_blank">http://0.0.0.0:4000/main/</a>
+
 The `make serve` command will automatically start the right docker container
 for you.
 It will also kill that container when you kill the local server (ctl-C).
+
+Since the local playground uses plain http, there is no certificate to approve.

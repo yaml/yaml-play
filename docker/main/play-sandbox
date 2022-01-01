@@ -15,11 +15,11 @@ app.debug = True
 CORS(app)
 
 def log(*msg):
-  print(*msg, file=sys.stderr)
+  app.logger.info(str(msg))
 
 @app.route('/', methods=['GET'])
 def hello():
-  return 'YAML'
+  return 'Success! Now close this page and reload the Playground.'
 
 @app.route('/', methods=['POST'])
 def processYaml():
@@ -45,12 +45,24 @@ def processYaml():
   if status == 124 or status == 143:
     output = "TIMEOUT - PROCESS TERMINATED\n\n" + output
 
-  resp = {
+  data = {
     'status': status,
     'output': output,
   }
 
-  return json.dumps(resp)
+  # return json.dumps(data)
+
+  response = app.response_class(
+    response=json.dumps(data),
+    status=200,
+    mimetype='application/json'
+  )
+
+  origin = request.headers.get('Origin', '')
+  if origin.endswith('iplay.yaml.io'):
+    response.headers['Access-Control-Allow-Origin'] = origin
+
+  return response
 
 if __name__ == "__main__":
   host = '0.0.0.0'

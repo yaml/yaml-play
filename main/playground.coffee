@@ -284,7 +284,8 @@ class window.Playground extends EatMe
       url: "#{scheme}://0.0.0.0:#{port}/?#{args}"
       data: { text: text }
       dataType: 'json'
-      error: =>
+      error: (xhr, status, error)=>
+        # say [xhr, status, error, xhr.getAllResponseHeaders()]
         @server_error(scheme, port, version, cb)
       success: (data, status)=>
         if status == 'success'
@@ -296,25 +297,29 @@ class window.Playground extends EatMe
             return
 
   server_error: (scheme, port, version, cb)->
-    loc = window.location.href
-      .replace(/#$/, '')
+    localhost_url = "#{scheme}://0.0.0.0:#{port}"
 
-    help = loc.replace(
+    $('.localhost-link').attr("href", localhost_url)
+    $('.localhost-url').text(localhost_url)
+    $('.scheme').text(scheme)
+    $('.port').text(port)
+    $('.version').text(version)
+
+    help = window.location.href
+      .replace(/#$/, '')
+      .replace(
         /\/[^\/]+\?.*/,
         "/#setting-up-a-local-sandbox",
-    )
+      )
+
+    $('.help-link').attr("href", help)
 
     cb mark: """
-        This pane requires a localhost sandbox server. Run:
+        This pane requires a local sandbox docker container.
 
-        ```
-        $ docker run --rm -d -p #{port}:#{port} \\
-            yamlio/yaml-play-sandbox:#{version} #{scheme}
-        ```
+        Click the button and follow the instructions:
 
-        on the same computer as your web browser.
-
-        See #{help}.
-
-        [Chat with the YAML team](https://matrix.to/#/#chat:yaml.io).
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#sandbox-modal">
+          Start Sandbox
+        </button>
         """

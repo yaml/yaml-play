@@ -116,3 +116,56 @@ baz:
 - two
 - null
 </pre>
+
+<div class="modal fade" id="sandbox-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Local Docker Sandbox Setup</h5>
+        <button type="button" class="close"
+                data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>This pane requires a local sandbox server to run all the YAML
+        parsers written in various programming languages.
+        The server runs as a Docker container on your computer.
+        </p>
+
+        <p><b>First</b>, run the following docker command on this computer:</p>
+
+        <p>
+        <code>
+        docker run --rm -d
+        -p <span class="port">11111</span>:<span class="port">11111</span>
+        yamlio/yaml-play-sandbox:<span class="version">1.2.3</span>
+        <span class="scheme">HTTPS</span>
+        </code>
+        </p>
+
+        <p><b>Next</b>, click this link which will open a tab to the web server
+        in the docker container. Follow the instructions to accept the self
+        signed HTTPS certificate.</p>
+
+        <p><a class="localhost-link" href="#" target="_blank"
+          ><span class="localhost-url">...</span></a></p>
+
+        <p><b>Finally</b>, click the Reload button and everything should work
+        properly.</p>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary float-left" data-dismiss="modal"
+            onClick="window.location.reload();"
+          >Reload</button>
+        </div>
+
+        <p>Click <a class="help-link" href="#" target="_blank">here</a> for
+        more information.</p>
+
+        <p><a href="https://matrix.to/#/#chat:yaml.io"
+          target="_blank">Chat with the YAML team</a>
+      </div>
+    </div>
+  </div>
+</div>
