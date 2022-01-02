@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Local Docker Sandbox Setup</h5>
+        <h5 class="modal-title">Local Docker Sandbox Server Setup</h5>
         <button type="button" class="close"
                 data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -18,10 +18,12 @@
 
         <p>
         <code>
-        docker run --rm -d
+        docker run
+        --rm
         -p <span class="port">11111</span>:<span class="port">11111</span>
+        -d
         yamlio/yaml-play-sandbox:<span class="version">1.2.3</span>
-        <span class="scheme">HTTPS</span>
+        <span class="port">11111</span>
         </code>
         </p>
 
@@ -32,11 +34,11 @@
         <p><a class="localhost-link" href="#" target="_blank"
           ><span class="localhost-url">...</span></a></p>
 
-        <p><b>Finally</b>, click the Reload button and everything should work
-        properly.</p>
+        <p><b>Finally</b>, click the <b>Reload</b> button and everything should
+        work properly.</p>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary float-left" data-dismiss="modal"
+          <button type="button" class="btn btn-primary" data-dismiss="modal"
             onClick="window.location.reload();"
           >Reload</button>
         </div>
@@ -45,7 +47,7 @@
         more information.</p>
 
         <p><a href="https://matrix.to/#/#chat:yaml.io"
-          target="_blank">Chat with the YAML team</a>
+              target="_blank">Chat with the YAML team</a></p>
       </div>
     </div>
   </div>
