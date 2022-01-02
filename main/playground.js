@@ -340,7 +340,7 @@
         },
         dataType: 'json',
         error: (function(_this) {
-          return function() {
+          return function(xhr, status, error) {
             return _this.server_error(scheme, port, version, cb);
           };
         })(this),
@@ -365,11 +365,17 @@
     };
 
     Playground.prototype.server_error = function(scheme, port, version, cb) {
-      var help, loc;
-      loc = window.location.href.replace(/#$/, '');
-      help = loc.replace(/\/[^\/]+\?.*/, "/#setting-up-a-local-sandbox");
+      var help, localhost_url;
+      localhost_url = scheme + "://0.0.0.0:" + port;
+      $('.localhost-link').attr("href", localhost_url);
+      $('.localhost-url').text(localhost_url);
+      $('.scheme').text(scheme);
+      $('.port').text(port);
+      $('.version').text(version);
+      help = window.location.href.replace(/#$/, '').replace(/\/[^\/]+\?.*/, "/#setting-up-a-local-sandbox");
+      $('.help-link').attr("href", help);
       return cb({
-        mark: "This pane requires a localhost sandbox server. Run:\n\n```\n$ docker run --rm -d -p " + port + ":" + port + " \\\n    yamlio/yaml-play-sandbox:" + version + " " + scheme + "\n```\n\non the same computer as your web browser.\n\nSee " + help + ".\n\n[Chat with the YAML team](https://matrix.to/#/#chat:yaml.io)."
+        mark: "This pane requires a local sandbox docker container.\n\nClick the button and follow the instructions:\n\n<button type=\"button\" class=\"btn btn-primary btn-sm\" data-toggle=\"modal\" data-target=\"#sandbox-modal\">\n  Start Sandbox\n</button>"
       });
     };
 
