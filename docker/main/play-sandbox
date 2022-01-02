@@ -78,10 +78,8 @@ if __name__ == "__main__":
   port = sys.argv[1]
   if sys.argv[1] == '1337':
     ssl_context = None
-  elif sys.argv[1] == 'http':
-    ssl_context = 'adhoc'
   else:
-    raise ValueError("Invalid argument '%s'" % sys.argv[1])
+    ssl_context = 'adhoc'
 
   app.run(
     ssl_context=ssl_context,
