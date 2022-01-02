@@ -34,7 +34,10 @@ HISTORY_FILE := /tmp/docker-bash_history
 SANDBOX_PORT ?= 1337
 SANDBOX_IMAGE := yamlio/yaml-play-sandbox:$(SANDBOX_VERSION)
 SANDBOX_RUN := \
-  docker run --rm -d -p $(SANDBOX_PORT):$(SANDBOX_PORT) $(SANDBOX_IMAGE) http
+  docker run --rm -d -p \
+    $(SANDBOX_PORT):$(SANDBOX_PORT) \
+    $(SANDBOX_IMAGE) \
+    $(SANDBOX_PORT)
 
 #------------------------------------------------------------------------------
 # Gather all the build files:
