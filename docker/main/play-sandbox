@@ -23,7 +23,7 @@ def hello():
 <h2>Success!</h2>
 <script>
 setTimeout(function() {
-  alert("HTTPS Enabled!\\nClose this and reload the Playground.");
+  alert("HTTPS Enabled!\\n\\nClick OK to close, then reload the Playground.");
   window.close();
 },1000);
 </script>
