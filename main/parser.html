@@ -229,7 +229,7 @@ window.npmYAML2 = {
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Local Docker Sandbox Setup</h5>
+        <h5 class="modal-title">Local Docker Sandbox Server Setup</h5>
         <button type="button" class="close"
                 data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -243,7 +243,7 @@ window.npmYAML2 = {
 
         <p><b>First</b>, run the following docker command on this computer:</p>
 
-        <blockquote>
+        <p>
         <code>
         docker run
         --rm
@@ -252,7 +252,7 @@ window.npmYAML2 = {
         yamlio/yaml-play-sandbox:<span class="version">1.2.3</span>
         <span class="port">11111</span>
         </code>
-        </blockquote>
+        </p>
 
         <p><b>Next</b>, click this link which will open a tab to the web server
         in the docker container. Follow the instructions to accept the self
@@ -261,11 +261,11 @@ window.npmYAML2 = {
         <p><a class="localhost-link" href="#" target="_blank"
           ><span class="localhost-url">...</span></a></p>
 
-        <p><b>Finally</b>, click the Reload button and everything should work
-        properly.</p>
+        <p><b>Finally</b>, click the <b>Reload</b> button and everything should
+        work properly.</p>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary float-left" data-dismiss="modal"
+          <button type="button" class="btn btn-primary" data-dismiss="modal"
             onClick="window.location.reload();"
           >Reload</button>
         </div>
@@ -274,7 +274,7 @@ window.npmYAML2 = {
         more information.</p>
 
         <p><a href="https://matrix.to/#/#chat:yaml.io"
-          target="_blank">Chat with the YAML team</a>
+              target="_blank">Chat with the YAML team</a></p>
       </div>
     </div>
   </div>
