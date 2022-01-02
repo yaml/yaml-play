@@ -243,14 +243,14 @@ window.npmYAML2 = {
 
         <p><b>First</b>, run the following docker command on this computer:</p>
 
-        <p>
+        <blockquote>
         <code>
         docker run --rm -d
         -p <span class="port">11111</span>:<span class="port">11111</span>
         yamlio/yaml-play-sandbox:<span class="version">1.2.3</span>
-        <span class="scheme">HTTPS</span>
+        <span class="port">11111</span>
         </code>
-        </p>
+        </blockquote>
 
         <p><b>Next</b>, click this link which will open a tab to the web server
         in the docker container. Follow the instructions to accept the self
@@ -279,7 +279,7 @@ window.npmYAML2 = {
 </div>
 
 
-<pre style="display:none">
+<pre class="eatme" style="display:none">
 # Edit Me!
 
 %YAML 1.2
@@ -299,10 +299,10 @@ baz:
       var conf = {"slug":"playground-parser-events","cols":4,"html":"<div class=\"container-fluid row\">","opts":{"status":true,"sandbox":true},"pane":[{"name":"Menu of Examples","slug":"menu","mark":"* foo\n* bar\n"},{"name":"YAML Input","slug":"yaml-input","type":"input","colx":1},{"name":"New Reference Parser (JS)","slug":"refparse","call":["refparse-event","yaml-input"],"colx":1},{"name":"Old/Oren's Reference Parser (Haskell)","slug":"refhs","call":["refhs-yeast","yaml-input"],"colx":1},{"name":"YamlDotNet (C#)","slug":"dotnet","type":"text","call":["dotnet-event","yaml-input"],"colx":2},{"name":"Go YAML (Go)","slug":"goyaml","call":["goyaml-event","yaml-input"],"colx":2},{"name":"HsYAML (Haskell)","slug":"hsyaml","type":"text","call":["hsyaml-event","yaml-input"],"colx":2},{"name":"libfyaml (C)","slug":"libfyaml","call":["libfyaml-event","yaml-input"],"colx":2},{"name":"libyaml (C)","slug":"libyaml","call":["libyaml-event","yaml-input"],"colx":3},{"name":"luayaml (Lua)","slug":"luayaml","call":["luayaml-event","yaml-input"],"colx":3},{"name":"NimYAML (Nim)","slug":"nimyaml","type":"text","call":["nimyaml-event","yaml-input"],"colx":3},{"name":"NPM 'yaml' master (JS)","slug":"npmyaml","type":"text","call":["npmyaml-event","yaml-input"],"colx":3},{"name":"YAML::PP (Perl)","slug":"ppyaml","call":["ppyaml-event","yaml-input"],"colx":4},{"name":"PyYAML (Python)","slug":"pyyaml","call":["pyyaml-event","yaml-input"],"colx":4},{"name":"Ruamel (Python)","slug":"ruamel","type":"text","call":["ruamel-event","yaml-input"],"colx":4},{"name":"SnakeYAML (Java)","slug":"snake","type":"text","call":["snake-event","yaml-input"],"colx":4}]};
 
 
-      conf.opts.sandbox = '0.1.11-E';
+      conf.opts.sandbox = '0.1.11-F';
 
       Playground.init({
-        elem: 'pre',
+        elem: 'pre.eatme',
         conf: Playground.conf(conf),
       });
     });
