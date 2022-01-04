@@ -18,7 +18,7 @@ RUN ( \
         echo DE; \
         echo Dover; \
         echo "YAML LLC"; \
-        echo "Playground Sandbox"; \
+        echo "Jan 4 2022"; \
         echo "YAML LLC"; \
         echo ingy@yaml.com \
     ) | \
