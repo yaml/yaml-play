@@ -79,7 +79,8 @@ if __name__ == "__main__":
   if sys.argv[1] == '1337':
     ssl_context = None
   else:
-    ssl_context = 'adhoc'
+    # ssl_context = 'adhoc'
+    ssl_context = ('/cert.pem', '/key.pem')
 
   app.run(
     ssl_context=ssl_context,
