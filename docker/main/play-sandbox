@@ -67,7 +67,7 @@ def processYaml():
   )
 
   origin = request.headers.get('Origin', '')
-  if origin.endswith('iplay.yaml.io'):
+  if origin.endswith('play.yaml.io'):
     response.headers['Access-Control-Allow-Origin'] = origin
 
   return response
@@ -79,7 +79,8 @@ if __name__ == "__main__":
   if sys.argv[1] == '1337':
     ssl_context = None
   else:
-    ssl_context = 'adhoc'
+    # ssl_context = 'adhoc'
+    ssl_context = ('/cert.pem', '/key.pem')
 
   app.run(
     ssl_context=ssl_context,

@@ -11,6 +11,7 @@ RUN apk update \
         libffi-dev \
         m4 \
         musl-dev \
+        openssl \
         openssl-dev \
         perl \
         perl-app-cpanminus \

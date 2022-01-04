@@ -63,7 +63,7 @@ certificate.
 You'll need to approve it with your browser after you start the server.
 
 Simply click
-<a href="https://localhost:31337" target="_blank">https://localhost:31337</a>
+<a href="https://0.0.0.0:31337" target="_blank">https://0.0.0.0:31337</a>
 and follow the browser instructions to allow it.
 
 After that, reload the playground page and everything should work as planned.
