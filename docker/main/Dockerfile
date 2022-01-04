@@ -18,8 +18,8 @@ RUN ( \
         echo DE; \
         echo Dover; \
         echo "YAML LLC"; \
-        echo; \
-        echo "Ingy dot Net"; \
+        echo "Playground Sandbox"; \
+        echo "YAML LLC"; \
         echo ingy@yaml.com \
     ) | \
     openssl req \
