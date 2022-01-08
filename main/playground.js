@@ -46,7 +46,7 @@
       return navigator.clipboard.writeText(tsv);
     };
 
-    Playground.prototype.parsers = ['refparse', 'refhs', 'dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'nimyaml', 'npmyaml', 'ppyaml', 'pyyaml', 'ruamel', 'snake'];
+    Playground.prototype.parsers = ['refparse', 'refhs', 'dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'nimyaml', 'npmyaml', 'ppyaml', 'pyyaml', 'ruamel', 'rustyaml', 'snake'];
 
     Playground.prototype.make_tsv = function() {
       var $panes, fields, j, len, parser, play, ref, refparse, tree, yaml;
@@ -108,21 +108,26 @@
       } else {
         check = (function(_this) {
           return function() {
+            var refparse;
             if (_this.current !== _this.iteration) {
               setTimeout(check, 100);
               return;
             }
-            if (slug === 'goyaml' && _this.refparse.match(/^\+DOC$/m)) {
+            refparse = _this.refparse;
+            if (slug === 'rustyaml') {
+              refparse = refparse.replace(/^\+DOC ---/m, '+DOC');
+            }
+            if (slug === 'goyaml' && refparse.match(/^\+DOC$/m)) {
               output = output.replace(/^\+DOC ---/m, '+DOC');
             }
             if (slug === 'refhs') {
               if (error) {
                 output = '';
               } else {
-                output = _this.refparse;
+                output = refparse;
               }
             }
-            if ((_this.refparse != null) && output === _this.refparse) {
+            if ((refparse != null) && output === refparse) {
               $box.css('border-top', '5px solid green');
               return _this.status[slug] = '';
             } else {
@@ -313,6 +318,10 @@
 
     Playground.prototype.ruamel_event = function(text, cb) {
       return this.sandbox_event(text, 'yaml-test-parse-ruamel', cb);
+    };
+
+    Playground.prototype.rustyaml_event = function(text, cb) {
+      return this.sandbox_event(text, 'yaml-test-parse-rustyaml', cb);
     };
 
     Playground.prototype.snake_event = function(text, cb) {
