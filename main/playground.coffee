@@ -100,8 +100,10 @@ class window.Playground extends EatMe
     $box = null
     if error
       $box = pane.$error
+      pane.$output.text('')
     else if output
       $box = pane.$output
+      pane.$error.text('')
     else
       return
 
