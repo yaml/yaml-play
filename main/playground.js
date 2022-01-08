@@ -49,8 +49,8 @@
     Playground.prototype.parsers = ['refparse', 'refhs', 'dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'nimyaml', 'npmyaml', 'ppyaml', 'pyyaml', 'ruamel', 'snake'];
 
     Playground.prototype.make_tsv = function() {
-      var $panes, fields, j, len, parser, play, ref, refparse, tree, yaml;
-      $panes = this.$panes;
+      var fields, j, len, parser, play, ref, refparse, tree, yaml;
+      window.$panes = this.$panes;
       yaml = $panes['yaml-input'][0].cm.getValue();
       tree = $panes['refparse'][0].$output.text();
       refparse = tree;
@@ -92,8 +92,10 @@
       $box = null;
       if (error) {
         $box = pane.$error;
+        pane.$output.text('');
       } else if (output) {
         $box = pane.$output;
+        pane.$error.text('');
       } else {
         return;
       }
