@@ -78,7 +78,7 @@
     };
 
     Playground.prototype.show = function($pane, data) {
-      var $box, check, error, output, pane, slug;
+      var $box, check, error, output, pane, slug, text;
       Playground.__super__.show.call(this, $pane, data);
       if (!this.conf.opts.status) {
         return;
@@ -95,9 +95,11 @@
         pane.$output.text('');
       } else if (output) {
         $box = pane.$output;
+        text = output.replace(/(\ +)$/gm, function(m, m1) {
+          return _.repeat('␣', m1.length);
+        });
+        pane.$output.text(text);
         pane.$error.text('');
-      } else {
-        return;
       }
       output = output.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^[^-+=].*\n?/gm, '');
       this.status[slug] = '';
