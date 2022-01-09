@@ -108,7 +108,7 @@
       } else {
         check = (function(_this) {
           return function() {
-            var refparse;
+            var anchor, i, m, refparse;
             if (_this.current !== _this.iteration) {
               setTimeout(check, 100);
               return;
@@ -116,6 +116,15 @@
             refparse = _this.refparse;
             if (slug === 'rustyaml') {
               refparse = refparse.replace(/^\+DOC ---/m, '+DOC');
+              refparse = refparse.replace(/^\+MAP \{\}(\ ?)/m, '+MAP$1').replace(/^\+SEQ \[\](\ ?)/m, '+SEQ$1');
+              if (output.match(/\&1/)) {
+                i = 1;
+                while (m = refparse.match(/\&([a-zA-Z]\S*)/)) {
+                  anchor = m[1];
+                  refparse = refparse.replace(RegExp("([\\&\\*])" + anchor, "g"), "$1" + i);
+                  i++;
+                }
+              }
             }
             if (slug === 'goyaml' && refparse.match(/^\+DOC$/m)) {
               output = output.replace(/^\+DOC ---/m, '+DOC');
