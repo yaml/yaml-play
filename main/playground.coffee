@@ -127,8 +127,29 @@ class window.Playground extends EatMe
         refparse = @refparse
 
         if slug == 'rustyaml'
+          output = output
+            .replace(/<Tag\("!!",\ "(.*?)"\)>/g, '<tag:yaml.org,2002:$1>')
+            .replace(/<Tag\("!",\ "(.*?)"\)>/g, '<!$1>')
+            .replace(/<Tag\("",\ "!"\)>/g, '<!>')
+            .replace(/<Tag\("",\ "(tag:.*?)"\)>/g, '<$1>')
+            .replace(/<Tag\("",\ "(!.*?)"\)>/g, '<$1>')
+
           refparse = refparse
-            .replace(/^\+DOC ---/m, '+DOC')
+            .replace(/^\+DOC ---/gm, '+DOC')
+            .replace(/^-DOC \.\.\./gm, '-DOC')
+            .replace(/^=VAL :$/gm, '=VAL :~')
+            .replace(/^\+MAP \{\}(\ ?)/gm, '+MAP$1')
+            .replace(/^\+SEQ \[\](\ ?)/gm, '+SEQ$1')
+
+          if output.match(/\&1/)
+            i = 1
+            while m = refparse.match(/\&([a-zA-Z]\S*)/)
+              anchor = m[1]
+              refparse = refparse.replace ///([\&\*])#{anchor}///g, "$1#{i}"
+              i++
+
+           # say "refparse: >>#{refparse}"
+           # say "output: >>#{output}"
 
         if slug == 'goyaml' and refparse.match /^\+DOC$/m
           output = output
