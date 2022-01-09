@@ -100,6 +100,8 @@
         });
         pane.$output.text(text);
         pane.$error.text('');
+      } else {
+        return;
       }
       output = output.replace(/\s+(\{\}|\[\])$/mg, '').replace(/^=COMMENT .*\n?/mg, '').replace(/^[^-+=].*\n?/gm, '');
       this.status[slug] = '';
