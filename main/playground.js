@@ -125,8 +125,6 @@
                   i++;
                 }
               }
-              say("refparse: >>" + refparse);
-              say("output: >>" + output);
             }
             if (slug === 'goyaml' && refparse.match(/^\+DOC$/m)) {
               output = output.replace(/^\+DOC ---/m, '+DOC');
@@ -134,8 +132,10 @@
             if (slug === 'refhs') {
               if (error) {
                 output = '';
-              } else {
+              } else if (refparse !== '') {
                 output = refparse;
+              } else {
+                output = 'xxx';
               }
             }
             if ((refparse != null) && output === refparse) {
