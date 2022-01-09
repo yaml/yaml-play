@@ -115,7 +115,7 @@
             }
             refparse = _this.refparse;
             if (slug === 'rustyaml') {
-              output = output.replace(/<Tag\("!!",\ "(.*?)"\)>/g, '<tag:yaml.org,2002:$1>');
+              output = output.replace(/<Tag\("!!",\ "(.*?)"\)>/g, '<tag:yaml.org,2002:$1>').replace(/<Tag\("!",\ "(.*?)"\)>/g, '<!$1>').replace(/<Tag\("",\ "!"\)>/g, '<!>');
               refparse = refparse.replace(/^\+DOC ---/gm, '+DOC').replace(/^-DOC \.\.\./gm, '-DOC').replace(/^=VAL :$/gm, '=VAL :~').replace(/^\+MAP \{\}(\ ?)/gm, '+MAP$1').replace(/^\+SEQ \[\](\ ?)/gm, '+SEQ$1');
               if (output.match(/\&1/)) {
                 i = 1;
