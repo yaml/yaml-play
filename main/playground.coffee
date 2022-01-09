@@ -158,8 +158,10 @@ class window.Playground extends EatMe
         if slug == 'refhs'
           if error
             output = ''
-          else
+          else if refparse != ''
             output = refparse
+          else
+            output = 'xxx'
 
         if refparse? and output == refparse
           $box.css('border-top', '5px solid green')
