@@ -52,6 +52,7 @@ class window.Playground extends EatMe
     'ppyaml'
     'pyyaml'
     'ruamel'
+    'rustyaml'
     'snake'
   ]
 
@@ -123,7 +124,13 @@ class window.Playground extends EatMe
           setTimeout check, 100
           return
 
-        if slug == 'goyaml' and @refparse.match /^\+DOC$/m
+        refparse = @refparse
+
+        if slug == 'rustyaml'
+          refparse = refparse
+            .replace(/^\+DOC ---/m, '+DOC')
+
+        if slug == 'goyaml' and refparse.match /^\+DOC$/m
           output = output
             .replace(/^\+DOC ---/m, '+DOC')
 
@@ -131,9 +138,9 @@ class window.Playground extends EatMe
           if error
             output = ''
           else
-            output = @refparse
+            output = refparse
 
-        if @refparse? and output == @refparse
+        if refparse? and output == refparse
           $box.css('border-top', '5px solid green')
           @status[slug] = ''
         else
@@ -263,6 +270,9 @@ class window.Playground extends EatMe
 
   ruamel_event: (text, cb)->
     @sandbox_event(text, 'yaml-test-parse-ruamel', cb)
+
+  rustyaml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-rustyaml', cb)
 
   snake_event: (text, cb)->
     @sandbox_event(text, 'yaml-test-parse-snake', cb)

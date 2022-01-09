@@ -35,7 +35,7 @@ eatme:
     slug: dotnet
     type: text
     call: [dotnet-event, yaml-input]
-    colx: 2
+    colx: 1
 
   - name: Go YAML (Go)
     slug: goyaml
@@ -56,7 +56,7 @@ eatme:
   - name: libyaml (C)
     slug: libyaml
     call: [libyaml-event, yaml-input]
-    colx: 3
+    colx: 2
 
   - name: luayaml (Lua)
     slug: luayaml
@@ -78,7 +78,7 @@ eatme:
   - name: YAML::PP (Perl)
     slug: ppyaml
     call: [ppyaml-event, yaml-input]
-    colx: 4
+    colx: 3
 
   - name: PyYAML (Python)
     slug: pyyaml
@@ -89,6 +89,12 @@ eatme:
     slug: ruamel
     type: text
     call: [ruamel-event, yaml-input]
+    colx: 4
+
+  - name: Serde YAML (Rust)
+    slug: rustyaml
+    type: text
+    call: [rustyaml-event, yaml-input]
     colx: 4
 
   - name: SnakeYAML (Java)
