@@ -1,7 +1,7 @@
 ARG RUNTIMES_VERSION
 
 # Images to COPY from:
-FROM yamlio/yaml-play-sandbox-python:0.0.1 AS python
+FROM yamlio/yaml-play-sandbox-python:0.0.2 AS python
 
 # Build the main image 'yaml-play-sandbox':
 FROM yamlio/yaml-test-runtimes:$RUNTIMES_VERSION
