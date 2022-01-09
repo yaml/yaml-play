@@ -104,6 +104,10 @@ class window.Playground extends EatMe
       pane.$output.text('')
     else if output
       $box = pane.$output
+      text = output
+        .replace /(\ +)$/gm, (m, m1)->
+          _.repeat('␣', m1.length)
+      pane.$output.text(text)
       pane.$error.text('')
     else
       return
