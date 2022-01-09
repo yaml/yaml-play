@@ -115,7 +115,7 @@
             }
             refparse = _this.refparse;
             if (slug === 'rustyaml') {
-              refparse = refparse.replace(/^\+DOC ---/m, '+DOC').replace(/^=VAL :$/gm, '=VAL :~').replace(/^\+MAP \{\}(\ ?)/gm, '+MAP$1').replace(/^\+SEQ \[\](\ ?)/gm, '+SEQ$1').replace(/^\+SEQ \[\](\ ?)/gm, '+SEQ$1');
+              refparse = refparse.replace(/^\+DOC ---/gm, '+DOC').replace(/^-DOC \.\.\./gm, '-DOC').replace(/^=VAL :$/gm, '=VAL :~').replace(/^\+MAP \{\}(\ ?)/gm, '+MAP$1').replace(/^\+SEQ \[\](\ ?)/gm, '+SEQ$1');
               say(refparse);
               if (output.match(/\&1/)) {
                 i = 1;
