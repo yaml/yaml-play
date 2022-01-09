@@ -115,8 +115,8 @@
             }
             refparse = _this.refparse;
             if (slug === 'rustyaml') {
-              refparse = refparse.replace(/^\+DOC ---/gm, '+DOC').replace(/^-DOC \.\.\./gm, '-DOC').replace(/^=VAL :$/gm, '=VAL :~').replace(/^\+MAP \{\}(\ ?)/gm, '+MAP$1').replace(/^\+SEQ \[\](\ ?)/gm, '+SEQ$1').replace(/<Tag("!!",\ "(.*?)")>/g, '<tag:yaml.org,2002:$1>');
-              say(refparse);
+              output = output.replace(/<Tag\("!!",\ "(.*?)"\)>/g, '<tag:yaml.org,2002:$1>');
+              refparse = refparse.replace(/^\+DOC ---/gm, '+DOC').replace(/^-DOC \.\.\./gm, '-DOC').replace(/^=VAL :$/gm, '=VAL :~').replace(/^\+MAP \{\}(\ ?)/gm, '+MAP$1').replace(/^\+SEQ \[\](\ ?)/gm, '+SEQ$1');
               if (output.match(/\&1/)) {
                 i = 1;
                 while (m = refparse.match(/\&([a-zA-Z]\S*)/)) {
@@ -125,6 +125,8 @@
                   i++;
                 }
               }
+              say("refparse: >>" + refparse);
+              say("output: >>" + output);
             }
             if (slug === 'goyaml' && refparse.match(/^\+DOC$/m)) {
               output = output.replace(/^\+DOC ---/m, '+DOC');
