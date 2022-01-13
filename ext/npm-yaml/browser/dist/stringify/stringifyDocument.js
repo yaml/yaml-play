@@ -5,7 +5,7 @@ import { indentComment, lineComment } from './stringifyComment.js';
 function stringifyDocument(doc, options) {
     const lines = [];
     let hasDirectives = options.directives === true;
-    if (options.directives !== false) {
+    if (options.directives !== false && doc.directives) {
         const dir = doc.directives.toString(doc);
         if (dir) {
             lines.push(dir);

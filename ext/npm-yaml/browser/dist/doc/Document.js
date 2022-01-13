@@ -3,7 +3,6 @@ import { isEmptyPath, collectionFromPath } from '../nodes/Collection.js';
 import { NODE_TYPE, DOC, isNode, isCollection, isScalar } from '../nodes/Node.js';
 import { Pair } from '../nodes/Pair.js';
 import { toJS } from '../nodes/toJS.js';
-import { defaultOptions } from '../options.js';
 import { Schema } from '../schema/Schema.js';
 import { stringify } from '../stringify/stringify.js';
 import { stringifyDocument } from '../stringify/stringifyDocument.js';
@@ -31,7 +30,15 @@ class Document {
             options = replacer;
             replacer = undefined;
         }
-        const opt = Object.assign({}, defaultOptions, options);
+        const opt = Object.assign({
+            intAsBigInt: false,
+            keepSourceTokens: false,
+            logLevel: 'warn',
+            prettyErrors: true,
+            strict: true,
+            uniqueKeys: true,
+            version: '1.2'
+        }, options);
         this.options = opt;
         let { version } = opt;
         if (options === null || options === void 0 ? void 0 : options.directives) {
@@ -62,7 +69,8 @@ class Document {
         copy.errors = this.errors.slice();
         copy.warnings = this.warnings.slice();
         copy.options = Object.assign({}, this.options);
-        copy.directives = this.directives.clone();
+        if (this.directives)
+            copy.directives = this.directives.clone();
         copy.schema = this.schema.clone();
         copy.contents = isNode(this.contents)
             ? this.contents.clone(copy.schema)
@@ -229,26 +237,47 @@ class Document {
     }
     /**
      * Change the YAML version and schema used by the document.
+     * A `null` version disables support for directives, explicit tags, anchors, and aliases.
+     * It also requires the `schema` option to be given as a `Schema` instance value.
      *
-     * Overrides all previously set schema options
+     * Overrides all previously set schema options.
      */
-    setSchema(version, options) {
-        let _options;
-        switch (String(version)) {
+    setSchema(version, options = {}) {
+        if (typeof version === 'number')
+            version = String(version);
+        let opt;
+        switch (version) {
             case '1.1':
-                this.directives.yaml.version = '1.1';
-                _options = Object.assign({ merge: true, resolveKnownTags: false, schema: 'yaml-1.1' }, options);
+                if (this.directives)
+                    this.directives.yaml.version = '1.1';
+                else
+                    this.directives = new Directives({ version: '1.1' });
+                opt = { merge: true, resolveKnownTags: false, schema: 'yaml-1.1' };
                 break;
             case '1.2':
-                this.directives.yaml.version = '1.2';
-                _options = Object.assign({ merge: false, resolveKnownTags: true, schema: 'core' }, options);
+                if (this.directives)
+                    this.directives.yaml.version = '1.2';
+                else
+                    this.directives = new Directives({ version: '1.2' });
+                opt = { merge: false, resolveKnownTags: true, schema: 'core' };
+                break;
+            case null:
+                if (this.directives)
+                    delete this.directives;
+                opt = null;
                 break;
             default: {
                 const sv = JSON.stringify(version);
-                throw new Error(`Expected '1.1' or '1.2' as version, but found: ${sv}`);
+                throw new Error(`Expected '1.1', '1.2' or null as first argument, but found: ${sv}`);
             }
         }
-        this.schema = new Schema(_options);
+        // Not using `instanceof Schema` to allow for duck typing
+        if (options.schema instanceof Object)
+            this.schema = options.schema;
+        else if (opt)
+            this.schema = new Schema(Object.assign(opt, options));
+        else
+            throw new Error(`With a null YAML version, the { schema: Schema } option is required`);
     }
     // json & jsonArg are only used from toJSON()
     toJS({ json, jsonArg, mapAsMap, maxAliasCount, onAnchor, reviver } = {}) {

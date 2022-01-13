@@ -2,7 +2,6 @@ import { Directives } from '../doc/directives.js';
 import { Document } from '../doc/Document.js';
 import { YAMLWarning, YAMLParseError } from '../errors.js';
 import { isCollection, isPair } from '../nodes/Node.js';
-import { defaultOptions } from '../options.js';
 import { composeDoc } from './compose-doc.js';
 import { resolveEnd } from './resolve-end.js';
 
@@ -68,9 +67,7 @@ class Composer {
             else
                 this.errors.push(new YAMLParseError(pos, code, message));
         };
-        this.directives = new Directives({
-            version: options.version || defaultOptions.version
-        });
+        this.directives = new Directives({ version: options.version || '1.2' });
         this.options = options;
     }
     decorate(doc, afterDoc) {

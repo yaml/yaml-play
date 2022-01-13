@@ -4,9 +4,9 @@ import { stringify } from './stringify.js';
 import { lineComment, indentComment } from './stringifyComment.js';
 
 function stringifyCollection(collection, ctx, options) {
-    const stringify = collection.flow || ctx.inFlow
-        ? stringifyFlowCollection
-        : stringifyBlockCollection;
+    var _a;
+    const flow = (_a = ctx.inFlow) !== null && _a !== void 0 ? _a : collection.flow;
+    const stringify = flow ? stringifyFlowCollection : stringifyBlockCollection;
     return stringify(collection, ctx, options);
 }
 function stringifyBlockCollection({ comment, items }, ctx, { blockItemPrefix, flowChars, itemIndent, onChompKeep, onComment }) {

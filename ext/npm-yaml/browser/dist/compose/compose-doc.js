@@ -7,6 +7,7 @@ function composeDoc(options, directives, { offset, start, value, end }, onError)
     const opts = Object.assign({ directives }, options);
     const doc = new Document(undefined, opts);
     const ctx = {
+        atRoot: true,
         directives: doc.directives,
         options: doc.options,
         schema: doc.schema

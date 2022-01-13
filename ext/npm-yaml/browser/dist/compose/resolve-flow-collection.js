@@ -16,6 +16,9 @@ function resolveFlowCollection({ composeNode, composeEmptyNode }, ctx, fc, onErr
         ? new YAMLMap(ctx.schema)
         : new YAMLSeq(ctx.schema);
     coll.flow = true;
+    const atRoot = ctx.atRoot;
+    if (atRoot)
+        ctx.atRoot = false;
     let offset = fc.offset + fc.start.source.length;
     for (let i = 0; i < fc.items.length; ++i) {
         const collItem = fc.items[i];
@@ -170,7 +173,6 @@ function resolveFlowCollection({ composeNode, composeEmptyNode }, ctx, fc, onErr
     if (ce && ce.source === expectedEnd)
         cePos = ce.offset + ce.source.length;
     else {
-        const atRoot = fc.indent === -1;
         const name = fcName[0].toUpperCase() + fcName.substring(1);
         const msg = atRoot
             ? `${name} must end with a ${expectedEnd}`

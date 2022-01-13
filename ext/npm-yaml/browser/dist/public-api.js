@@ -6,10 +6,8 @@ import { LineCounter } from './parse/line-counter.js';
 import { Parser } from './parse/parser.js';
 
 function parseOptions(options) {
-    const prettyErrors = !options || options.prettyErrors !== false;
-    const lineCounter = (options && options.lineCounter) ||
-        (prettyErrors && new LineCounter()) ||
-        null;
+    const prettyErrors = options.prettyErrors !== false;
+    const lineCounter = options.lineCounter || (prettyErrors && new LineCounter()) || null;
     return { lineCounter, prettyErrors };
 }
 /**

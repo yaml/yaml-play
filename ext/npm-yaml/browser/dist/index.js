@@ -8,7 +8,6 @@ export { Pair } from './nodes/Pair.js';
 export { Scalar } from './nodes/Scalar.js';
 export { YAMLMap } from './nodes/YAMLMap.js';
 export { YAMLSeq } from './nodes/YAMLSeq.js';
-export { defaultOptions } from './options.js';
 import * as cst from './parse/cst.js';
 export { cst as CST };
 export { Lexer } from './parse/lexer.js';

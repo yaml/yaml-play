@@ -22,11 +22,23 @@ function createStringifyContext(doc, options) {
         trueStr: 'true',
         verifyAliasOrder: true
     }, doc.schema.toStringOptions, options);
+    let inFlow;
+    switch (opt.collectionStyle) {
+        case 'block':
+            inFlow = false;
+            break;
+        case 'flow':
+            inFlow = true;
+            break;
+        default:
+            inFlow = null;
+    }
     return {
         anchors: new Set(),
         doc,
         indent: '',
         indentStep: typeof opt.indent === 'number' ? ' '.repeat(opt.indent) : '  ',
+        inFlow,
         options: opt
     };
 }
@@ -57,25 +69,37 @@ function getTagObject(tags, item) {
 }
 // needs to be called before value stringifier to allow for circular anchor refs
 function stringifyProps(node, tagObj, { anchors, doc }) {
+    if (!doc.directives)
+        return '';
     const props = [];
     const anchor = (isScalar(node) || isCollection(node)) && node.anchor;
     if (anchor && anchorIsValid(anchor)) {
         anchors.add(anchor);
         props.push(`&${anchor}`);
     }
-    if (node.tag) {
-        props.push(doc.directives.tagString(node.tag));
-    }
-    else if (!tagObj.default) {
-        props.push(doc.directives.tagString(tagObj.tag));
-    }
+    const tag = node.tag || (tagObj.default ? null : tagObj.tag);
+    if (tag)
+        props.push(doc.directives.tagString(tag));
     return props.join(' ');
 }
 function stringify(item, ctx, onComment, onChompKeep) {
+    var _a;
     if (isPair(item))
         return item.toString(ctx, onComment, onChompKeep);
-    if (isAlias(item))
-        return item.toString(ctx);
+    if (isAlias(item)) {
+        if (ctx.doc.directives)
+            return item.toString(ctx);
+        if ((_a = ctx.resolvedAliases) === null || _a === void 0 ? void 0 : _a.has(item)) {
+            throw new TypeError(`Cannot stringify circular structure without alias nodes`);
+        }
+        else {
+            if (ctx.resolvedAliases)
+                ctx.resolvedAliases.add(item);
+            else
+                ctx.resolvedAliases = new Set([item]);
+            item = item.resolve(ctx.doc);
+        }
+    }
     let tagObj = undefined;
     const node = isNode(item)
         ? item

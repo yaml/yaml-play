@@ -9,6 +9,8 @@ const startColMsg = 'All mapping items must start at the same column';
 function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError) {
     var _a;
     const map = new YAMLMap(ctx.schema);
+    if (ctx.atRoot)
+        ctx.atRoot = false;
     let offset = bm.offset;
     for (const collItem of bm.items) {
         const { start, key, sep, value } = collItem;

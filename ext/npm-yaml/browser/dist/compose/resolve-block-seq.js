@@ -4,6 +4,8 @@ import { flowIndentCheck } from './util-flow-indent-check.js';
 
 function resolveBlockSeq({ composeNode, composeEmptyNode }, ctx, bs, onError) {
     const seq = new YAMLSeq(ctx.schema);
+    if (ctx.atRoot)
+        ctx.atRoot = false;
     let offset = bs.offset;
     for (const { start, value } of bs.items) {
         const props = resolveProps(start, {
