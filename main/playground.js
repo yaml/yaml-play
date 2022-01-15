@@ -46,7 +46,7 @@
       return navigator.clipboard.writeText(tsv);
     };
 
-    Playground.prototype.parsers = ['refparse', 'refhs', 'dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'nimyaml', 'npmyaml', 'ppyaml', 'pyyaml', 'ruamel', 'rustyaml', 'snake'];
+    Playground.prototype.parsers = ['refparse', 'refhs', 'dotnet', 'goyaml', 'hsyaml', 'libfyaml', 'libyaml', 'luayaml', 'nimyaml', 'npmyaml', 'ppyaml', 'pyyaml', 'ruamel', 'rustyaml', 'snake', 'snakeeng'];
 
     Playground.prototype.make_tsv = function() {
       var $panes, fields, j, len, parser, play, ref, refparse, tree, yaml;
@@ -341,6 +341,10 @@
 
     Playground.prototype.snake_event = function(text, cb) {
       return this.sandbox_event(text, 'yaml-test-parse-snake', cb);
+    };
+
+    Playground.prototype.snakeeng_event = function(text, cb) {
+      return this.sandbox_event(text, 'yaml-test-parse-snakeeng', cb);
     };
 
     Playground.prototype.sandbox_event = function(text, parser, cb) {

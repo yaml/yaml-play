@@ -358,7 +358,7 @@
       $col = $button.closest('.eatme-col');
       $cols = $col.parent().find('.eatme-col');
       cols = $cols.length;
-      if (!(cols < 4)) {
+      if (!(cols < 5)) {
         return;
       }
       size_old = 12 / cols++;
@@ -565,7 +565,7 @@
       var ref, ref1;
       ref = [conf, this, 'top level'], this.src = ref[0], this.trg = ref[1], this.lvl = ref[2];
       this.required_slug('slug');
-      this.optional_num('cols', 1, 4);
+      this.optional_num('cols', 1, 5);
       this.required_str('html');
       this.pane = [];
       this.panes = {};
@@ -595,7 +595,7 @@
         this.set_call();
         this.optional_str('mark');
         this.optional_str('html');
-        this.optional_num('colx', 1, 4);
+        this.optional_num('colx', 1, 5);
         this.set_type();
         this.pane.push(pane);
         results.push(this.panes[this.trg.slug] = pane);
