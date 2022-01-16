@@ -3,7 +3,7 @@ layout: playground
 title: YAML Parser Playground
 eatme:
   slug: playground-parser-events
-  cols: 4
+  cols: 5
   html: <div class="container-fluid row">
   opts:
     status: true
@@ -35,7 +35,7 @@ eatme:
     slug: dotnet
     type: text
     call: [dotnet-event, yaml-input]
-    colx: 1
+    colx: 2
 
   - name: Go YAML (Go)
     slug: goyaml
@@ -51,12 +51,12 @@ eatme:
   - name: libfyaml (C)
     slug: libfyaml
     call: [libfyaml-event, yaml-input]
-    colx: 2
+    colx: 3
 
   - name: libyaml (C)
     slug: libyaml
     call: [libyaml-event, yaml-input]
-    colx: 2
+    colx: 3
 
   - name: luayaml (Lua)
     slug: luayaml
@@ -73,12 +73,12 @@ eatme:
     slug: npmyaml
     type: text
     call: [npmyaml-event, yaml-input]
-    colx: 3
+    colx: 4
 
   - name: YAML::PP (Perl)
     slug: ppyaml
     call: [ppyaml-event, yaml-input]
-    colx: 3
+    colx: 4
 
   - name: PyYAML (Python)
     slug: pyyaml
@@ -95,13 +95,19 @@ eatme:
     slug: rustyaml
     type: text
     call: [rustyaml-event, yaml-input]
-    colx: 4
+    colx: 5
 
   - name: SnakeYAML (Java)
     slug: snake
     type: text
     call: [snake-event, yaml-input]
-    colx: 4
+    colx: 5
+
+  - name: SnakeEngine (Java 8)
+    slug: snakeeng
+    type: text
+    call: [snakeeng-event, yaml-input]
+    colx: 5
 
 ---
 

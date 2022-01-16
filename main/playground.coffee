@@ -54,6 +54,7 @@ class window.Playground extends EatMe
     'ruamel'
     'rustyaml'
     'snake'
+    'snakeeng'
   ]
 
   make_tsv: ->
@@ -303,6 +304,9 @@ class window.Playground extends EatMe
 
   snake_event: (text, cb)->
     @sandbox_event(text, 'yaml-test-parse-snake', cb)
+
+  snakeeng_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-snakeeng', cb)
 
   sandbox_event: (text, parser, cb)->
     @localhost_server(text, parser, cb)
