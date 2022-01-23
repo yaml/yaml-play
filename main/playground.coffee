@@ -51,7 +51,7 @@ class window.Playground extends EatMe
     'npmyaml'
     'ppyaml'
     'pyyaml'
-    'rapid'
+    'ryml'
     'ruamel'
     'rustyaml'
     'snake'
@@ -297,8 +297,8 @@ class window.Playground extends EatMe
   pyyaml_event: (text, cb)->
     @sandbox_event(text, 'yaml-test-parse-pyyaml', cb)
 
-  rapid_event: (text, cb)->
-    @sandbox_event(text, 'yaml-test-parse-rapid', cb)
+  ryml_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-ryml', cb)
 
   ruamel_event: (text, cb)->
     @sandbox_event(text, 'yaml-test-parse-ruamel', cb)
