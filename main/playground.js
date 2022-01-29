@@ -118,6 +118,9 @@
               return;
             }
             refparse = _this.refparse;
+            if (slug === 'rapid') {
+              refparse = refparse.replace(/^=VAL [">|]/gm, "=VAL '");
+            }
             if (slug === 'rustyaml') {
               output = output.replace(/<Tag\("!!",\ "(.*?)"\)>/g, '<tag:yaml.org,2002:$1>').replace(/<Tag\("!",\ "(.*?)"\)>/g, '<!$1>').replace(/<Tag\("",\ "!"\)>/g, '<!>').replace(/<Tag\("",\ "(tag:.*?)"\)>/g, '<$1>').replace(/<Tag\("",\ "(!.*?)"\)>/g, '<$1>');
               refparse = refparse.replace(/^\+DOC ---/gm, '+DOC').replace(/^-DOC \.\.\./gm, '-DOC').replace(/^=VAL :$/gm, '=VAL :~').replace(/^\+MAP \{\}(\ ?)/gm, '+MAP$1').replace(/^\+SEQ \[\](\ ?)/gm, '+SEQ$1');
