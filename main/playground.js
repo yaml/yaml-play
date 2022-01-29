@@ -119,7 +119,7 @@
             }
             refparse = _this.refparse;
             if (slug === 'rapid') {
-              refparse = refparse.replace(/^=VAL [">|]/gm, "=VAL '").replace(/^\+DOC ---/gm, '+DOC').replace(/^-DOC \.\.\./gm, '-DOC');
+              refparse = refparse.replace(/^=VAL ((?:&\S+ |<\S*> )*)[">|]/gm, "=VAL $1'").replace(/^\+DOC ---/gm, '+DOC').replace(/^-DOC \.\.\./gm, '-DOC');
               output = output.replace(/^\+DOC ---/gm, '+DOC');
             }
             if (slug === 'rustyaml') {
