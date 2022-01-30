@@ -132,6 +132,14 @@ class window.Playground extends EatMe
 
         refparse = @refparse
 
+        if slug == 'rapid'
+          refparse = refparse
+            .replace(/^=VAL ((?:&\S+ |<\S*> )*)[">|]/gm, "=VAL $1'")
+            .replace(/^\+DOC ---/gm, '+DOC')
+            .replace(/^-DOC \.\.\./gm, '-DOC')
+          output = output
+            .replace(/^\+DOC ---/gm, '+DOC')
+
         if slug == 'rustyaml'
           output = output
             .replace(/<Tag\("!!",\ "(.*?)"\)>/g, '<tag:yaml.org,2002:$1>')
