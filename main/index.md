@@ -52,7 +52,7 @@ Assuming you have
 just run this command from a terminal:
 
 ```
-docker run --rm -d -p 31337:31337 yamlio/yaml-play-sandbox:{{site.sandbox_version}} https
+docker run --rm -d -p 31337:31337 yamlio/yaml-play-sandbox:{{site.sandbox_version}} 31337
 ```
 
 This will start a local YAML Playground Sandbox Server, and your playgrounds
