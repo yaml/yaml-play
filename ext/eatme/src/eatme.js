@@ -189,11 +189,7 @@
         }
         return setTimeout(function() {
           var cm, do_calls;
-          pane.cm = cm = CodeMirror.fromTextArea($textarea[0], {
-            lineNumbers: true,
-            showTrailingSpace: true,
-            tabSize: 4
-          });
+          pane.cm = cm = CodeMirror.fromTextArea($textarea[0], self.codemirror_config());
           do_calls = function() {
             var $to, i, len, ref, results;
             self.iteration += 1;
@@ -222,6 +218,12 @@
           }, 200);
         }, 100);
       }
+    };
+
+    EatMe.prototype.codemirror_config = function() {
+      return {
+        lineNumbers: true
+      };
     };
 
     EatMe.prototype.call = function(func, text, $to) {
