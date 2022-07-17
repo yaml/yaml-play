@@ -24,7 +24,8 @@ function collectionFromPath(schema, path, value) {
         sourceObjects: new Map()
     });
 }
-// null, undefined, or an empty non-string iterable (e.g. [])
+// Type guard is intentionally a little wrong so as to be more useful,
+// as it does not cover untypable empty non-string iterables (e.g. []).
 const isEmptyPath = (path) => path == null ||
     (typeof path === 'object' && !!path[Symbol.iterator]().next().done);
 class Collection extends NodeBase {

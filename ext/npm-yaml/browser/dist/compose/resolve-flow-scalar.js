@@ -111,7 +111,7 @@ function foldLines(source) {
     const last = /[ \t]*(.*)/sy;
     last.lastIndex = pos;
     match = last.exec(source);
-    return res + sep + ((match && match[1]) || '');
+    return res + sep + (match?.[1] ?? '');
 }
 function doubleQuotedValue(source, onError) {
     let res = '';

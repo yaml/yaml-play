@@ -17,12 +17,12 @@ function composeScalar(ctx, token, tagToken, onError) {
             : ctx.schema[SCALAR];
     let scalar;
     try {
-        const res = tag.resolve(value, msg => onError(tagToken || token, 'TAG_RESOLVE_FAILED', msg), ctx.options);
+        const res = tag.resolve(value, msg => onError(tagToken ?? token, 'TAG_RESOLVE_FAILED', msg), ctx.options);
         scalar = isScalar(res) ? res : new Scalar(res);
     }
     catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        onError(tagToken || token, 'TAG_RESOLVE_FAILED', msg);
+        onError(tagToken ?? token, 'TAG_RESOLVE_FAILED', msg);
         scalar = new Scalar(value);
     }
     scalar.range = range;
@@ -38,7 +38,6 @@ function composeScalar(ctx, token, tagToken, onError) {
     return scalar;
 }
 function findScalarTagByName(schema, value, tagName, tagToken, onError) {
-    var _a;
     if (tagName === '!')
         return schema[SCALAR]; // non-specific tag
     const matchWithTest = [];
@@ -51,7 +50,7 @@ function findScalarTagByName(schema, value, tagName, tagToken, onError) {
         }
     }
     for (const tag of matchWithTest)
-        if ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(value))
+        if (tag.test?.test(value))
             return tag;
     const kt = schema.knownTags[tagName];
     if (kt && !kt.collection) {
@@ -64,9 +63,9 @@ function findScalarTagByName(schema, value, tagName, tagToken, onError) {
     return schema[SCALAR];
 }
 function findScalarTagByTest({ directives, schema }, value, token, onError) {
-    const tag = schema.tags.find(tag => { var _a; return tag.default && ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(value)); }) || schema[SCALAR];
+    const tag = schema.tags.find(tag => tag.default && tag.test?.test(value)) || schema[SCALAR];
     if (schema.compat) {
-        const compat = schema.compat.find(tag => { var _a; return tag.default && ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(value)); }) ||
+        const compat = schema.compat.find(tag => tag.default && tag.test?.test(value)) ??
             schema[SCALAR];
         if (tag.tag !== compat.tag) {
             const ts = directives.tagString(tag.tag);

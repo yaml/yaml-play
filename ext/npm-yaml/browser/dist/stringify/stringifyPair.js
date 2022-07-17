@@ -39,7 +39,7 @@ function stringifyPair({ key, value }, ctx, onComment, onChompKeep) {
         if (allNullValues || value == null) {
             if (keyCommentDone && onComment)
                 onComment();
-            return explicitKey ? `? ${str}` : str;
+            return str === '' ? '?' : explicitKey ? `? ${str}` : str;
         }
     }
     else if ((allNullValues && !simpleKeys) || (value == null && explicitKey)) {
@@ -96,7 +96,10 @@ function stringifyPair({ key, value }, ctx, onComment, onChompKeep) {
     const valueStr = stringify(value, ctx, () => (valueCommentDone = true), () => (chompKeep = true));
     let ws = ' ';
     if (vcb || keyComment) {
-        ws = valueStr === '' && !ctx.inFlow ? vcb : `${vcb}\n${ctx.indent}`;
+        if (valueStr === '' && !ctx.inFlow)
+            ws = vcb === '\n' ? '\n\n' : vcb;
+        else
+            ws = `${vcb}\n${ctx.indent}`;
     }
     else if (!explicitKey && isCollection(value)) {
         const flow = valueStr[0] === '[' || valueStr[0] === '{';

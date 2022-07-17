@@ -243,14 +243,14 @@ function plainString(item, ctx, onComment, onChompKeep) {
         // - '\n ', ': ' or ' \n' anywhere
         // - '#' not preceded by a non-space char
         // - end with ' ' or ':'
-        return implicitKey || inFlow || value.indexOf('\n') === -1
+        return implicitKey || inFlow || !value.includes('\n')
             ? quotedString(value, ctx)
             : blockString(item, ctx, onComment, onChompKeep);
     }
     if (!implicitKey &&
         !inFlow &&
         type !== Scalar.PLAIN &&
-        value.indexOf('\n') !== -1) {
+        value.includes('\n')) {
         // Where allowed & type not set explicitly, prefer block style for multiline strings
         return blockString(item, ctx, onComment, onChompKeep);
     }
@@ -263,9 +263,9 @@ function plainString(item, ctx, onComment, onChompKeep) {
     // booleans get parsed with those types in v1.2 (e.g. '42', 'true' & '0.9e-3'),
     // and others in v1.1.
     if (actualString) {
-        const test = (tag) => { var _a; return tag.default && tag.tag !== 'tag:yaml.org,2002:str' && ((_a = tag.test) === null || _a === void 0 ? void 0 : _a.test(str)); };
+        const test = (tag) => tag.default && tag.tag !== 'tag:yaml.org,2002:str' && tag.test?.test(str);
         const { compat, tags } = ctx.doc.schema;
-        if (tags.some(test) || (compat === null || compat === void 0 ? void 0 : compat.some(test)))
+        if (tags.some(test) || compat?.some(test))
             return quotedString(value, ctx);
     }
     return implicitKey

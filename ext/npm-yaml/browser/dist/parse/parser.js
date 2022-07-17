@@ -7,7 +7,7 @@ function includesToken(list, type) {
             return true;
     return false;
 }
-function includesNonEmpty(list) {
+function findNonEmptyIndex(list) {
     for (let i = 0; i < list.length; ++i) {
         switch (list[i].type) {
             case 'space':
@@ -15,13 +15,13 @@ function includesNonEmpty(list) {
             case 'newline':
                 break;
             default:
-                return true;
+                return i;
         }
     }
-    return false;
+    return -1;
 }
 function isFlowToken(token) {
-    switch (token === null || token === void 0 ? void 0 : token.type) {
+    switch (token?.type) {
         case 'alias':
         case 'scalar':
         case 'single-quoted-scalar':
@@ -38,7 +38,7 @@ function getPrevProps(parent) {
             return parent.start;
         case 'block-map': {
             const it = parent.items[parent.items.length - 1];
-            return it.sep || it.start;
+            return it.sep ?? it.start;
         }
         case 'block-seq':
             return parent.items[parent.items.length - 1].start;
@@ -49,7 +49,6 @@ function getPrevProps(parent) {
 }
 /** Note: May modify input array */
 function getFirstKeyStartProps(prev) {
-    var _a;
     if (prev.length === 0)
         return [];
     let i = prev.length;
@@ -63,7 +62,7 @@ function getFirstKeyStartProps(prev) {
                 break loop;
         }
     }
-    while (((_a = prev[++i]) === null || _a === void 0 ? void 0 : _a.type) === 'space') {
+    while (prev[++i]?.type === 'space') {
         /* loop */
     }
     return prev.splice(i, prev.length);
@@ -265,7 +264,7 @@ class Parser {
         return this.stack[this.stack.length - n];
     }
     *pop(error) {
-        const token = error || this.stack.pop();
+        const token = error ?? this.stack.pop();
         /* istanbul ignore if should not happen */
         if (!token) {
             const message = 'Tried to pop an empty stack';
@@ -342,7 +341,7 @@ class Parser {
                     !last.sep &&
                     !last.value &&
                     last.start.length > 0 &&
-                    !includesNonEmpty(last.start) &&
+                    findNonEmptyIndex(last.start) === -1 &&
                     (token.indent === 0 ||
                         last.start.every(st => st.type !== 'comment' || st.indent < token.indent))) {
                     if (top.type === 'document')
@@ -390,7 +389,7 @@ class Parser {
             return yield* this.lineEnd(doc);
         switch (this.type) {
             case 'doc-start': {
-                if (includesNonEmpty(doc.start)) {
+                if (findNonEmptyIndex(doc.start) !== -1) {
                     yield* this.pop();
                     yield* this.step();
                 }
@@ -470,7 +469,6 @@ class Parser {
         }
     }
     *blockMap(map) {
-        var _a;
         const it = map.items[map.items.length - 1];
         // it.sep is true-ish if pair already has key or : separator
         switch (this.type) {
@@ -479,26 +477,30 @@ class Parser {
                 if (it.value) {
                     const end = 'end' in it.value ? it.value.end : undefined;
                     const last = Array.isArray(end) ? end[end.length - 1] : undefined;
-                    if ((last === null || last === void 0 ? void 0 : last.type) === 'comment')
-                        end === null || end === void 0 ? void 0 : end.push(this.sourceToken);
+                    if (last?.type === 'comment')
+                        end?.push(this.sourceToken);
                     else
                         map.items.push({ start: [this.sourceToken] });
                 }
-                else if (it.sep)
+                else if (it.sep) {
                     it.sep.push(this.sourceToken);
-                else
+                }
+                else {
                     it.start.push(this.sourceToken);
+                }
                 return;
             case 'space':
             case 'comment':
-                if (it.value)
+                if (it.value) {
                     map.items.push({ start: [this.sourceToken] });
-                else if (it.sep)
+                }
+                else if (it.sep) {
                     it.sep.push(this.sourceToken);
+                }
                 else {
                     if (this.atIndentedComment(it.start, map.indent)) {
                         const prev = map.items[map.items.length - 2];
-                        const end = (_a = prev === null || prev === void 0 ? void 0 : prev.value) === null || _a === void 0 ? void 0 : _a.end;
+                        const end = prev?.value?.end;
                         if (Array.isArray(end)) {
                             Array.prototype.push.apply(end, it.start);
                             end.push(this.sourceToken);
@@ -511,66 +513,132 @@ class Parser {
                 return;
         }
         if (this.indent >= map.indent) {
-            const atNextItem = !this.onKeyLine &&
-                this.indent === map.indent &&
-                (it.sep || includesNonEmpty(it.start));
+            const atNextItem = !this.onKeyLine && this.indent === map.indent && it.sep;
+            // For empty nodes, assign newline-separated not indented empty tokens to following node
+            let start = [];
+            if (atNextItem && it.sep && !it.value) {
+                const nl = [];
+                for (let i = 0; i < it.sep.length; ++i) {
+                    const st = it.sep[i];
+                    switch (st.type) {
+                        case 'newline':
+                            nl.push(i);
+                            break;
+                        case 'space':
+                            break;
+                        case 'comment':
+                            if (st.indent > map.indent)
+                                nl.length = 0;
+                            break;
+                        default:
+                            nl.length = 0;
+                    }
+                }
+                if (nl.length >= 2)
+                    start = it.sep.splice(nl[1]);
+            }
             switch (this.type) {
                 case 'anchor':
                 case 'tag':
                     if (atNextItem || it.value) {
-                        map.items.push({ start: [this.sourceToken] });
+                        start.push(this.sourceToken);
+                        map.items.push({ start });
                         this.onKeyLine = true;
                     }
-                    else if (it.sep)
+                    else if (it.sep) {
                         it.sep.push(this.sourceToken);
-                    else
+                    }
+                    else {
                         it.start.push(this.sourceToken);
+                    }
                     return;
                 case 'explicit-key-ind':
-                    if (!it.sep && !includesToken(it.start, 'explicit-key-ind'))
+                    if (!it.sep && !includesToken(it.start, 'explicit-key-ind')) {
                         it.start.push(this.sourceToken);
-                    else if (atNextItem || it.value)
-                        map.items.push({ start: [this.sourceToken] });
-                    else
+                    }
+                    else if (atNextItem || it.value) {
+                        start.push(this.sourceToken);
+                        map.items.push({ start });
+                    }
+                    else {
                         this.stack.push({
                             type: 'block-map',
                             offset: this.offset,
                             indent: this.indent,
                             items: [{ start: [this.sourceToken] }]
                         });
+                    }
                     this.onKeyLine = true;
                     return;
                 case 'map-value-ind':
-                    if (!it.sep)
-                        Object.assign(it, { key: null, sep: [this.sourceToken] });
-                    else if (it.value ||
-                        (atNextItem && !includesToken(it.start, 'explicit-key-ind')))
-                        map.items.push({ start: [], key: null, sep: [this.sourceToken] });
-                    else if (includesToken(it.sep, 'map-value-ind'))
-                        this.stack.push({
-                            type: 'block-map',
-                            offset: this.offset,
-                            indent: this.indent,
-                            items: [{ start: [], key: null, sep: [this.sourceToken] }]
-                        });
-                    else if (includesToken(it.start, 'explicit-key-ind') &&
-                        isFlowToken(it.key) &&
-                        !includesToken(it.sep, 'newline')) {
-                        const start = getFirstKeyStartProps(it.start);
-                        const key = it.key;
-                        const sep = it.sep;
-                        sep.push(this.sourceToken);
-                        // @ts-ignore type guard is wrong here
-                        delete it.key, delete it.sep;
-                        this.stack.push({
-                            type: 'block-map',
-                            offset: this.offset,
-                            indent: this.indent,
-                            items: [{ start, key, sep }]
-                        });
+                    if (includesToken(it.start, 'explicit-key-ind')) {
+                        if (!it.sep) {
+                            if (includesToken(it.start, 'newline')) {
+                                Object.assign(it, { key: null, sep: [this.sourceToken] });
+                            }
+                            else {
+                                const start = getFirstKeyStartProps(it.start);
+                                this.stack.push({
+                                    type: 'block-map',
+                                    offset: this.offset,
+                                    indent: this.indent,
+                                    items: [{ start, key: null, sep: [this.sourceToken] }]
+                                });
+                            }
+                        }
+                        else if (it.value) {
+                            map.items.push({ start: [], key: null, sep: [this.sourceToken] });
+                        }
+                        else if (includesToken(it.sep, 'map-value-ind')) {
+                            this.stack.push({
+                                type: 'block-map',
+                                offset: this.offset,
+                                indent: this.indent,
+                                items: [{ start, key: null, sep: [this.sourceToken] }]
+                            });
+                        }
+                        else if (isFlowToken(it.key) &&
+                            !includesToken(it.sep, 'newline')) {
+                            const start = getFirstKeyStartProps(it.start);
+                            const key = it.key;
+                            const sep = it.sep;
+                            sep.push(this.sourceToken);
+                            // @ts-expect-error type guard is wrong here
+                            delete it.key, delete it.sep;
+                            this.stack.push({
+                                type: 'block-map',
+                                offset: this.offset,
+                                indent: this.indent,
+                                items: [{ start, key, sep }]
+                            });
+                        }
+                        else if (start.length > 0) {
+                            // Not actually at next item
+                            it.sep = it.sep.concat(start, this.sourceToken);
+                        }
+                        else {
+                            it.sep.push(this.sourceToken);
+                        }
                     }
-                    else
-                        it.sep.push(this.sourceToken);
+                    else {
+                        if (!it.sep) {
+                            Object.assign(it, { key: null, sep: [this.sourceToken] });
+                        }
+                        else if (it.value || atNextItem) {
+                            map.items.push({ start, key: null, sep: [this.sourceToken] });
+                        }
+                        else if (includesToken(it.sep, 'map-value-ind')) {
+                            this.stack.push({
+                                type: 'block-map',
+                                offset: this.offset,
+                                indent: this.indent,
+                                items: [{ start: [], key: null, sep: [this.sourceToken] }]
+                            });
+                        }
+                        else {
+                            it.sep.push(this.sourceToken);
+                        }
+                    }
                     this.onKeyLine = true;
                     return;
                 case 'alias':
@@ -579,7 +647,7 @@ class Parser {
                 case 'double-quoted-scalar': {
                     const fs = this.flowScalar(this.type);
                     if (atNextItem || it.value) {
-                        map.items.push({ start: [], key: fs, sep: [] });
+                        map.items.push({ start, key: fs, sep: [] });
                         this.onKeyLine = true;
                     }
                     else if (it.sep) {
@@ -596,8 +664,9 @@ class Parser {
                     if (bv) {
                         if (atNextItem &&
                             bv.type !== 'block-seq' &&
-                            includesToken(it.start, 'explicit-key-ind'))
-                            map.items.push({ start: [] });
+                            includesToken(it.start, 'explicit-key-ind')) {
+                            map.items.push({ start });
+                        }
                         this.stack.push(bv);
                         return;
                     }
@@ -608,15 +677,14 @@ class Parser {
         yield* this.step();
     }
     *blockSequence(seq) {
-        var _a;
         const it = seq.items[seq.items.length - 1];
         switch (this.type) {
             case 'newline':
                 if (it.value) {
                     const end = 'end' in it.value ? it.value.end : undefined;
                     const last = Array.isArray(end) ? end[end.length - 1] : undefined;
-                    if ((last === null || last === void 0 ? void 0 : last.type) === 'comment')
-                        end === null || end === void 0 ? void 0 : end.push(this.sourceToken);
+                    if (last?.type === 'comment')
+                        end?.push(this.sourceToken);
                     else
                         seq.items.push({ start: [this.sourceToken] });
                 }
@@ -630,7 +698,7 @@ class Parser {
                 else {
                     if (this.atIndentedComment(it.start, seq.indent)) {
                         const prev = seq.items[seq.items.length - 2];
-                        const end = (_a = prev === null || prev === void 0 ? void 0 : prev.value) === null || _a === void 0 ? void 0 : _a.end;
+                        const end = prev?.value?.end;
                         if (Array.isArray(end)) {
                             Array.prototype.push.apply(end, it.start);
                             end.push(this.sourceToken);
@@ -734,7 +802,7 @@ class Parser {
         else {
             const parent = this.peek(2);
             if (parent.type === 'block-map' &&
-                (this.type === 'map-value-ind' ||
+                ((this.type === 'map-value-ind' && parent.indent === fc.indent) ||
                     (this.type === 'newline' &&
                         !parent.items[parent.items.length - 1].sep))) {
                 yield* this.pop();

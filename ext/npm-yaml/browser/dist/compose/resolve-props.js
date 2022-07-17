@@ -5,6 +5,7 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, startOnN
     let comment = '';
     let commentSep = '';
     let hasNewline = false;
+    let hasNewlineAfterProp = false;
     let reqSpace = false;
     let anchor = null;
     let tag = null;
@@ -54,11 +55,15 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, startOnN
                     commentSep += token.source;
                 atNewline = true;
                 hasNewline = true;
+                if (anchor || tag)
+                    hasNewlineAfterProp = true;
                 hasSpace = true;
                 break;
             case 'anchor':
                 if (anchor)
                     onError(token, 'MULTIPLE_ANCHORS', 'A node can have at most one anchor');
+                if (token.source.endsWith(':'))
+                    onError(token.offset + token.source.length - 1, 'BAD_ALIAS', 'Anchor ending in : is ambiguous', true);
                 anchor = token;
                 if (start === null)
                     start = token.offset;
@@ -82,7 +87,7 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, startOnN
                 if (anchor || tag)
                     onError(token, 'BAD_PROP_ORDER', `Anchors and tags must be after the ${token.source} indicator`);
                 if (found)
-                    onError(token, 'UNEXPECTED_TOKEN', `Unexpected ${token.source} in ${flow || 'collection'}`);
+                    onError(token, 'UNEXPECTED_TOKEN', `Unexpected ${token.source} in ${flow ?? 'collection'}`);
                 found = token;
                 atNewline = false;
                 hasSpace = false;
@@ -118,10 +123,11 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, startOnN
         spaceBefore,
         comment,
         hasNewline,
+        hasNewlineAfterProp,
         anchor,
         tag,
         end,
-        start: start !== null && start !== void 0 ? start : end
+        start: start ?? end
     };
 }
 

@@ -153,7 +153,7 @@ class Lexer {
             this.lineEndPos = null;
         }
         this.atEnd = !incomplete;
-        let next = this.next || 'stream';
+        let next = this.next ?? 'stream';
         while (next && (incomplete || this.hasChars(1)))
             next = yield* this.parseNext(next);
     }
@@ -357,9 +357,14 @@ class Lexer {
         let indent = -1;
         do {
             nl = yield* this.pushNewline();
-            sp = yield* this.pushSpaces(true);
-            if (nl > 0)
+            if (nl > 0) {
+                sp = yield* this.pushSpaces(false);
                 this.indentValue = indent = sp;
+            }
+            else {
+                sp = 0;
+            }
+            sp += yield* this.pushSpaces(true);
         } while (nl + sp > 0);
         const line = this.getLine();
         if (line === null)
@@ -533,9 +538,10 @@ class Lexer {
                 let ch = this.buffer[i];
                 if (ch === '\r')
                     ch = this.buffer[--i];
+                const lastChar = i; // Drop the line if last char not more indented
                 while (ch === ' ' || ch === '\t')
                     ch = this.buffer[--i];
-                if (ch === '\n' && i >= this.pos)
+                if (ch === '\n' && i >= this.pos && i + 1 + indent > lastChar)
                     nl = i;
                 else
                     break;
@@ -618,11 +624,13 @@ class Lexer {
                 return ((yield* this.pushUntil(isNotAnchorChar)) +
                     (yield* this.pushSpaces(true)) +
                     (yield* this.pushIndicators()));
-            case ':':
-            case '?': // this is an error outside flow collections
             case '-': // this is an error
-                if (isEmpty(this.charAt(1))) {
-                    if (this.flowLevel === 0)
+            case '?': // this is an error outside flow collections
+            case ':': {
+                const inFlow = this.flowLevel > 0;
+                const ch1 = this.charAt(1);
+                if (isEmpty(ch1) || (inFlow && invalidFlowScalarChars.includes(ch1))) {
+                    if (!inFlow)
                         this.indentNext = this.indentValue + 1;
                     else if (this.flowKey)
                         this.flowKey = false;
@@ -630,6 +638,7 @@ class Lexer {
                         (yield* this.pushSpaces(true)) +
                         (yield* this.pushIndicators()));
                 }
+            }
         }
         return 0;
     }

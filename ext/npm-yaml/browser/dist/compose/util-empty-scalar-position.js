@@ -14,7 +14,7 @@ function emptyScalarPosition(offset, before, pos) {
             // Technically, an empty scalar is immediately after the last non-empty
             // node, but it's more useful to place it after any whitespace.
             st = before[++i];
-            while ((st === null || st === void 0 ? void 0 : st.type) === 'space') {
+            while (st?.type === 'space') {
                 offset += st.source.length;
                 st = before[++i];
             }

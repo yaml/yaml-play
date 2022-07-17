@@ -30,14 +30,6 @@ class YAMLSeq extends Collection {
         const del = this.items.splice(idx, 1);
         return del.length > 0;
     }
-    /**
-     * Returns item at `key`, or `undefined` if not found. By default unwraps
-     * scalar values from their surrounding node; to disable set `keepScalar` to
-     * `true` (collections are always returned intact).
-     *
-     * `key` must contain a representation of an integer for this to succeed.
-     * It may be wrapped in a `Scalar`.
-     */
     get(key, keepScalar) {
         const idx = asItemIndex(key);
         if (typeof idx !== 'number')
@@ -74,7 +66,7 @@ class YAMLSeq extends Collection {
     }
     toJSON(_, ctx) {
         const seq = [];
-        if (ctx && ctx.onCreate)
+        if (ctx?.onCreate)
             ctx.onCreate(seq);
         let i = 0;
         for (const item of this.items)

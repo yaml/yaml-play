@@ -23,7 +23,6 @@ function anchorExists(doc, anchor) {
 }
 // test harness for yaml-test-suite event tests
 function testEvents(src) {
-    var _a;
     const docs = parseAllDocuments(src);
     const errDoc = docs.find(doc => doc.errors.length > 0);
     const error = errDoc ? errDoc.errors[0].message : null;
@@ -34,29 +33,28 @@ function testEvents(src) {
             let root = doc.contents;
             if (Array.isArray(root))
                 root = root[0];
-            // eslint-disable-next-line no-sparse-arrays
-            const [rootStart, , rootEnd] = doc.range || [0, , 0];
+            const [rootStart] = doc.range || [0];
             const error = doc.errors[0];
             if (error && (!error.pos || error.pos[0] < rootStart))
                 throw new Error();
             let docStart = '+DOC';
-            if (doc.directives.marker)
+            if (doc.directives.docStart)
                 docStart += ' ---';
-            else if (doc.contents && doc.contents.range[2] === doc.contents.range[0])
+            else if (doc.contents &&
+                doc.contents.range[2] === doc.contents.range[0] &&
+                !doc.contents.anchor &&
+                !doc.contents.tag)
                 continue;
             events.push(docStart);
-            addEvents(events, doc, (_a = error === null || error === void 0 ? void 0 : error.pos[0]) !== null && _a !== void 0 ? _a : -1, root);
+            addEvents(events, doc, error?.pos[0] ?? -1, root);
             let docEnd = '-DOC';
-            if (rootEnd) {
-                const post = src.slice(rootStart, rootEnd);
-                if (/^\.\.\.($|\s)/m.test(post))
-                    docEnd += ' ...';
-            }
+            if (doc.directives.docEnd)
+                docEnd += ' ...';
             events.push(docEnd);
         }
     }
     catch (e) {
-        return { events, error: error || e };
+        return { events, error: error ?? e };
     }
     events.push('-STR');
     return { events, error };

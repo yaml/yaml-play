@@ -37,7 +37,7 @@ function createNodeAnchors(doc, prefix) {
     const sourceObjects = new Map();
     let prevAnchors = null;
     return {
-        onAnchor(source) {
+        onAnchor: (source) => {
             aliasObjects.push(source);
             if (!prevAnchors)
                 prevAnchors = anchorNames(doc);
@@ -50,7 +50,7 @@ function createNodeAnchors(doc, prefix) {
          * of its child nodes are. This is why anchors are set only after all of
          * the nodes have been created.
          */
-        setAnchors() {
+        setAnchors: () => {
             for (const source of aliasObjects) {
                 const ref = sourceObjects.get(source);
                 if (typeof ref === 'object' &&

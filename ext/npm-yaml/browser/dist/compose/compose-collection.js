@@ -51,7 +51,7 @@ function composeCollection(CN, ctx, token, tagToken, onError) {
         : new Scalar(res);
     node.range = coll.range;
     node.tag = tagName;
-    if (tag === null || tag === void 0 ? void 0 : tag.format)
+    if (tag?.format)
         node.format = tag.format;
     return node;
 }

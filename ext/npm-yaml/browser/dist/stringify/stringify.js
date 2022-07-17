@@ -46,23 +46,22 @@ function getTagObject(tags, item) {
     if (item.tag) {
         const match = tags.filter(t => t.tag === item.tag);
         if (match.length > 0)
-            return match.find(t => t.format === item.format) || match[0];
+            return match.find(t => t.format === item.format) ?? match[0];
     }
     let tagObj = undefined;
     let obj;
     if (isScalar(item)) {
         obj = item.value;
-        const match = tags.filter(t => t.identify && t.identify(obj));
+        const match = tags.filter(t => t.identify?.(obj));
         tagObj =
-            match.find(t => t.format === item.format) || match.find(t => !t.format);
+            match.find(t => t.format === item.format) ?? match.find(t => !t.format);
     }
     else {
         obj = item;
         tagObj = tags.find(t => t.nodeClass && obj instanceof t.nodeClass);
     }
     if (!tagObj) {
-        // @ts-ignore
-        const name = obj && obj.constructor ? obj.constructor.name : typeof obj;
+        const name = obj?.constructor?.name ?? typeof obj;
         throw new Error(`Tag not resolved for ${name} value`);
     }
     return tagObj;
@@ -77,19 +76,18 @@ function stringifyProps(node, tagObj, { anchors, doc }) {
         anchors.add(anchor);
         props.push(`&${anchor}`);
     }
-    const tag = node.tag || (tagObj.default ? null : tagObj.tag);
+    const tag = node.tag ? node.tag : tagObj.default ? null : tagObj.tag;
     if (tag)
         props.push(doc.directives.tagString(tag));
     return props.join(' ');
 }
 function stringify(item, ctx, onComment, onChompKeep) {
-    var _a;
     if (isPair(item))
         return item.toString(ctx, onComment, onChompKeep);
     if (isAlias(item)) {
         if (ctx.doc.directives)
             return item.toString(ctx);
-        if ((_a = ctx.resolvedAliases) === null || _a === void 0 ? void 0 : _a.has(item)) {
+        if (ctx.resolvedAliases?.has(item)) {
             throw new TypeError(`Cannot stringify circular structure without alias nodes`);
         }
         else {
@@ -108,7 +106,7 @@ function stringify(item, ctx, onComment, onChompKeep) {
         tagObj = getTagObject(ctx.doc.schema.tags, node);
     const props = stringifyProps(node, tagObj, ctx);
     if (props.length > 0)
-        ctx.indentAtStart = (ctx.indentAtStart || 0) + props.length + 1;
+        ctx.indentAtStart = (ctx.indentAtStart ?? 0) + props.length + 1;
     const str = typeof tagObj.stringify === 'function'
         ? tagObj.stringify(node, ctx, onComment, onChompKeep)
         : isScalar(node)

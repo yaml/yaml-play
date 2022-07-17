@@ -4,7 +4,7 @@ import { resolveEnd } from './resolve-end.js';
 import { resolveProps } from './resolve-props.js';
 
 function composeDoc(options, directives, { offset, start, value, end }, onError) {
-    const opts = Object.assign({ directives }, options);
+    const opts = Object.assign({ _directives: directives }, options);
     const doc = new Document(undefined, opts);
     const ctx = {
         atRoot: true,
@@ -14,13 +14,13 @@ function composeDoc(options, directives, { offset, start, value, end }, onError)
     };
     const props = resolveProps(start, {
         indicator: 'doc-start',
-        next: value || (end === null || end === void 0 ? void 0 : end[0]),
+        next: value ?? end?.[0],
         offset,
         onError,
         startOnNewline: true
     });
     if (props.found) {
-        doc.directives.marker = true;
+        doc.directives.docStart = true;
         if (value &&
             (value.type === 'block-map' || value.type === 'block-seq') &&
             !props.hasNewline)

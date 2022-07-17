@@ -22,6 +22,10 @@ class YAMLSet extends YAMLMap {
         if (!prev)
             this.items.push(pair);
     }
+    /**
+     * If `keepPair` is `true`, returns the Pair matching `key`.
+     * Otherwise, returns the value of that Pair's key.
+     */
     get(key, keepPair) {
         const pair = findPair(this.items, key);
         return !keepPair && isPair(pair)

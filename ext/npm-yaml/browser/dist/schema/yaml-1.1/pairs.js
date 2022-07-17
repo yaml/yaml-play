@@ -18,7 +18,7 @@ function resolvePairs(seq, onError) {
                         ? `${item.commentBefore}\n${pair.key.commentBefore}`
                         : item.commentBefore;
                 if (item.comment) {
-                    const cn = pair.value || pair.key;
+                    const cn = pair.value ?? pair.key;
                     cn.comment = cn.comment
                         ? `${item.comment}\n${cn.comment}`
                         : item.comment;

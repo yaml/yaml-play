@@ -6,21 +6,20 @@ const defaultTagPrefix = 'tag:yaml.org,2002:';
 function findTagObject(value, tagName, tags) {
     if (tagName) {
         const match = tags.filter(t => t.tag === tagName);
-        const tagObj = match.find(t => !t.format) || match[0];
+        const tagObj = match.find(t => !t.format) ?? match[0];
         if (!tagObj)
             throw new Error(`Tag ${tagName} not found`);
         return tagObj;
     }
-    return tags.find(t => t.identify && t.identify(value) && !t.format);
+    return tags.find(t => t.identify?.(value) && !t.format);
 }
 function createNode(value, tagName, ctx) {
-    var _a, _b;
     if (isDocument(value))
         value = value.contents;
     if (isNode(value))
         return value;
     if (isPair(value)) {
-        const map = (_b = (_a = ctx.schema[MAP]).createNode) === null || _b === void 0 ? void 0 : _b.call(_a, ctx.schema, null, ctx);
+        const map = ctx.schema[MAP].createNode?.(ctx.schema, null, ctx);
         map.items.push(value);
         return map;
     }
@@ -48,12 +47,14 @@ function createNode(value, tagName, ctx) {
             sourceObjects.set(value, ref);
         }
     }
-    if (tagName && tagName.startsWith('!!'))
+    if (tagName?.startsWith('!!'))
         tagName = defaultTagPrefix + tagName.slice(2);
     let tagObj = findTagObject(value, tagName, schema.tags);
     if (!tagObj) {
-        if (value && typeof value.toJSON === 'function')
+        if (value && typeof value.toJSON === 'function') {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             value = value.toJSON();
+        }
         if (!value || typeof value !== 'object') {
             const node = new Scalar(value);
             if (ref)
@@ -71,7 +72,7 @@ function createNode(value, tagName, ctx) {
         onTagObj(tagObj);
         delete ctx.onTagObj;
     }
-    const node = (tagObj === null || tagObj === void 0 ? void 0 : tagObj.createNode)
+    const node = tagObj?.createNode
         ? tagObj.createNode(ctx.schema, value, ctx)
         : new Scalar(value);
     if (tagName)

@@ -22,7 +22,7 @@ class YAMLOMap extends YAMLSeq {
         if (!ctx)
             return super.toJSON(_);
         const map = new Map();
-        if (ctx && ctx.onCreate)
+        if (ctx?.onCreate)
             ctx.onCreate(map);
         for (const pair of this.items) {
             let key, value;

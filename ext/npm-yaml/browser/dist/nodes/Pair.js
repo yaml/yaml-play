@@ -23,11 +23,11 @@ class Pair {
         return new Pair(key, value);
     }
     toJSON(_, ctx) {
-        const pair = ctx && ctx.mapAsMap ? new Map() : {};
+        const pair = ctx?.mapAsMap ? new Map() : {};
         return addPairToJSMap(ctx, pair, this);
     }
     toString(ctx, onComment, onChompKeep) {
-        return ctx && ctx.doc
+        return ctx?.doc
             ? stringifyPair(this, ctx, onComment, onChompKeep)
             : JSON.stringify(this);
     }

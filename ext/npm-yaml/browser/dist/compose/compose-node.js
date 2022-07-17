@@ -8,6 +8,7 @@ const CN = { composeNode, composeEmptyNode };
 function composeNode(ctx, token, props, onError) {
     const { spaceBefore, comment, anchor, tag } = props;
     let node;
+    let isSrcToken = true;
     switch (token.type) {
         case 'alias':
             node = composeAlias(ctx, token, onError);
@@ -29,9 +30,14 @@ function composeNode(ctx, token, props, onError) {
             if (anchor)
                 node.anchor = anchor.source.substring(1);
             break;
-        default:
-            console.log(token);
-            throw new Error(`Unsupporten token type: ${token.type}`);
+        default: {
+            const message = token.type === 'error'
+                ? token.message
+                : `Unsupported token (type: ${token.type})`;
+            onError(token, 'UNEXPECTED_TOKEN', message);
+            node = composeEmptyNode(ctx, token.offset, undefined, null, props, onError);
+            isSrcToken = false;
+        }
     }
     if (anchor && node.anchor === '')
         onError(anchor, 'BAD_ALIAS', 'Anchor cannot be an empty string');
@@ -43,7 +49,8 @@ function composeNode(ctx, token, props, onError) {
         else
             node.commentBefore = comment;
     }
-    if (ctx.options.keepSourceTokens)
+    // @ts-expect-error Type checking misses meaning of isSrcToken
+    if (ctx.options.keepSourceTokens && isSrcToken)
         node.srcToken = token;
     return node;
 }
@@ -70,6 +77,8 @@ function composeAlias({ options }, { offset, source, end }, onError) {
     const alias = new Alias(source.substring(1));
     if (alias.source === '')
         onError(offset, 'BAD_ALIAS', 'Alias cannot be an empty string');
+    if (alias.source.endsWith(':'))
+        onError(offset + source.length - 1, 'BAD_ALIAS', 'Alias ending in : is ambiguous', true);
     const valueEnd = offset + source.length;
     const re = resolveEnd(end, valueEnd, options.strict, onError);
     alias.range = [offset, valueEnd, re.offset];

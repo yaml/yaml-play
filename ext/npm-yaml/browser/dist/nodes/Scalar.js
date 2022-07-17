@@ -8,7 +8,7 @@ class Scalar extends NodeBase {
         this.value = value;
     }
     toJSON(arg, ctx) {
-        return ctx && ctx.keep ? this.value : toJS(this.value, arg, ctx);
+        return ctx?.keep ? this.value : toJS(this.value, arg, ctx);
     }
     toString() {
         return String(this.value);

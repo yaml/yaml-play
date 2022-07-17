@@ -17,8 +17,10 @@ function resolveBlockScalar(scalar, strict, onError) {
             break;
     }
     // shortcut for empty contents
-    if (!scalar.source || chompStart === 0) {
-        const value = header.chomp === '+' ? '\n'.repeat(Math.max(0, lines.length - 1)) : '';
+    if (chompStart === 0) {
+        const value = header.chomp === '+' && lines.length > 0
+            ? '\n'.repeat(Math.max(1, lines.length - 1))
+            : '';
         let end = start + header.length;
         if (scalar.source)
             end += scalar.source.length;
@@ -45,6 +47,11 @@ function resolveBlockScalar(scalar, strict, onError) {
             break;
         }
         offset += indent.length + content.length + 1;
+    }
+    // include trailing more-indented empty lines in content
+    for (let i = lines.length - 1; i >= chompStart; --i) {
+        if (lines[i][0].length > trimIndent)
+            chompStart = i + 1;
     }
     let value = '';
     let sep = '';
@@ -175,7 +182,9 @@ function splitLines(source) {
     const split = source.split(/\n( *)/);
     const first = split[0];
     const m = first.match(/^( *)/);
-    const line0 = m && m[1] ? [m[1], first.slice(m[1].length)] : ['', first];
+    const line0 = m?.[1]
+        ? [m[1], first.slice(m[1].length)]
+        : ['', first];
     const lines = [line0];
     for (let i = 1; i < split.length; i += 2)
         lines.push([split[i], split[i + 1]]);

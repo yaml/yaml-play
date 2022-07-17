@@ -6,7 +6,7 @@ import { toJS } from './toJS.js';
 
 const MERGE_KEY = '<<';
 function addPairToJSMap(ctx, map, { key, value }) {
-    if (ctx && ctx.doc.schema.merge && isMergeKey(key)) {
+    if (ctx?.doc.schema.merge && isMergeKey(key)) {
         value = isAlias(value) ? value.resolve(ctx.doc) : value;
         if (isSeq(value))
             for (const it of value.items)

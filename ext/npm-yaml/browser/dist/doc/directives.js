@@ -16,13 +16,15 @@ class Directives {
          * The directives-end/doc-start marker `---`. If `null`, a marker may still be
          * included in the document's stringified representation.
          */
-        this.marker = null;
+        this.docStart = null;
+        /** The doc-end marker `...`.  */
+        this.docEnd = false;
         this.yaml = Object.assign({}, Directives.defaultYaml, yaml);
         this.tags = Object.assign({}, Directives.defaultTags, tags);
     }
     clone() {
         const copy = new Directives(this.yaml, this.tags);
-        copy.marker = this.marker;
+        copy.docStart = this.docStart;
         return copy;
     }
     /**
@@ -71,7 +73,7 @@ class Directives {
             }
             case '%YAML': {
                 this.yaml.explicit = true;
-                if (parts.length < 1) {
+                if (parts.length !== 1) {
                     onError(0, '%YAML directive should contain exactly one part');
                     return false;
                 }
@@ -81,7 +83,8 @@ class Directives {
                     return true;
                 }
                 else {
-                    onError(6, `Unsupported YAML version ${version}`, true);
+                    const isValid = /^\d+\.\d+$/.test(version);
+                    onError(6, `Unsupported YAML version ${version}`, isValid);
                     return false;
                 }
             }

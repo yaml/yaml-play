@@ -37,12 +37,12 @@ class YAMLMap extends Collection {
             _pair = pair;
         else if (!pair || typeof pair !== 'object' || !('key' in pair)) {
             // In TypeScript, this never happens.
-            _pair = new Pair(pair, pair.value);
+            _pair = new Pair(pair, pair?.value);
         }
         else
             _pair = new Pair(pair.key, pair.value);
         const prev = findPair(this.items, _pair.key);
-        const sortEntries = this.schema && this.schema.sortMapEntries;
+        const sortEntries = this.schema?.sortMapEntries;
         if (prev) {
             if (!overwrite)
                 throw new Error(`Key ${_pair.key} already set`);
@@ -72,8 +72,8 @@ class YAMLMap extends Collection {
     }
     get(key, keepScalar) {
         const it = findPair(this.items, key);
-        const node = it && it.value;
-        return !keepScalar && isScalar(node) ? node.value : node;
+        const node = it?.value;
+        return (!keepScalar && isScalar(node) ? node.value : node) ?? undefined;
     }
     has(key) {
         return !!findPair(this.items, key);
@@ -87,8 +87,8 @@ class YAMLMap extends Collection {
      * @returns Instance of Type, Map, or Object
      */
     toJSON(_, ctx, Type) {
-        const map = Type ? new Type() : ctx && ctx.mapAsMap ? new Map() : {};
-        if (ctx && ctx.onCreate)
+        const map = Type ? new Type() : ctx?.mapAsMap ? new Map() : {};
+        if (ctx?.onCreate)
             ctx.onCreate(map);
         for (const item of this.items)
             addPairToJSMap(ctx, map, item);

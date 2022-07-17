@@ -41,8 +41,8 @@ class Document {
         }, options);
         this.options = opt;
         let { version } = opt;
-        if (options === null || options === void 0 ? void 0 : options.directives) {
-            this.directives = options.directives.atDocument();
+        if (options?._directives) {
+            this.directives = options._directives.atDocument();
             if (this.directives.yaml.explicit)
                 version = this.directives.yaml.version;
         }
@@ -102,6 +102,7 @@ class Document {
         if (!node.anchor) {
             const prev = anchorNames(this);
             node.anchor =
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 !name || prev.has(name) ? findNewAnchor(name || 'a', prev) : name;
         }
         return new Alias(node.anchor);
@@ -123,11 +124,13 @@ class Document {
             options = replacer;
             replacer = undefined;
         }
-        const { aliasDuplicateObjects, anchorPrefix, flow, keepUndefined, onTagObj, tag } = options || {};
-        const { onAnchor, setAnchors, sourceObjects } = createNodeAnchors(this, anchorPrefix || 'a');
+        const { aliasDuplicateObjects, anchorPrefix, flow, keepUndefined, onTagObj, tag } = options ?? {};
+        const { onAnchor, setAnchors, sourceObjects } = createNodeAnchors(this, 
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        anchorPrefix || 'a');
         const ctx = {
-            aliasDuplicateObjects: aliasDuplicateObjects !== null && aliasDuplicateObjects !== void 0 ? aliasDuplicateObjects : true,
-            keepUndefined: keepUndefined !== null && keepUndefined !== void 0 ? keepUndefined : false,
+            aliasDuplicateObjects: aliasDuplicateObjects ?? true,
+            keepUndefined: keepUndefined ?? false,
             onAnchor,
             onTagObj,
             replacer: _replacer,
@@ -255,10 +258,11 @@ class Document {
                 opt = { merge: true, resolveKnownTags: false, schema: 'yaml-1.1' };
                 break;
             case '1.2':
+            case 'next':
                 if (this.directives)
-                    this.directives.yaml.version = '1.2';
+                    this.directives.yaml.version = version;
                 else
-                    this.directives = new Directives({ version: '1.2' });
+                    this.directives = new Directives({ version });
                 opt = { merge: false, resolveKnownTags: true, schema: 'core' };
                 break;
             case null:
@@ -290,7 +294,7 @@ class Document {
             maxAliasCount: typeof maxAliasCount === 'number' ? maxAliasCount : 100,
             stringify
         };
-        const res = toJS(this.contents, jsonArg || '', ctx);
+        const res = toJS(this.contents, jsonArg ?? '', ctx);
         if (typeof onAnchor === 'function')
             for (const { count, res } of ctx.anchors.values())
                 onAnchor(res, count);

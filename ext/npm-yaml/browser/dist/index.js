@@ -14,4 +14,4 @@ export { Lexer } from './parse/lexer.js';
 export { LineCounter } from './parse/line-counter.js';
 export { Parser } from './parse/parser.js';
 export { parse, parseAllDocuments, parseDocument, stringify } from './public-api.js';
-export { visit } from './visit.js';
+export { visit, visitAsync } from './visit.js';

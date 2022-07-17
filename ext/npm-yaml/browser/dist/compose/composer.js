@@ -14,7 +14,6 @@ function getErrorPos(src) {
     return [offset, offset + (typeof source === 'string' ? source.length : 1)];
 }
 function parsePrelude(prelude) {
-    var _a;
     let comment = '';
     let atComment = false;
     let afterEmptyLine = false;
@@ -29,7 +28,7 @@ function parsePrelude(prelude) {
                 afterEmptyLine = false;
                 break;
             case '%':
-                if (((_a = prelude[i + 1]) === null || _a === void 0 ? void 0 : _a[0]) !== '#')
+                if (prelude[i + 1]?.[0] !== '#')
                     i += 1;
                 atComment = false;
                 break;
@@ -67,6 +66,7 @@ class Composer {
             else
                 this.errors.push(new YAMLParseError(pos, code, message));
         };
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         this.directives = new Directives({ version: options.version || '1.2' });
         this.options = options;
     }
@@ -78,7 +78,7 @@ class Composer {
             if (afterDoc) {
                 doc.comment = doc.comment ? `${doc.comment}\n${comment}` : comment;
             }
-            else if (afterEmptyLine || doc.directives.marker || !dc) {
+            else if (afterEmptyLine || doc.directives.docStart || !dc) {
                 doc.commentBefore = comment;
             }
             else if (isCollection(dc) && !dc.flow && dc.items.length > 0) {
@@ -143,8 +143,8 @@ class Composer {
                 break;
             case 'document': {
                 const doc = composeDoc(this.options, this.directives, token, this.onError);
-                if (this.atDirectives && !doc.directives.marker)
-                    this.onError(token, 'MISSING_CHAR', 'Missing directives-end indicator line');
+                if (this.atDirectives && !doc.directives.docStart)
+                    this.onError(token, 'MISSING_CHAR', 'Missing directives-end/doc-start indicator line');
                 this.decorate(doc, false);
                 if (this.doc)
                     yield this.doc;
@@ -176,6 +176,7 @@ class Composer {
                     this.errors.push(new YAMLParseError(getErrorPos(token), 'UNEXPECTED_TOKEN', msg));
                     break;
                 }
+                this.doc.directives.docEnd = true;
                 const end = resolveEnd(token.end, token.offset + token.source.length, this.doc.options.strict, this.onError);
                 this.decorate(this.doc, true);
                 if (end.comment) {
@@ -202,7 +203,7 @@ class Composer {
             this.doc = null;
         }
         else if (forceDoc) {
-            const opts = Object.assign({ directives: this.directives }, this.options);
+            const opts = Object.assign({ _directives: this.directives }, this.options);
             const doc = new Document(undefined, opts);
             if (this.atDirectives)
                 this.onError(endOffset, 'MISSING_CHAR', 'Missing directives-end indicator line');

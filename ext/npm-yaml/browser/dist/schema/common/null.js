@@ -7,7 +7,9 @@ const nullTag = {
     tag: 'tag:yaml.org,2002:null',
     test: /^(?:~|[Nn]ull|NULL)?$/,
     resolve: () => new Scalar(null),
-    stringify: ({ source }, ctx) => source && nullTag.test.test(source) ? source : ctx.options.nullStr
+    stringify: ({ source }, ctx) => typeof source === 'string' && nullTag.test.test(source)
+        ? source
+        : ctx.options.nullStr
 };
 
 export { nullTag };

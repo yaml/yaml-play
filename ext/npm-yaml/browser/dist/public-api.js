@@ -21,7 +21,7 @@ function parseOptions(options) {
  */
 function parseAllDocuments(source, options = {}) {
     const { lineCounter, prettyErrors } = parseOptions(options);
-    const parser = new Parser(lineCounter === null || lineCounter === void 0 ? void 0 : lineCounter.addNewLine);
+    const parser = new Parser(lineCounter?.addNewLine);
     const composer = new Composer(options);
     const docs = Array.from(composer.compose(parser.parse(source)));
     if (prettyErrors && lineCounter)
@@ -36,7 +36,7 @@ function parseAllDocuments(source, options = {}) {
 /** Parse an input string into a single YAML.Document */
 function parseDocument(source, options = {}) {
     const { lineCounter, prettyErrors } = parseOptions(options);
-    const parser = new Parser(lineCounter === null || lineCounter === void 0 ? void 0 : lineCounter.addNewLine);
+    const parser = new Parser(lineCounter?.addNewLine);
     const composer = new Composer(options);
     // `doc` is always set by compose.end(true) at the very latest
     let doc = null;
@@ -89,7 +89,7 @@ function stringify(value, replacer, options) {
         options = indent < 1 ? undefined : indent > 8 ? { indent: 8 } : { indent };
     }
     if (value === undefined) {
-        const { keepUndefined } = options || replacer || {};
+        const { keepUndefined } = options ?? replacer ?? {};
         if (!keepUndefined)
             return undefined;
     }

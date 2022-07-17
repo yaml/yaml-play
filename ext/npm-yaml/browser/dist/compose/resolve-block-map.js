@@ -7,7 +7,6 @@ import { mapIncludes } from './util-map-includes.js';
 
 const startColMsg = 'All mapping items must start at the same column';
 function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError) {
-    var _a;
     const map = new YAMLMap(ctx.schema);
     if (ctx.atRoot)
         ctx.atRoot = false;
@@ -17,7 +16,7 @@ function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError) {
         // key properties
         const keyProps = resolveProps(start, {
             indicator: 'explicit-key-ind',
-            next: key || (sep === null || sep === void 0 ? void 0 : sep[0]),
+            next: key ?? sep?.[0],
             offset,
             onError,
             startOnNewline: true
@@ -40,12 +39,13 @@ function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError) {
                 }
                 continue;
             }
+            if (keyProps.hasNewlineAfterProp || containsNewline(key)) {
+                onError(key ?? start[start.length - 1], 'MULTILINE_IMPLICIT_KEY', 'Implicit keys need to be on a single line');
+            }
         }
-        else if (((_a = keyProps.found) === null || _a === void 0 ? void 0 : _a.indent) !== bm.indent)
+        else if (keyProps.found?.indent !== bm.indent) {
             onError(offset, 'BAD_INDENT', startColMsg);
-        if (implicitKey && containsNewline(key))
-            onError(key, // checked by containsNewline()
-            'MULTILINE_IMPLICIT_KEY', 'Implicit keys need to be on a single line');
+        }
         // key value
         const keyStart = keyProps.end;
         const keyNode = key
@@ -56,7 +56,7 @@ function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError) {
         if (mapIncludes(ctx, map.items, keyNode))
             onError(keyStart, 'DUPLICATE_KEY', 'Map keys must be unique');
         // value properties
-        const valueProps = resolveProps(sep || [], {
+        const valueProps = resolveProps(sep ?? [], {
             indicator: 'map-value-ind',
             next: value,
             offset: keyNode.range[2],
@@ -66,7 +66,7 @@ function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError) {
         offset = valueProps.end;
         if (valueProps.found) {
             if (implicitKey) {
-                if ((value === null || value === void 0 ? void 0 : value.type) === 'block-map' && !valueProps.hasNewline)
+                if (value?.type === 'block-map' && !valueProps.hasNewline)
                     onError(offset, 'BLOCK_AS_IMPLICIT_KEY', 'Nested mappings are not allowed in compact mappings');
                 if (ctx.options.strict &&
                     keyProps.start < valueProps.found.offset - 1024)
