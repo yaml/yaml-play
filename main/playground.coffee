@@ -51,7 +51,8 @@ class window.Playground extends EatMe
     'npmyaml'
     'ppyaml'
     'pyyaml'
-    'rapid'
+    'rapid-tree'
+    'rapid-engine'
     'ruamel'
     'rustyaml'
     'snake'
@@ -132,13 +133,13 @@ class window.Playground extends EatMe
 
         refparse = @refparse
 
-        if slug == 'rapid'
+        if slug == 'rapid-tree'
           refparse = refparse
-            .replace(/^=VAL ((?:&\S+ |<\S*> )*)[">|]/gm, "=VAL $1'")
             .replace(/^\+DOC ---/gm, '+DOC')
             .replace(/^-DOC \.\.\./gm, '-DOC')
           output = output
             .replace(/^\+DOC ---/gm, '+DOC')
+            .replace(/^-DOC \.\.\./gm, '-DOC')
 
         if slug == 'rustyaml'
           output = output
@@ -305,8 +306,11 @@ class window.Playground extends EatMe
   pyyaml_event: (text, cb)->
     @sandbox_event(text, 'yaml-test-parse-pyyaml', cb)
 
-  rapid_event: (text, cb)->
-    @sandbox_event(text, 'yaml-test-parse-rapid', cb)
+  rapidtree_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-rapid-tree', cb)
+
+  rapidengine_event: (text, cb)->
+    @sandbox_event(text, 'yaml-test-parse-rapid-engine', cb)
 
   ruamel_event: (text, cb)->
     @sandbox_event(text, 'yaml-test-parse-ruamel', cb)
