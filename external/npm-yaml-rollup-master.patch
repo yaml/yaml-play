@@ -1,8 +1,7 @@
-diff --git a/config/rollup.browser-config.js b/config/rollup.browser-config.js
-index 0928bea..1e97cfb 100644
---- a/config/rollup.browser-config.js
-+++ b/config/rollup.browser-config.js
-@@ -5,6 +5,7 @@ import typescript from '@rollup/plugin-typescript'
+diff --git a/config/rollup.browser-config.mjs b/config/rollup.browser-config.mjs
+--- a/config/rollup.browser-config.mjs
++++ b/config/rollup.browser-config.mjs
+@@ -6,6 +6,7 @@ import typescript from '@rollup/plugin-typescript'
  export default {
    input: {
      index: 'src/index.ts',

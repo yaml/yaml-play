@@ -78,7 +78,7 @@ else ifneq (,$(wildcard $(TMPEXT)/$(NPM_YAML)))
 	# This line intentionally left blank
 else ifneq ($(shell command -v npm),)
 	git clone -q $(NPM_YAML_REPO) $@
-	patch $@/config/rollup.browser-config.js < npm-yaml-rollup-master.patch
+	patch $@/config/rollup.browser-config.mjs < npm-yaml-rollup-master.patch
 	(cd $@ && npm install . && npm run build)
 	[[ -d $@/browser/dist ]]
 	#
