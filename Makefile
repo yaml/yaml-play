@@ -1,9 +1,16 @@
-SHELL := bash
+M := .cache/makes
+$(shell [ -d $M ] || ( git clone -q https://github.com/makeplus/makes $M))
+
+include $M/init.mk
+include $M/node.mk
+include $M/clean.mk
+include $M/shell.mk
+
 .SECONDEXPANSION:
 .DELETE_ON_ERROR:
 
-export ROOT := $(shell git rev-parse --show-toplevel)
-export PATH := $(ROOT)/bin:$(PATH)
+override export ROOT := $(shell git rev-parse --show-toplevel)
+override export PATH := $(ROOT)/bin:$(PATH)
 
 include Config.mk
 
@@ -63,7 +70,7 @@ list-files:
 
 files: $(EXT_DIRS) $(FILES) track-gh-pages
 
-build: files
+build: $(NODE) files
 	jekyll-runner $(JEKYLL_BUILD)
 ifneq (,$(SITEDIR))
 ifneq (main,$(SITEDIR))
@@ -114,7 +121,7 @@ force:
 common:
 	cp $(COMMON)/bpan/run-or-docker.bash $(BPAN)/
 
-clean: force
+clean:: force
 	$(MAKE) -C $(EXT) $@
 
 clean-all:
@@ -132,7 +139,7 @@ _config.yml: jekyll/_config.yml
 favicon.svg: $(EXT)/yaml-common/image/yaml-logo.svg
 	cp $< $@
 
-$(EXT_DIRS):
+$(EXT_DIRS): $(NODE)
 	$(MAKE) -C $(EXT) build
 
 ext/%: $(EXT)/%

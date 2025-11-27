@@ -2,7 +2,7 @@
 
 # shellcheck disable=2154
 
-version=0.0.4
+version=0.0.5
 
 source "${ROOT:-$PWD}/.bpan/run-or-docker.bash"
 
@@ -15,6 +15,7 @@ dockerfile() (
 source 'https://rubygems.org'
 
 gem "jekyll", "~> 3.9.0"
+gem "webrick"
 
 group :jekyll_plugins do
   gem 'github-pages'

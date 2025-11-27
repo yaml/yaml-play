@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.22
 
 ENV BUMP 1
 
@@ -46,18 +46,18 @@ RUN ( \
         -keyout /key.pem \
         -days 365
 
-RUN pip3 install wheel
+RUN pip3 install --break-system-packages --upgrade pip wheel
 
-RUN pip3 install \
+RUN pip3 install --break-system-packages \
         flask \
         flask-cors \
         pyopenssl \
         pyyaml \
  && true
 
-RUN mkdir -p /export/usr/lib/python3.9/site-packages \
+RUN mkdir -p /export/usr/lib/python3.12/site-packages \
  && cp -Pr \
-        /usr/lib/python3.9/site-packages/* \
-        /export/usr/lib/python3.9/site-packages/ \
+        /usr/lib/python3.12/site-packages/* \
+        /export/usr/lib/python3.12/site-packages/ \
  && cp /cert.pem /key.pem /export/ \
  && true
