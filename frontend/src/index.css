@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Style Monaco whitespace characters */
+/* Monaco uses .monaco-editor .render-whitespace-all .mtkw for space dots
+   and tabs are rendered with → character */
+.monaco-editor .mtkw {
+  /* Make whitespace more visible */
+  opacity: 0.6 !important;
+}
+
+/* Try to style tab arrows - Monaco renders them inline */
+.monaco-editor .lines-content .view-line span span:has(> .mtkw) {
+  position: relative;
+}
+
+/* Alternative: use border-bottom to indicate tab extent */
+.monaco-editor .mtkw[style*="width"] {
+  border-bottom: 1px dashed currentColor;
+  opacity: 0.4;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Custom scrollbar for the pane container */
+.pane-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.pane-container::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.pane-container::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+.pane-container::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}

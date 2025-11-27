@@ -2,6 +2,8 @@
 !/.bpan/
 !/bin/
 !/docker/
-!/external/
-!/jekyll/
-!/main/
+!/frontend/
+!/frontend/**
+
+# Generated refparse files (built from yaml-reference-parser)
+/frontend/public/refparse/
