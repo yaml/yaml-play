@@ -62,11 +62,11 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
           {/* Sandbox Setup */}
           <section>
             <h3 className="text-sm font-semibold text-gray-400 mb-2 uppercase">
-              Running the Sandbox Server
+              Start the Sandbox Server
             </h3>
             <p className="text-gray-300 text-sm mb-2">
-              Most parsers run in a Docker container. If you see connection errors,
-              start the sandbox with:
+              Most of these parsers run in a Docker container that you need to start on your machine.
+              If you see connection errors, start the sandbox by running this command in a terminal:
             </p>
             <div className="relative">
               <pre className="bg-gray-900 p-3 pr-16 rounded text-sm text-green-400 font-mono overflow-x-auto">
@@ -87,12 +87,11 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
               HTTPS Certificate (if needed)
             </h3>
             <p className="text-gray-300 text-sm mb-2">
-              If accessing via HTTPS with a self-signed certificate, you may need to
-              accept the certificate first:
+              If you still are getting connection errors, you may need to accept the unsigned HTTPS certificate:
             </p>
             <ol className="text-gray-300 text-sm list-decimal list-inside space-y-1">
               <li>
-                Open{' '}
+                Click here:{' '}
                 <a
                   href="https://localhost:7481"
                   target="_blank"
@@ -101,7 +100,7 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
                 >
                   https://localhost:7481
                 </a>
-                {' '}in a new tab
+                {' '}(opens in a new tab)
               </li>
               <li>Accept the security warning / proceed anyway</li>
               <li>Return to this page and refresh</li>

@@ -31,16 +31,16 @@ SITE := site
 FRONTEND := frontend
 NPM := $(NODE:node=npm)
 
-PUBLISH_CNAME := play.yaml.com
-REMOTE_NAME ?= origin
+PUBLISH-CNAME := play.yaml.com
+REMOTE-NAME ?= origin
 
-SANDBOX_PORT ?= 7481
-SANDBOX_IMAGE := yamlio/yaml-play-sandbox:$(SANDBOX_VERSION)
-SANDBOX_RUN := \
+SANDBOX-PORT ?= 7481
+SANDBOX-IMAGE := yamlio/yaml-play-sandbox:$(SANDBOX-VERSION)
+SANDBOX-RUN := \
   docker run --rm -d -p \
-    $(SANDBOX_PORT):$(SANDBOX_PORT) \
-    $(SANDBOX_IMAGE) \
-    $(SANDBOX_PORT)
+    $(SANDBOX-PORT):$(SANDBOX-PORT) \
+    $(SANDBOX-IMAGE) \
+    $(SANDBOX-PORT)
 
 #------------------------------------------------------------------------------
 # Main targets
@@ -57,49 +57,49 @@ site: build
 	git worktree add -f $(SITE) gh-pages
 	git -C $(SITE) reset --hard origin/gh-pages
 	cp -r $(BUILD)/* $(SITE)/
-	echo $(PUBLISH_CNAME) > $(SITE)/CNAME
+	echo $(PUBLISH-CNAME) > $(SITE)/CNAME
 	touch $(SITE)/.nojekyll
 
 publish: site
 	@( set -x; \
 	  git -C $(SITE) add -A . && \
 	  git -C $(SITE) commit --allow-empty -m 'Publish' && \
-	  git -C $(SITE) push -f $(REMOTE_NAME) gh-pages )
+	  git -C $(SITE) push -f $(REMOTE-NAME) gh-pages )
 	@echo
-	@echo "Published: https://$(PUBLISH_CNAME)/"
+	@echo "Published: https://$(PUBLISH-CNAME)/"
 	@echo
 
 #------------------------------------------------------------------------------
 # Reference parser
 #------------------------------------------------------------------------------
 
-REFPARSER_REPO := https://github.com/yaml/yaml-reference-parser
-REFPARSER_DIR := .yaml-reference-parser
-REFPARSER_JS := $(REFPARSER_DIR)/parser-1.2/javascript
-REFPARSER_BUILD := $(REFPARSER_JS)/lib
-REFPARSER_DEST := $(FRONTEND)/public/refparse
+REFPARSER-REPO := https://github.com/yaml/yaml-reference-parser
+REFPARSER-DIR := .yaml-reference-parser
+REFPARSER-JS := $(REFPARSER-DIR)/parser-1.2/javascript
+REFPARSER-BUILD := $(REFPARSER-JS)/lib
+REFPARSER-DEST := $(FRONTEND)/public/refparse
 
-MAKES-REALCLEAN += $(REFPARSER_DIR) $(REFPARSER_DEST)
+MAKES-REALCLEAN += $(REFPARSER-DIR) $(REFPARSER-DEST)
 
-$(REFPARSER_DIR):
-	git clone $(REFPARSER_REPO) $@
+$(REFPARSER-DIR):
+	git clone $(REFPARSER-REPO) $@
 
-refparser-build: $(REFPARSER_DIR)
-	$(MAKE) -C $(REFPARSER_JS) build
-	mkdir -p $(REFPARSER_DEST)
+refparser-build: $(REFPARSER-DIR)
+	$(MAKE) -C $(REFPARSER-JS) build
+	mkdir -p $(REFPARSER-DEST)
 	# Copy parser JS files
-	cp $(REFPARSER_BUILD)/grammar.js $(REFPARSER_DEST)/
-	cp $(REFPARSER_BUILD)/parser.js $(REFPARSER_DEST)/
-	cp $(REFPARSER_BUILD)/receiver.js $(REFPARSER_DEST)/
-	cp $(REFPARSER_BUILD)/test-receiver.js $(REFPARSER_DEST)/
-	cp share/prelude.js $(REFPARSER_DEST)/
+	cp $(REFPARSER-BUILD)/grammar.js $(REFPARSER-DEST)/
+	cp $(REFPARSER-BUILD)/parser.js $(REFPARSER-DEST)/
+	cp $(REFPARSER-BUILD)/receiver.js $(REFPARSER-DEST)/
+	cp $(REFPARSER-BUILD)/test-receiver.js $(REFPARSER-DEST)/
+	cp share/prelude.js $(REFPARSER-DEST)/
 	# Remove require() calls from copied files for browser compatibility
-	sed -i "s/require('.\/prelude');//g" $(REFPARSER_DEST)/*.js
-	sed -i "s/require('.\/grammar');//g" $(REFPARSER_DEST)/*.js
-	sed -i "s/require('.\/receiver');//g" $(REFPARSER_DEST)/*.js
+	sed -i "s/require('.\/prelude');//g" $(REFPARSER-DEST)/*.js
+	sed -i "s/require('.\/grammar');//g" $(REFPARSER-DEST)/*.js
+	sed -i "s/require('.\/receiver');//g" $(REFPARSER-DEST)/*.js
 
-refparser-test: $(REFPARSER_DIR)
-	$(MAKE) -C $(REFPARSER_JS) yaml-parser <<<'[]'
+refparser-test: $(REFPARSER-DIR)
+	$(MAKE) -C $(REFPARSER-JS) yaml-parser <<<'[]'
 
 #------------------------------------------------------------------------------
 # Frontend (React) targets
@@ -109,9 +109,9 @@ frontend-deps: $(NODE)
 	cd $(FRONTEND) && $(NPM) install
 
 frontend-dev: frontend-deps refparser-build
-	$(eval override DOCKER_CID := $$(shell $$(SANDBOX_RUN)))
+	$(eval override DOCKER-CID := $$(shell $$(SANDBOX-RUN)))
 	cd $(FRONTEND) && $(NPM) run dev; \
-	docker kill $(DOCKER_CID)
+	docker kill $(DOCKER-CID)
 
 frontend-build: frontend-deps refparser-build
 	cd $(FRONTEND) && $(NPM) run build
@@ -121,7 +121,7 @@ frontend-build: frontend-deps refparser-build
 #------------------------------------------------------------------------------
 
 no-docker:
-	$(eval override SANDBOX_RUN := true)
+	$(eval override SANDBOX-RUN := true)
 
 push: docker-push
 
