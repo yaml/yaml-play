@@ -48,7 +48,7 @@ SANDBOX-RUN := \
 .PHONY: build site serve
 
 build: frontend-build
-	rm -rf $(BUILD)
+	$(RM) -r $(BUILD) $(SITE)
 	cp -r $(FRONTEND)/dist $(BUILD)
 
 serve: frontend-dev

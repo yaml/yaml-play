@@ -1,7 +1,9 @@
 /.cache/
-/build/
 /CLAUDE.md
 /.claude/
+
+/build/
+/site/
 
 /.yaml-reference-parser/
 /.yaml-test-suite/

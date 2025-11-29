@@ -14,6 +14,7 @@ interface InputPaneProps {
   editorType: EditorType;
   showBorder?: boolean;
   heightMode?: 'full' | 'half';
+  isMobile?: boolean;
 }
 
 export interface InputPaneHandle {
@@ -57,7 +58,7 @@ const MIN_WIDTH = 200;
 const MAX_WIDTH = 800;
 
 export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function InputPane(
-  { value, onChange, width, onWidthChange, colorScheme, editorType, showBorder = true, heightMode = 'full' },
+  { value, onChange, width, onWidthChange, colorScheme, editorType, showBorder = true, heightMode = 'full', isMobile = false },
   ref
 ) {
   const isResizing = useRef(false);
@@ -128,10 +129,14 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
   const heightClass = heightMode === 'full' ? 'h-full' : 'h-full overflow-hidden';
   const borderClass = showBorder ? 'border-r border-gray-700' : '';
 
+  const containerStyle = isMobile
+    ? {}  // Let parent control size on mobile
+    : { width: `${width}px`, minWidth: `${MIN_WIDTH}px`, maxWidth: `${MAX_WIDTH}px` };
+
   return (
     <div
-      className={`flex flex-col ${heightClass} ${borderClass} relative`}
-      style={{ width: `${width}px`, minWidth: `${MIN_WIDTH}px`, maxWidth: `${MAX_WIDTH}px` }}
+      className={`flex flex-col ${heightClass} ${isMobile ? 'w-full border-b border-gray-700' : borderClass} relative`}
+      style={containerStyle}
     >
       <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
         <h2 className="text-white font-semibold">YAML Input Editor</h2>
@@ -175,11 +180,13 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
           />
         )}
       </div>
-      {/* Resize handle */}
-      <div
-        className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors"
-        onMouseDown={handleMouseDown}
-      />
+      {/* Resize handle - hidden on mobile */}
+      {!isMobile && (
+        <div
+          className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors"
+          onMouseDown={handleMouseDown}
+        />
+      )}
       <TestSuiteModal
         isOpen={testSuiteOpen}
         onClose={() => setTestSuiteOpen(false)}

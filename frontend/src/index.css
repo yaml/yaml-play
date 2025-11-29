@@ -48,3 +48,16 @@ body {
 .pane-container::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
+
+/* Mobile-specific styles */
+@media (max-width: 639px) {
+  /* Smooth scrolling on touch devices */
+  .pane-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+}

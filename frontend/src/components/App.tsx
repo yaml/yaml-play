@@ -20,6 +20,7 @@ import { HelpModal } from './HelpModal';
 import { SetupModal } from './SetupModal';
 import { useLayoutPersistence } from '../hooks/useLayoutPersistence';
 import { useParserResults } from '../hooks/useParserResults';
+import { useIsMobile, useIsLandscape } from '../hooks/useIsMobile';
 import { getParser } from '../lib/parsers';
 import { checkSandboxAvailable } from '../lib/sandbox';
 
@@ -48,8 +49,11 @@ export default function App() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [setupOpen, setSetupOpen] = useState(false);
   const [sandboxAvailable, setSandboxAvailable] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const inputPaneRef = useRef<InputPaneHandle>(null);
   const secretKeyRef = useRef<string>('');
+  const isMobile = useIsMobile(640);
+  const isLandscape = useIsLandscape();
 
   const {
     layout,
@@ -234,6 +238,104 @@ export default function App() {
     }
   }, [reorderPanes]);
 
+  const refParser = getParser('refparse');
+
+  // Mobile layout: just Input + Refparse (no Docker/sandbox on mobile)
+  // Portrait: stacked vertically, Landscape: side by side
+  if (isMobile) {
+    return (
+      <div className="h-screen flex flex-col bg-gray-900">
+        {/* Mobile Header */}
+        <header className="bg-gray-800 px-3 py-2 border-b border-gray-700 flex items-center justify-between flex-shrink-0">
+          <h1 className="text-lg font-bold text-white">YAML Playground</h1>
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="p-2 text-white hover:bg-gray-700 rounded transition-colors"
+              aria-label="Menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            {/* Dropdown menu */}
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
+                <button
+                  onClick={() => { setHelpOpen(true); setMenuOpen(false); }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
+                >
+                  About
+                </button>
+                <button
+                  onClick={() => { navigator.clipboard.writeText(window.location.href); setMenuOpen(false); }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
+                >
+                  Share
+                </button>
+                <button
+                  onClick={() => { setYamlInput(''); setMenuOpen(false); }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => { resetLayout(); setYamlInput(DEFAULT_YAML); setMenuOpen(false); }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
+                >
+                  Reset
+                </button>
+                <a
+                  href="https://github.com/yaml/yaml-play"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMenuOpen(false)}
+                  className="block w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
+                >
+                  GitHub
+                </a>
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* Mobile main content - portrait: stacked, landscape: side by side */}
+        <div className={`flex-1 flex ${isLandscape ? 'flex-row' : 'flex-col'} overflow-hidden min-h-0`}>
+          <div className={`${isLandscape ? 'w-1/2 h-full' : 'h-1/2 w-full'} flex flex-col overflow-hidden ${isLandscape ? 'border-r border-gray-700' : 'border-b border-gray-700'}`}>
+            <InputPane
+              ref={inputPaneRef}
+              value={yamlInput}
+              onChange={setYamlInput}
+              width={inputPaneWidth}
+              onWidthChange={setInputPaneWidth}
+              colorScheme={colorScheme}
+              editorType={editorType}
+              showBorder={false}
+              isMobile={true}
+            />
+          </div>
+          {refParser && (
+            <div className={`${isLandscape ? 'w-1/2 h-full' : 'h-1/2 w-full'} flex flex-col overflow-hidden`}>
+              <OutputPane
+                parser={refParser}
+                result={getResult('refparse')}
+                isDraggable={false}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Help modal - pass isMobile to show different content */}
+        <HelpModal
+          isOpen={helpOpen}
+          onClose={() => setHelpOpen(false)}
+          isMobile={isMobile}
+        />
+      </div>
+    );
+  }
+
+  // Desktop layout
   return (
     <div className="h-screen flex flex-col bg-gray-900">
       {/* Header */}
@@ -268,7 +370,6 @@ export default function App() {
         {/* Left column - Input pane and optionally refparse below when multi-row */}
         {(() => {
           const needsMultiRow = visiblePanes.length > 8;
-          const refParser = getParser('refparse');
           const otherPanes = needsMultiRow
             ? visiblePanes.filter(p => p.id !== 'refparse')
             : visiblePanes;
