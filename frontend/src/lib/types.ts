@@ -15,6 +15,10 @@ export interface ParserResult {
   loading: boolean;
   matches?: boolean;  // For header color: green = valid YAML + matches refparse
   agrees?: boolean;   // For status bar: does this parser agree with refparse?
+  versionMismatch?: {
+    required: string;
+    found: string;
+  };
 }
 
 export interface PaneState {

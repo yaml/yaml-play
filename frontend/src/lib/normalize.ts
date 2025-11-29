@@ -49,9 +49,18 @@ export function compareOutputs(refOutput: string, parserOutput: string, parserId
   }
 
   if (parserId === 'goyaml') {
-    // If ref has implicit +DOC, normalize explicit +DOC ---
-    if (ref.match(/^\+DOC$/m)) {
-      parser = parser.replace(/^\+DOC ---/m, '+DOC');
+    // go-yaml always outputs explicit +DOC --- even for implicit document starts
+    // Normalize by comparing line by line and allowing +DOC to match +DOC ---
+    const refLines = ref.split('\n');
+    const parserLines = parser.split('\n');
+    if (refLines.length === parserLines.length) {
+      const normalizedParserLines = parserLines.map((line, i) => {
+        if (refLines[i] === '+DOC' && line === '+DOC ---') {
+          return '+DOC';
+        }
+        return line;
+      });
+      parser = normalizedParserLines.join('\n');
     }
   }
 

@@ -53,8 +53,8 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               <span className="text-gray-300 self-center">Hide all panes</span>
               <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">S</kbd>
               <span className="text-gray-300 self-center">Show selected panes</span>
-              <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">E</kbd>
-              <span className="text-gray-300 self-center">Show error panes</span>
+              <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">D</kbd>
+              <span className="text-gray-300 self-center">Show differing panes</span>
               <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">P</kbd>
               <span className="text-gray-300 self-center">Open Preferences</span>
               <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">H</kbd>

@@ -102,18 +102,35 @@ refparser-test: $(REFPARSER-DIR)
 	$(MAKE) -C $(REFPARSER-JS) yaml-parser <<<'[]'
 
 #------------------------------------------------------------------------------
+# Test Suite
+#------------------------------------------------------------------------------
+
+TESTSUITE-REPO := https://github.com/yaml/yaml-test-suite
+TESTSUITE-DIR := .yaml-test-suite
+TESTSUITE-DEST := $(FRONTEND)/public/testsuite
+
+MAKES-REALCLEAN += $(TESTSUITE-DIR) $(TESTSUITE-DEST)
+
+$(TESTSUITE-DIR):
+	git clone -b data --depth 1 $(TESTSUITE-REPO) $@
+
+testsuite-build: $(TESTSUITE-DIR)
+	mkdir -p $(TESTSUITE-DEST)
+	bin/generate-testsuite-json $(TESTSUITE-DIR) > $(TESTSUITE-DEST)/tests.json
+
+#------------------------------------------------------------------------------
 # Frontend (React) targets
 #------------------------------------------------------------------------------
 
 frontend-deps: $(NODE)
 	cd $(FRONTEND) && $(NPM) install
 
-frontend-dev: frontend-deps refparser-build
+frontend-dev: frontend-deps refparser-build testsuite-build
 	$(eval override DOCKER-CID := $$(shell $$(SANDBOX-RUN)))
 	cd $(FRONTEND) && $(NPM) run dev; \
 	docker kill $(DOCKER-CID)
 
-frontend-build: frontend-deps refparser-build
+frontend-build: frontend-deps refparser-build testsuite-build
 	cd $(FRONTEND) && $(NPM) run build
 
 #------------------------------------------------------------------------------

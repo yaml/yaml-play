@@ -1,9 +1,9 @@
-*
-!/.bpan/
-!/bin/
-!/docker/
-!/frontend/
-!/frontend/**
+/.cache/
+/build/
+/CLAUDE.md
+/.claude/
 
-# Generated refparse files (built from yaml-reference-parser)
+/.yaml-reference-parser/
+/.yaml-test-suite/
 /frontend/public/refparse/
+/frontend/public/testsuite/

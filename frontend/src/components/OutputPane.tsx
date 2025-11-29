@@ -38,9 +38,13 @@ export function OutputPane({
   // Check if this is a sandbox parser (not refparse which runs in browser)
   const isSandboxParser = parser.id !== 'refparse';
 
+  // Detect version mismatch
+  const hasVersionMismatch = isSandboxParser && result?.versionMismatch;
+
   // Detect connection errors for sandbox parsers
   const hasConnectionError =
     isSandboxParser &&
+    !hasVersionMismatch &&
     result?.status === -1 &&
     result?.output &&
     isConnectionError(result.output);
@@ -59,6 +63,16 @@ export function OutputPane({
           <pre className="p-3 text-red-400 text-sm font-mono whitespace-pre-wrap">
             Error: {result.error}
           </pre>
+        ) : hasVersionMismatch ? (
+          <div className="p-3 text-sm">
+            <p className="text-yellow-400 mb-2">
+              Wrong sandbox version ({result.versionMismatch!.found}) found.
+              Requires {result.versionMismatch!.required}.
+            </p>
+            <p className="text-gray-400">
+              Click the "<span className="text-white font-medium">Setup</span>" button for instructions.
+            </p>
+          </div>
         ) : hasConnectionError ? (
           <div className="p-3 text-sm">
             <p className="text-gray-300 mb-2">

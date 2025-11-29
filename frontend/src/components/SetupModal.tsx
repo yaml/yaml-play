@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
+import { getRequiredSandboxVersion } from '../lib/sandbox';
 
 interface SetupModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const DOCKER_COMMAND = 'docker run --rm -d -p 7481:7481 yamlio/yaml-play-sandbox:0.1.33 7481';
+const SANDBOX_VERSION = getRequiredSandboxVersion();
+const DOCKER_COMMAND = `docker run --rm -d -p 7481:7481 yamlio/yaml-play-sandbox:${SANDBOX_VERSION} 7481`;
 
 export function SetupModal({ isOpen, onClose }: SetupModalProps) {
   const [copied, setCopied] = useState(false);
@@ -62,7 +64,7 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
           {/* Sandbox Setup */}
           <section>
             <h3 className="text-sm font-semibold text-gray-400 mb-2 uppercase">
-              Start the Sandbox Server
+              Start the Sandbox Server (version {SANDBOX_VERSION})
             </h3>
             <p className="text-gray-300 text-sm mb-2">
               Most of these parsers run in a Docker container that you need to start on your machine.
@@ -79,6 +81,10 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
                 {copied ? 'Copied!' : 'Copy'}
               </button>
             </div>
+            <br />
+            <p className="text-gray-400 text-sm mt-2">
+              Note: If a different version of the sandbox server Docker container is already running, you'll need to kill that first.
+            </p>
           </section>
 
           {/* HTTPS Certificate */}
@@ -87,7 +93,7 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
               HTTPS Certificate (if needed)
             </h3>
             <p className="text-gray-300 text-sm mb-2">
-              If you still are getting connection errors, you may need to accept the unsigned HTTPS certificate:
+              If you are still getting connection errors, you may need to accept the unsigned HTTPS certificate:
             </p>
             <ol className="text-gray-300 text-sm list-decimal list-inside space-y-1">
               <li>

@@ -1,13 +1,21 @@
 // In dev, Vite proxies /api to localhost. In production, hit sandbox directly.
 const SANDBOX_URL = import.meta.env.DEV ? '/api' : 'https://localhost:7481';
 
-// Sandbox version - the version of the yaml-play-sandbox Docker image
-// This is different from individual parser versions
-const SANDBOX_VERSION = import.meta.env.VITE_SANDBOX_VERSION || '0.1.33';
+// Sandbox version - read from VERSION file at build time
+const SANDBOX_VERSION = import.meta.env.VITE_SANDBOX_VERSION;
+
+// Export for use in error messages
+export function getRequiredSandboxVersion(): string {
+  return SANDBOX_VERSION;
+}
 
 export interface SandboxResponse {
   status: number;
   output: string;
+  versionMismatch?: {
+    required: string;
+    found: string;
+  };
 }
 
 export async function checkSandboxAvailable(): Promise<boolean> {
@@ -42,6 +50,19 @@ export async function runParser(
     });
 
     if (!response.ok) {
+      // Check if this is a version mismatch error (500 with specific message)
+      const text = await response.text();
+      const versionMatch = text.match(/Requires sandbox version (\S+)/);
+      if (versionMatch) {
+        return {
+          status: -1,
+          output: `Version mismatch: sandbox is ${versionMatch[1]}, but frontend requires ${SANDBOX_VERSION}`,
+          versionMismatch: {
+            required: SANDBOX_VERSION,
+            found: versionMatch[1],
+          },
+        };
+      }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -51,6 +72,10 @@ export async function runParser(
       output: data.output,
     };
   } catch (error) {
+    // Check if this is already a SandboxResponse (from version mismatch handling above)
+    if (error && typeof error === 'object' && 'versionMismatch' in error) {
+      return error as SandboxResponse;
+    }
     return {
       status: -1,
       output: error instanceof Error ? error.message : 'Unknown error',

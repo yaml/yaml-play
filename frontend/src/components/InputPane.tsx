@@ -1,7 +1,8 @@
-import { useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useState, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import { ColorScheme, EditorType } from '../lib/types';
 import { CodeMirrorEditor, CodeMirrorEditorHandle } from './CodeMirrorEditor';
+import { TestSuiteModal } from './TestSuiteModal';
 import * as monaco from 'monaco-editor';
 
 interface InputPaneProps {
@@ -48,6 +49,7 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
   const startWidth = useRef(0);
   const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const codeMirrorRef = useRef<CodeMirrorEditorHandle>(null);
+  const [testSuiteOpen, setTestSuiteOpen] = useState(false);
 
   useImperativeHandle(ref, () => ({
     focus: () => {
@@ -115,8 +117,14 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
       className={`flex flex-col ${heightClass} ${borderClass} relative`}
       style={{ width: `${width}px`, minWidth: `${MIN_WIDTH}px`, maxWidth: `${MAX_WIDTH}px` }}
     >
-      <div className="bg-gray-800 px-4 py-2 border-b border-gray-700">
+      <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
         <h2 className="text-white font-semibold">YAML Input</h2>
+        <button
+          onClick={() => setTestSuiteOpen(true)}
+          className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+        >
+          Test Suite
+        </button>
       </div>
       <div className="flex-1 min-h-0 overflow-hidden">
         {editorType === 'codemirror' ? (
@@ -155,6 +163,11 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
       <div
         className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors"
         onMouseDown={handleMouseDown}
+      />
+      <TestSuiteModal
+        isOpen={testSuiteOpen}
+        onClose={() => setTestSuiteOpen(false)}
+        onSelect={onChange}
       />
     </div>
   );

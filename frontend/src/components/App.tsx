@@ -83,6 +83,9 @@ export default function App() {
   const visiblePaneIds = visiblePanes.map(p => p.id).join(',');
   const lastRunRef = useRef<{ input: string; panes: string }>({ input: '', panes: '' });
 
+  // Check if any parser result has a version mismatch
+  const hasVersionMismatch = Array.from(results.values()).some(r => r.versionMismatch);
+
   // Check sandbox availability on mount and periodically
   useEffect(() => {
     const checkSandbox = async () => {
@@ -149,52 +152,54 @@ export default function App() {
         return;
       }
 
-      // Capital I for focus Input
-      if (e.key === 'I' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const key = e.key.toUpperCase();
+
+      // I for focus Input
+      if (key === 'I' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         inputPaneRef.current?.focus();
       }
-      // Capital H for Help
-      if (e.key === 'H' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // H for Help
+      if (key === 'H' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         setHelpOpen(true);
       }
-      // Capital P for Preferences
-      if (e.key === 'P' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // P for Preferences
+      if (key === 'P' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         setSelectorOpen(true);
       }
-      // Capital A for show All panes
-      if (e.key === 'A' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // A for show All panes
+      if (key === 'A' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         showAllPanes();
       }
-      // Capital N for hide all panes (None)
-      if (e.key === 'N' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // N for hide all panes (None)
+      if (key === 'N' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         hideAllPanes();
       }
-      // Capital S for show Selected panes
-      if (e.key === 'S' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // S for show Selected panes
+      if (key === 'S' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         showSelectedPanes();
       }
-      // Capital E for show Error panes
-      if (e.key === 'E' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // D for show Differing panes
+      if (key === 'D' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
-        // Find all panes that have errors (disagree with refparse)
-        const errorPaneIds: string[] = [];
+        // Find all panes that differ from refparse
+        const differingPaneIds: string[] = [];
         results.forEach((result, id) => {
           if (id !== 'refparse' && result.agrees === false) {
-            errorPaneIds.push(id);
+            differingPaneIds.push(id);
           }
         });
-        if (errorPaneIds.length > 0) {
-          showErrorPanes(errorPaneIds);
+        if (differingPaneIds.length > 0) {
+          showErrorPanes(differingPaneIds);
         }
       }
       // Secret shortcut: XXX for settings reset
-      if (e.key === 'X' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (key === 'X' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         secretKeyRef.current += 'X';
         if (secretKeyRef.current === 'XXX') {
           e.preventDefault();
@@ -235,7 +240,7 @@ export default function App() {
       <header className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex items-center justify-between">
         <h1 className="text-xl font-bold text-white">YAML Parser Playground</h1>
         <div className="flex items-center gap-2">
-          {!sandboxAvailable && (
+          {(!sandboxAvailable || hasVersionMismatch) && (
             <button
               onClick={() => setSetupOpen(true)}
               className="px-3 py-1.5 bg-yellow-500 text-black font-semibold rounded hover:bg-yellow-400 transition-colors text-sm"
