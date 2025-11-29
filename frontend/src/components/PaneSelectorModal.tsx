@@ -126,6 +126,8 @@ export function PaneSelectorModal({
           {sortedParsers.map(parser => {
             const state = paneMap.get(parser.id);
             const isVisible = state?.visible ?? false;
+            // Show version only if it's dotted numbers (e.g., "1.2", "1.2.3", "0.2.1.1")
+            const showVersion = /^\d+(\.\d+)+$/.test(parser.version);
 
             return (
               <label
@@ -138,8 +140,11 @@ export function PaneSelectorModal({
                   onChange={(e) => onToggleVisibility(parser.id, e.target.checked)}
                   className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-white font-medium">{parser.id}</span>
+                <span className="text-white font-medium">{parser.name}</span>
                 <span className="text-xs text-gray-400">{parser.language}</span>
+                {showVersion && (
+                  <span className="text-xs text-blue-400">{parser.version}</span>
+                )}
               </label>
             );
           })}

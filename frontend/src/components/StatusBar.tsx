@@ -25,11 +25,11 @@ export function StatusBar({ total, disagreeing, disagreeingNames, loading, sandb
     <div className="bg-gray-800 border-t border-gray-700 px-4 py-2">
       {allAgree ? (
         <span className="text-green-400 font-semibold">
-          All {total} parsers agree with reference
+          All {total} parsers agree with the Reference Parser
         </span>
       ) : (
         <span className="text-red-400 font-semibold">
-          {disagreeing}/{total} parsers disagree with reference: {disagreeingNames.join(', ')}
+          {disagreeing}/{total} parsers disagree with the Reference Parser: {disagreeingNames.join(', ')}
         </span>
       )}
     </div>

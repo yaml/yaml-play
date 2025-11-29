@@ -84,7 +84,17 @@ export function TestSuiteModal({ isOpen, onClose, onSelect }: TestSuiteModalProp
       <div className="bg-gray-800 rounded-lg shadow-xl w-[600px] max-h-[80vh] flex flex-col">
         {/* Header */}
         <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Search Test Suite</h2>
+          <h2 className="text-lg font-semibold text-white">
+            Search{' '}
+            <a
+              href="https://github.com/yaml/yaml-test-suite/tree/data"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline"
+            >
+              YAML Test Suite
+            </a>
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"

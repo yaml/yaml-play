@@ -59,11 +59,11 @@ export function PaneHeader({
           onClick={(e) => e.stopPropagation()}
           title={hoverInfo}
         >
-          {parser.id}
+          {parser.name}
         </a>
       ) : (
         <span className="text-white font-semibold" title={hoverInfo}>
-          {parser.id}
+          {parser.name}
         </span>
       )}
       <div className="flex items-center gap-2">

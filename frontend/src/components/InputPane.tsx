@@ -28,13 +28,29 @@ const MONACO_THEMES: Record<ColorScheme, string> = {
   'high-contrast': 'hc-black',
 };
 
-const DEFAULT_YAML = `# Try editing this YAML
+const DEFAULT_YAML = `\
+# Edit this YAML and see how
+# different parsers handle it.
+
+# Green = matches reference parser
+# Red = differs or errored
+
 name: YAML Parser Playground
-version: 1.0
+
+url: https://play.yaml.com/
+repo:
+  https://github.com/yaml/yaml-play
+
+current parsers: 17
+actively maintained: true
+
 features:
-- Compare parser outputs
-- Visual whitespace
-- Drag & drop panes
+- Compare outputs from multiple
+  YAML parsers
+- Search and load tests from the
+  YAML Test Suite
+- Select and drag output panes
+- Click Help for shortcut keys
 `;
 
 const MIN_WIDTH = 200;
@@ -118,10 +134,10 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
       style={{ width: `${width}px`, minWidth: `${MIN_WIDTH}px`, maxWidth: `${MAX_WIDTH}px` }}
     >
       <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
-        <h2 className="text-white font-semibold">YAML Input</h2>
+        <h2 className="text-white font-semibold">YAML Input Editor</h2>
         <button
           onClick={() => setTestSuiteOpen(true)}
-          className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+          className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors"
         >
           Test Suite
         </button>
