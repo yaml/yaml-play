@@ -3,6 +3,7 @@ export interface TestCase {
   name: string;
   error: boolean;
   yaml: string;
+  expected: string;
 }
 
 export interface TestSuiteData {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PaneState, LayoutState, ColorScheme, EditorType } from '../lib/types';
 import { parsers, getDefaultVisibleParsers } from '../lib/parsers';
+import { clearAllTestCaches } from '../lib/testResultsCache';
 
 const STORAGE_KEY = 'yaml-play-layout';
 
@@ -93,6 +94,7 @@ export function useLayoutPersistence() {
 
   const resetLayout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
+    clearAllTestCaches();
     setLayout(getDefaultLayout());
   }, []);
 

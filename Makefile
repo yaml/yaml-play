@@ -4,6 +4,7 @@ $(shell [ -d $M ] || ( git clone -q https://github.com/makeplus/makes $M))
 include $M/init.mk
 include $M/node.mk
 include $M/clean.mk
+include $M/shell.mk
 
 .SECONDEXPANSION:
 .DELETE_ON_ERROR:

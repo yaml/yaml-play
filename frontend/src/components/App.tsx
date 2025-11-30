@@ -18,6 +18,11 @@ import { StatusBar } from './StatusBar';
 import { PaneSelectorModal } from './PaneSelectorModal';
 import { HelpModal } from './HelpModal';
 import { SetupModal } from './SetupModal';
+import { HeaderMenu } from './HeaderMenu';
+import { AboutModal } from './AboutModal';
+import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
+import { CompareTestRunsModal } from './CompareTestRunsModal';
+import { TestRunnerModal } from './TestRunnerModal';
 import { useLayoutPersistence } from '../hooks/useLayoutPersistence';
 import { useParserResults } from '../hooks/useParserResults';
 import { useIsMobile, useIsLandscape } from '../hooks/useIsMobile';
@@ -48,6 +53,10 @@ export default function App() {
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [setupOpen, setSetupOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [selectedCompareParser, setSelectedCompareParser] = useState<string | null>(null);
   const [sandboxAvailable, setSandboxAvailable] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const inputPaneRef = useRef<InputPaneHandle>(null);
@@ -188,6 +197,11 @@ export default function App() {
         e.preventDefault();
         showSelectedPanes();
       }
+      // C for Compare Test Runs
+      if (key === 'C' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setCompareOpen(true);
+      }
       // D for show Differing panes
       if (key === 'D' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
@@ -273,18 +287,6 @@ export default function App() {
                 >
                   Share
                 </button>
-                <button
-                  onClick={() => { setYamlInput(''); setMenuOpen(false); }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
-                >
-                  Clear
-                </button>
-                <button
-                  onClick={() => { resetLayout(); setYamlInput(DEFAULT_YAML); setMenuOpen(false); }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
-                >
-                  Reset
-                </button>
                 <a
                   href="https://github.com/yaml/yaml-play"
                   target="_blank"
@@ -320,6 +322,8 @@ export default function App() {
                 parser={refParser}
                 result={getResult('refparse')}
                 isDraggable={false}
+                onSetYamlInput={setYamlInput}
+                showTestSuite={false}
               />
             </div>
           )}
@@ -350,18 +354,15 @@ export default function App() {
               Setup
             </button>
           )}
-          <button
-            onClick={() => setSelectorOpen(true)}
-            className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors text-sm"
-          >
-            Preferences
-          </button>
-          <button
-            onClick={() => setHelpOpen(true)}
-            className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors text-sm"
-          >
-            Help
-          </button>
+          <HeaderMenu
+            onAbout={() => setAboutOpen(true)}
+            onPreferences={() => setSelectorOpen(true)}
+            onKeyboardShortcuts={() => setShortcutsOpen(true)}
+            onFactoryReset={() => {
+              resetLayout();
+              setYamlInput(DEFAULT_YAML);
+            }}
+          />
         </div>
       </header>
 
@@ -399,6 +400,7 @@ export default function App() {
                       parser={refParser}
                       result={getResult('refparse')}
                       isDraggable={false}
+                      onSetYamlInput={setYamlInput}
                     />
                   </div>
                 )}
@@ -427,6 +429,7 @@ export default function App() {
                           result={getResult(paneState.id)}
                           onClose={isRefParser ? undefined : () => updatePaneVisibility(paneState.id, false)}
                           isDraggable={!isRefParser}
+                          onSetYamlInput={setYamlInput}
                         />
                       );
                     })}
@@ -447,17 +450,13 @@ export default function App() {
         onClose={() => setSelectorOpen(false)}
         paneStates={layout.panes}
         onToggleVisibility={updatePaneVisibility}
-        onReset={() => {
-          resetLayout();
-          setYamlInput(DEFAULT_YAML);
-        }}
         colorScheme={colorScheme}
         onColorSchemeChange={setColorScheme}
         editorType={editorType}
         onEditorTypeChange={setEditorType}
       />
 
-      {/* Help modal */}
+      {/* Help modal (for mobile) */}
       <HelpModal
         isOpen={helpOpen}
         onClose={() => setHelpOpen(false)}
@@ -475,6 +474,40 @@ export default function App() {
           }
         }}
       />
+
+      {/* About modal */}
+      <AboutModal
+        isOpen={aboutOpen}
+        onClose={() => setAboutOpen(false)}
+      />
+
+      {/* Keyboard Shortcuts modal */}
+      <KeyboardShortcutsModal
+        isOpen={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+      />
+
+      {/* Compare Test Runs modal */}
+      <CompareTestRunsModal
+        isOpen={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        onSelectParser={(parserId) => setSelectedCompareParser(parserId)}
+      />
+
+      {/* Test Runner modal for selected parser from Compare */}
+      {selectedCompareParser && getParser(selectedCompareParser) && (
+        <TestRunnerModal
+          isOpen={true}
+          onClose={() => setSelectedCompareParser(null)}
+          parser={getParser(selectedCompareParser)!}
+          onSelectTest={(yaml) => setYamlInput(yaml)}
+          forceRerun={false}
+          onCompare={() => {
+            setSelectedCompareParser(null);
+            setCompareOpen(true);
+          }}
+        />
+      )}
     </div>
   );
 }

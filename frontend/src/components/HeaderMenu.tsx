@@ -1,0 +1,88 @@
+import { useState, useRef, useEffect } from 'react';
+
+interface HeaderMenuProps {
+  onAbout: () => void;
+  onPreferences: () => void;
+  onKeyboardShortcuts: () => void;
+  onFactoryReset: () => void;
+}
+
+export function HeaderMenu({ onAbout, onPreferences, onKeyboardShortcuts, onFactoryReset }: HeaderMenuProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [menuOpen]);
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={() => setMenuOpen(!menuOpen)}
+        className="text-white hover:text-gray-300 p-2"
+        title="Menu"
+      >
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+        </svg>
+      </button>
+      {menuOpen && (
+        <div className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded shadow-lg z-50 min-w-[160px]">
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              onAbout();
+            }}
+            className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+          >
+            About
+          </button>
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              onPreferences();
+            }}
+            className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+          >
+            <span className="underline">P</span>references
+          </button>
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              onKeyboardShortcuts();
+            }}
+            className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+          >
+            Keyboard Shortcuts
+          </button>
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              onFactoryReset();
+            }}
+            className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-gray-700"
+          >
+            Factory Reset
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

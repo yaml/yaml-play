@@ -7,7 +7,6 @@ interface PaneSelectorModalProps {
   onClose: () => void;
   paneStates: PaneState[];
   onToggleVisibility: (id: string, visible: boolean) => void;
-  onReset: () => void;
   colorScheme: ColorScheme;
   onColorSchemeChange: (scheme: ColorScheme) => void;
   editorType: EditorType;
@@ -30,7 +29,6 @@ export function PaneSelectorModal({
   onClose,
   paneStates,
   onToggleVisibility,
-  onReset,
   colorScheme,
   onColorSchemeChange,
   editorType,
@@ -111,16 +109,6 @@ export function PaneSelectorModal({
           </div>
 
           <h3 className="text-sm font-semibold text-gray-400 mb-2 uppercase">
-            Options
-          </h3>
-          <button
-            onClick={onReset}
-            className="w-full text-left py-2 px-2 rounded text-red-500 hover:bg-gray-700 transition-colors"
-          >
-            Click here to clear all settings
-          </button>
-
-          <h3 className="text-sm font-semibold text-gray-400 mb-2 mt-4 uppercase">
             Parser Panes
           </h3>
           {sortedParsers.map(parser => {

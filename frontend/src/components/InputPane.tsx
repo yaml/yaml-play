@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useState, useCallback, useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import { ColorScheme, EditorType } from '../lib/types';
 import { CodeMirrorEditor, CodeMirrorEditorHandle } from './CodeMirrorEditor';
@@ -67,6 +67,29 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
   const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const codeMirrorRef = useRef<CodeMirrorEditorHandle>(null);
   const [testSuiteOpen, setTestSuiteOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [menuOpen]);
 
   useImperativeHandle(ref, () => ({
     focus: () => {
@@ -140,12 +163,48 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
     >
       <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
         <h2 className="text-white font-semibold">YAML Input Editor</h2>
-        <button
-          onClick={() => setTestSuiteOpen(true)}
-          className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors"
-        >
-          Test Suite
-        </button>
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="text-white hover:text-gray-300 p-1"
+            title="Menu"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+            </svg>
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded shadow-lg z-50 min-w-[160px]">
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setTestSuiteOpen(true);
+                }}
+                className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+              >
+                Search Test Suite
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  onChange('');
+                }}
+                className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+              >
+                Clear
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  onChange(DEFAULT_YAML);
+                }}
+                className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+              >
+                Default YAML
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       <div className="flex-1 min-h-0 overflow-hidden">
         {editorType === 'codemirror' ? (

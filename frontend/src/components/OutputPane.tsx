@@ -1,11 +1,19 @@
+import { useState, useCallback } from 'react';
 import { ParserInfo, ParserResult } from '../lib/types';
 import { PaneHeader } from './PaneHeader';
+import { ParserInfoModal } from './ParserInfoModal';
+import { TestRunnerModal } from './TestRunnerModal';
+import { CompareTestRunsModal } from './CompareTestRunsModal';
+import { getParser } from '../lib/parsers';
+import { clearCachedResults } from '../lib/testResultsCache';
 
 interface OutputPaneProps {
   parser: ParserInfo;
   result?: ParserResult;
   onClose?: () => void;
   isDraggable?: boolean;
+  onSetYamlInput?: (yaml: string) => void;
+  showTestSuite?: boolean;
 }
 
 // Check if error looks like a connection/network error or server error
@@ -34,7 +42,44 @@ export function OutputPane({
   result,
   onClose,
   isDraggable = true,
+  onSetYamlInput,
+  showTestSuite = true,
 }: OutputPaneProps) {
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [testRunnerOpen, setTestRunnerOpen] = useState(false);
+  const [forceRerun, setForceRerun] = useState(false);
+  const [runKey, setRunKey] = useState(0);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [viewCachedParserId, setViewCachedParserId] = useState<string | null>(null);
+  const [viewForceRerun, setViewForceRerun] = useState(false);
+  const [viewRunKey, setViewRunKey] = useState(0);
+
+  const handleRunAgain = useCallback(() => {
+    clearCachedResults(parser.id);
+    setForceRerun(true);
+    setRunKey(k => k + 1);
+  }, [parser.id]);
+
+  const handleClearCache = useCallback(() => {
+    clearCachedResults(parser.id);
+    setTestRunnerOpen(false);
+  }, [parser.id]);
+
+  const handleViewRunAgain = useCallback(() => {
+    if (viewCachedParserId) {
+      clearCachedResults(viewCachedParserId);
+      setViewForceRerun(true);
+      setViewRunKey(k => k + 1);
+    }
+  }, [viewCachedParserId]);
+
+  const handleViewClearCache = useCallback(() => {
+    if (viewCachedParserId) {
+      clearCachedResults(viewCachedParserId);
+      setViewCachedParserId(null);
+    }
+  }, [viewCachedParserId]);
+
   // Check if this is a sandbox parser (not refparse which runs in browser)
   const isSandboxParser = parser.id !== 'refparse';
 
@@ -57,7 +102,53 @@ export function OutputPane({
         loading={result?.loading}
         onClose={onClose}
         isDraggable={isDraggable}
+        onInfoClick={() => setInfoModalOpen(true)}
+        onRunTestSuite={() => {
+          setForceRerun(false);
+          setTestRunnerOpen(true);
+        }}
+        showTestSuite={showTestSuite}
       />
+      <ParserInfoModal
+        isOpen={infoModalOpen}
+        onClose={() => setInfoModalOpen(false)}
+        parser={parser}
+      />
+      <TestRunnerModal
+        key={runKey}
+        isOpen={testRunnerOpen}
+        onClose={() => setTestRunnerOpen(false)}
+        parser={parser}
+        onSelectTest={(yaml) => onSetYamlInput?.(yaml)}
+        forceRerun={forceRerun}
+        onCompare={() => setCompareOpen(true)}
+        onRunAgain={handleRunAgain}
+        onClearCache={handleClearCache}
+      />
+      <CompareTestRunsModal
+        isOpen={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        onSelectParser={(parserId) => setViewCachedParserId(parserId)}
+      />
+      {viewCachedParserId && getParser(viewCachedParserId) && (
+        <TestRunnerModal
+          key={`view-${viewCachedParserId}-${viewRunKey}`}
+          isOpen={true}
+          onClose={() => {
+            setViewCachedParserId(null);
+            setViewForceRerun(false);
+          }}
+          parser={getParser(viewCachedParserId)!}
+          onSelectTest={(yaml) => onSetYamlInput?.(yaml)}
+          forceRerun={viewForceRerun}
+          onCompare={() => {
+            setViewCachedParserId(null);
+            setCompareOpen(true);
+          }}
+          onRunAgain={handleViewRunAgain}
+          onClearCache={handleViewClearCache}
+        />
+      )}
       <div className="flex-1 bg-gray-900 overflow-auto">
         {result?.error ? (
           <pre className="p-3 text-red-400 text-sm font-mono whitespace-pre-wrap">
