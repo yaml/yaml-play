@@ -1,5 +1,5 @@
 {
-  "version": "2025.11.29",
+  "version": "2025.11.30",
   "tests": [
     {"id": "229Q", "name": "Spec Example 2.4. Sequence of Mappings", "error": false, "yaml": "-\n  name: Mark McGwire\n  hr:   65\n  avg:  0.278\n-\n  name: Sammy Sosa\n  hr:   63\n  avg:  0.288\n"},
     {"id": "236B", "name": "Invalid value after mapping", "error": true, "yaml": "foo:\n  bar\ninvalid\n"},
