@@ -54,6 +54,8 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
             <span className="text-gray-300 self-center">Compare Test Runs</span>
             <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">P</kbd>
             <span className="text-gray-300 self-center">Open Preferences</span>
+            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">K</kbd>
+            <span className="text-gray-300 self-center">Show keyboard shortcuts</span>
           </div>
         </div>
       </div>

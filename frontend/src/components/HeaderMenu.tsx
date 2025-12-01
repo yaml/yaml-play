@@ -70,7 +70,7 @@ export function HeaderMenu({ onAbout, onPreferences, onKeyboardShortcuts, onFact
             }}
             className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
           >
-            Keyboard Shortcuts
+            <span className="underline">K</span>eyboard Shortcuts
           </button>
           <button
             onClick={() => {

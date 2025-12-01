@@ -202,6 +202,11 @@ export default function App() {
         e.preventDefault();
         setCompareOpen(true);
       }
+      // K for Keyboard shortcuts
+      if (key === 'K' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setShortcutsOpen(true);
+      }
       // D for show Differing panes
       if (key === 'D' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
