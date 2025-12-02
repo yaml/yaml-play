@@ -12,6 +12,7 @@ interface PaneHeaderProps {
   onInfoClick?: () => void;
   onRunTestSuite?: () => void;
   showTestSuite?: boolean;
+  output?: string;
 }
 
 export function PaneHeader({
@@ -23,6 +24,7 @@ export function PaneHeader({
   onInfoClick,
   onRunTestSuite,
   showTestSuite = true,
+  output,
 }: PaneHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -63,12 +65,12 @@ export function PaneHeader({
   };
 
   const bgColor = loading
-    ? 'bg-gray-700'
+    ? 'bg-gray-300 dark:bg-gray-700'
     : matches === undefined
-    ? 'bg-gray-700'
+    ? 'bg-gray-300 dark:bg-gray-700'
     : matches
-    ? 'bg-green-700'
-    : 'bg-red-700';
+    ? 'bg-green-300 dark:bg-green-700'
+    : 'bg-red-300 dark:bg-red-700';
 
   const hoverInfo = `${parser.name} v${parser.version} (${parser.language})`;
 
@@ -91,15 +93,15 @@ export function PaneHeader({
         ref={menuRef}
       >
         {/* Hamburger icon */}
-        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="w-4 h-4 text-gray-700 dark:text-white" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
         </svg>
-        <span className="text-white font-semibold" title={hoverInfo}>
+        <span className="text-gray-900 dark:text-white font-semibold" title={hoverInfo}>
           {parser.name}
         </span>
         {/* Dropdown menu */}
         {menuOpen && (
-          <div className="absolute left-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded shadow-lg z-50 min-w-[140px]">
+          <div className="absolute left-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow-lg z-50 min-w-[140px]">
             {showTestSuite && (
               <button
                 onClick={(e) => {
@@ -107,7 +109,7 @@ export function PaneHeader({
                   setMenuOpen(false);
                   onRunTestSuite?.();
                 }}
-                className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+                className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Test Suite
               </button>
@@ -118,7 +120,7 @@ export function PaneHeader({
                 setMenuOpen(false);
                 onInfoClick?.();
               }}
-              className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+              className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               Parser Info
             </button>
@@ -127,7 +129,21 @@ export function PaneHeader({
       </div>
       <div className="flex items-center gap-2">
         {loading && (
-          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+          <div className="animate-spin h-4 w-4 border-2 border-gray-700 dark:border-white border-t-transparent rounded-full" />
+        )}
+        {output && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigator.clipboard.writeText(output);
+            }}
+            className="text-gray-700 dark:text-white hover:text-gray-500 dark:hover:text-gray-300 p-1"
+            title="Copy output"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
         )}
         {onClose && (
           <button
@@ -135,7 +151,7 @@ export function PaneHeader({
               e.stopPropagation();
               onClose();
             }}
-            className="text-white hover:text-gray-300 text-lg leading-none px-1"
+            className="text-gray-700 dark:text-white hover:text-gray-500 dark:hover:text-gray-300 text-lg leading-none px-1"
             title="Close pane"
           >
             ×

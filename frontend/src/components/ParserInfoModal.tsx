@@ -26,14 +26,14 @@ export function ParserInfoModal({ isOpen, onClose, parser }: ParserInfoModalProp
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">{parser.name}</h2>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{parser.name}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl leading-none"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl leading-none"
           >
             &times;
           </button>
@@ -42,21 +42,21 @@ export function ParserInfoModal({ isOpen, onClose, parser }: ParserInfoModalProp
           <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             {parser.repo && (
               <>
-                <span className="text-gray-400">Repository</span>
+                <span className="text-gray-500 dark:text-gray-400">Repository</span>
                 <a
                   href={parser.repo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:underline truncate"
+                  className="text-blue-600 dark:text-blue-400 hover:underline truncate"
                 >
                   {parser.repo}
                 </a>
               </>
             )}
-            <span className="text-gray-400">Language</span>
-            <span className="text-white">{parser.language}</span>
-            <span className="text-gray-400">Version</span>
-            <span className="text-white">{parser.version}</span>
+            <span className="text-gray-500 dark:text-gray-400">Language</span>
+            <span className="text-gray-900 dark:text-white">{parser.language}</span>
+            <span className="text-gray-500 dark:text-gray-400">Version</span>
+            <span className="text-gray-900 dark:text-white">{parser.version}</span>
           </div>
         </div>
       </div>

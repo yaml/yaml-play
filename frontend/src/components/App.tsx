@@ -263,14 +263,14 @@ export default function App() {
   // Portrait: stacked vertically, Landscape: side by side
   if (isMobile) {
     return (
-      <div className="h-screen flex flex-col bg-gray-900">
+      <div className={`h-screen flex flex-col bg-gray-100 dark:bg-gray-900 ${colorScheme === 'dark' ? 'dark' : ''}`}>
         {/* Mobile Header */}
-        <header className="bg-gray-800 px-3 py-2 border-b border-gray-700 flex items-center justify-between flex-shrink-0">
-          <h1 className="text-lg font-bold text-white">YAML Playground</h1>
+        <header className="bg-white dark:bg-gray-800 px-3 py-2 border-b border-gray-300 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+          <h1 className="text-lg font-bold text-gray-900 dark:text-white">YAML Playground</h1>
           <div className="relative">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 text-white hover:bg-gray-700 rounded transition-colors"
+              className="p-2 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
               aria-label="Menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,16 +279,16 @@ export default function App() {
             </button>
             {/* Dropdown menu */}
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-50">
                 <button
                   onClick={() => { setHelpOpen(true); setMenuOpen(false); }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
+                  className="w-full px-4 py-3 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   About
                 </button>
                 <button
                   onClick={() => { navigator.clipboard.writeText(window.location.href); setMenuOpen(false); }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
+                  className="w-full px-4 py-3 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   Share
                 </button>
@@ -297,7 +297,7 @@ export default function App() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setMenuOpen(false)}
-                  className="block w-full px-4 py-3 text-left text-white hover:bg-gray-700 transition-colors"
+                  className="block w-full px-4 py-3 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   GitHub
                 </a>
@@ -308,7 +308,7 @@ export default function App() {
 
         {/* Mobile main content - portrait: stacked, landscape: side by side */}
         <div className={`flex-1 flex ${isLandscape ? 'flex-row' : 'flex-col'} overflow-hidden min-h-0`}>
-          <div className={`${isLandscape ? 'w-1/2 h-full' : 'h-1/2 w-full'} flex flex-col overflow-hidden ${isLandscape ? 'border-r border-gray-700' : 'border-b border-gray-700'}`}>
+          <div className={`${isLandscape ? 'w-1/2 h-full' : 'h-1/2 w-full'} flex flex-col overflow-hidden ${isLandscape ? 'border-r border-gray-300 dark:border-gray-700' : 'border-b border-gray-300 dark:border-gray-700'}`}>
             <InputPane
               ref={inputPaneRef}
               value={yamlInput}
@@ -346,10 +346,10 @@ export default function App() {
 
   // Desktop layout
   return (
-    <div className="h-screen flex flex-col bg-gray-900">
+    <div className={`h-screen flex flex-col bg-gray-100 dark:bg-gray-900 ${colorScheme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
-      <header className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-white">YAML Parser Playground</h1>
+      <header className="bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-300 dark:border-gray-700 flex items-center justify-between">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white">YAML Parser Playground</h1>
         <div className="flex items-center gap-2">
           {(!sandboxAvailable || hasVersionMismatch) && (
             <button
@@ -384,7 +384,7 @@ export default function App() {
             <>
               <div
                 key={needsMultiRow ? 'left-col-split' : 'left-col-full'}
-                className={`${needsMultiRow ? 'grid grid-rows-2' : 'flex flex-col'} h-full border-r border-gray-700`}
+                className={`${needsMultiRow ? 'grid grid-rows-2' : 'flex flex-col'} h-full border-r border-gray-300 dark:border-gray-700`}
                 style={{ width: `${inputPaneWidth}px`, minWidth: '200px', maxWidth: '800px' }}
               >
                 <InputPane
@@ -399,7 +399,7 @@ export default function App() {
                   heightMode={needsMultiRow ? 'half' : 'full'}
                 />
                 {needsMultiRow && refParser && (
-                  <div className="h-full overflow-hidden border-t border-gray-700">
+                  <div className="h-full overflow-hidden border-t border-gray-300 dark:border-gray-700">
                     <OutputPane
                       key="refparse-sidebar"
                       parser={refParser}
@@ -412,7 +412,7 @@ export default function App() {
               </div>
 
               {/* Output panes in a grid layout */}
-              <div className="flex-1 grid grid-cols-4 overflow-y-auto pane-container gap-px bg-gray-700 auto-rows-fr">
+              <div className="flex-1 grid grid-cols-4 overflow-y-auto pane-container gap-px bg-gray-300 dark:bg-gray-700 auto-rows-fr">
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}

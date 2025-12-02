@@ -160,15 +160,15 @@ export function CompareTestRunsModal({ isOpen, onClose, onSelectParser }: Compar
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Compare Test Runs</h2>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Compare Test Runs</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl leading-none"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl leading-none"
           >
             &times;
           </button>
@@ -178,45 +178,45 @@ export function CompareTestRunsModal({ isOpen, onClose, onSelectParser }: Compar
         <div className="flex-1 overflow-y-auto p-4">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-400 border-b border-gray-700">
+              <tr className="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
                 <th
-                  className="pb-2 cursor-pointer hover:text-white select-none"
+                  className="pb-2 cursor-pointer hover:text-gray-900 dark:hover:text-white select-none"
                   onClick={() => handleSort('parserName')}
                 >
                   Parser{getSortIndicator('parserName')}
                 </th>
                 <th
-                  className="pb-2 text-right cursor-pointer hover:text-white select-none"
+                  className="pb-2 text-right cursor-pointer hover:text-gray-900 dark:hover:text-white select-none"
                   onClick={() => handleSort('version')}
                 >
                   Version{getSortIndicator('version')}
                 </th>
                 <th
-                  className="pb-2 text-right cursor-pointer hover:text-white select-none"
+                  className="pb-2 text-right cursor-pointer hover:text-gray-900 dark:hover:text-white select-none"
                   onClick={() => handleSort('passed')}
                 >
                   Pass{getSortIndicator('passed')}
                 </th>
                 <th
-                  className="pb-2 text-right cursor-pointer hover:text-white select-none"
+                  className="pb-2 text-right cursor-pointer hover:text-gray-900 dark:hover:text-white select-none"
                   onClick={() => handleSort('failed')}
                 >
                   Fail{getSortIndicator('failed')}
                 </th>
                 <th
-                  className="pb-2 text-right cursor-pointer hover:text-white select-none"
+                  className="pb-2 text-right cursor-pointer hover:text-gray-900 dark:hover:text-white select-none"
                   onClick={() => handleSort('total')}
                 >
                   Total{getSortIndicator('total')}
                 </th>
                 <th
-                  className="pb-2 text-right cursor-pointer hover:text-white select-none"
+                  className="pb-2 text-right cursor-pointer hover:text-gray-900 dark:hover:text-white select-none"
                   onClick={() => handleSort('percent')}
                 >
                   %{getSortIndicator('percent')}
                 </th>
                 <th
-                  className="pb-2 text-right cursor-pointer hover:text-white select-none"
+                  className="pb-2 text-right cursor-pointer hover:text-gray-900 dark:hover:text-white select-none"
                   onClick={() => handleSort('time')}
                 >
                   Time{getSortIndicator('time')}
@@ -227,19 +227,19 @@ export function CompareTestRunsModal({ isOpen, onClose, onSelectParser }: Compar
               {comparisons.map((comp) => (
                 <tr
                   key={comp.parserId}
-                  className="border-b border-gray-700 hover:bg-gray-700 cursor-pointer"
+                  className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                   onClick={() => {
                     onSelectParser(comp.parserId);
                     onClose();
                   }}
                 >
-                  <td className="py-2 text-white">{comp.parserName}</td>
-                  <td className="py-2 text-right text-gray-400 font-mono text-xs">{comp.version}</td>
-                  <td className="py-2 text-right text-green-400">{comp.passed}</td>
-                  <td className="py-2 text-right text-red-400">{comp.failed}</td>
-                  <td className="py-2 text-right text-gray-400">{comp.total}</td>
-                  <td className="py-2 text-right text-white font-semibold">{comp.percent}%</td>
-                  <td className="py-2 text-right text-gray-400 font-mono text-xs">
+                  <td className="py-2 text-gray-900 dark:text-white">{comp.parserName}</td>
+                  <td className="py-2 text-right text-gray-500 dark:text-gray-400 font-mono text-xs">{comp.version}</td>
+                  <td className="py-2 text-right text-green-600 dark:text-green-400">{comp.passed}</td>
+                  <td className="py-2 text-right text-red-600 dark:text-red-400">{comp.failed}</td>
+                  <td className="py-2 text-right text-gray-500 dark:text-gray-400">{comp.total}</td>
+                  <td className="py-2 text-right text-gray-900 dark:text-white font-semibold">{comp.percent}%</td>
+                  <td className="py-2 text-right text-gray-500 dark:text-gray-400 font-mono text-xs">
                     {comp.elapsedTime != null ? formatTime(comp.elapsedTime) : '-'}
                   </td>
                 </tr>

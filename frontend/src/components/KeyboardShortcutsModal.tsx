@@ -24,38 +24,38 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Keyboard Shortcuts</h2>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Keyboard Shortcuts</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl leading-none"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl leading-none"
           >
             &times;
           </button>
         </div>
         <div className="p-4">
           <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">Esc</kbd>
-            <span className="text-gray-300 self-center">Unfocus input pane / Close modal</span>
-            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">I</kbd>
-            <span className="text-gray-300 self-center">Focus input pane</span>
-            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">A</kbd>
-            <span className="text-gray-300 self-center">Show all panes</span>
-            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">N</kbd>
-            <span className="text-gray-300 self-center">Hide all panes</span>
-            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">D</kbd>
-            <span className="text-gray-300 self-center">Show differing panes</span>
-            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">S</kbd>
-            <span className="text-gray-300 self-center">Show your selected panes</span>
-            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">C</kbd>
-            <span className="text-gray-300 self-center">Compare Test Runs</span>
-            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">P</kbd>
-            <span className="text-gray-300 self-center">Open Preferences</span>
-            <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">K</kbd>
-            <span className="text-gray-300 self-center">Show keyboard shortcuts</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">Esc</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Unfocus input pane / Close modal</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">I</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Focus input pane</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">A</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Show all panes</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">N</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Hide all panes</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">D</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Show differing panes</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">S</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Show your selected panes</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">C</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Compare Test Runs</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">P</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Open Preferences</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">K</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Show keyboard shortcuts</span>
           </div>
         </div>
       </div>

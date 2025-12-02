@@ -26,7 +26,6 @@ export interface InputPaneHandle {
 const MONACO_THEMES: Record<ColorScheme, string> = {
   'dark': 'vs-dark',
   'light': 'light',
-  'high-contrast': 'hc-black',
 };
 
 const DEFAULT_YAML = `\
@@ -68,6 +67,7 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
   const codeMirrorRef = useRef<CodeMirrorEditorHandle>(null);
   const [testSuiteOpen, setTestSuiteOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close menu when clicking outside or pressing Escape
@@ -121,6 +121,9 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
         insertSpaces: false,
       });
     }
+    // Track focus state for Monaco
+    editor.onDidFocusEditorText(() => setIsFocused(true));
+    editor.onDidBlurEditorText(() => setIsFocused(false));
   }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -150,7 +153,8 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
   }, [width, onWidthChange]);
 
   const heightClass = heightMode === 'full' ? 'h-full' : 'h-full overflow-hidden';
-  const borderClass = showBorder ? 'border-r border-gray-700' : '';
+  const borderClass = showBorder ? 'border-r border-gray-300 dark:border-gray-700' : '';
+  const focusBorderClass = isFocused ? 'ring-2 ring-blue-500 ring-inset' : '';
 
   const containerStyle = isMobile
     ? {}  // Let parent control size on mobile
@@ -158,29 +162,41 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
 
   return (
     <div
-      className={`flex flex-col ${heightClass} ${isMobile ? 'w-full border-b border-gray-700' : borderClass} relative`}
+      className={`flex flex-col ${heightClass} ${isMobile ? 'w-full border-b border-gray-300 dark:border-gray-700' : borderClass} ${focusBorderClass} relative transition-shadow`}
       style={containerStyle}
     >
-      <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
-        <h2 className="text-white font-semibold">YAML Input Editor</h2>
-        <div className="relative" ref={menuRef}>
+      <div className="bg-white dark:bg-gray-800 px-4 py-2 border-b border-gray-300 dark:border-gray-700 flex items-center justify-between">
+        <h2 className={`font-semibold transition-colors ${isFocused ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'}`}>
+          {isFocused ? 'YAML Input Editor (editing)' : 'YAML Input Editor'}
+        </h2>
+        <div className="flex items-center gap-1">
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="text-white hover:text-gray-300 p-1"
-            title="Menu"
+            onClick={() => navigator.clipboard.writeText(value)}
+            className="text-gray-400 hover:text-gray-700 dark:hover:text-white p-1"
+            title="Copy YAML"
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="text-gray-400 hover:text-gray-700 dark:hover:text-white p-1"
+              title="Menu"
+            >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
             </svg>
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded shadow-lg z-50 min-w-[160px]">
+            <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow-lg z-50 min-w-[160px]">
               <button
                 onClick={() => {
                   setMenuOpen(false);
                   setTestSuiteOpen(true);
                 }}
-                className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+                className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Search Test Suite
               </button>
@@ -189,7 +205,7 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
                   setMenuOpen(false);
                   onChange('');
                 }}
-                className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+                className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Clear
               </button>
@@ -198,12 +214,13 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
                   setMenuOpen(false);
                   onChange(DEFAULT_YAML);
                 }}
-                className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+                className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Default YAML
               </button>
             </div>
           )}
+          </div>
         </div>
       </div>
       <div className="flex-1 min-h-0 overflow-hidden">
@@ -213,6 +230,7 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
             value={value}
             onChange={onChange}
             colorScheme={colorScheme}
+            onFocusChange={setIsFocused}
           />
         ) : (
           <Editor

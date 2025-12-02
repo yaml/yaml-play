@@ -25,14 +25,14 @@ export function HelpModal({ isOpen, onClose, isMobile = false }: HelpModalProps)
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Help</h2>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Help</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl leading-none"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl leading-none"
           >
             &times;
           </button>
@@ -40,16 +40,16 @@ export function HelpModal({ isOpen, onClose, isMobile = false }: HelpModalProps)
         <div className="p-4 overflow-y-auto max-h-[60vh] space-y-6">
           {/* Mobile notice */}
           {isMobile && (
-            <section className="bg-blue-900 bg-opacity-50 rounded-lg p-4 border border-blue-700">
-              <h3 className="text-sm font-semibold text-blue-300 mb-2">
+            <section className="bg-blue-100 dark:bg-blue-900 dark:bg-opacity-50 rounded-lg p-4 border border-blue-300 dark:border-blue-700">
+              <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
                 Mobile Mode
               </h3>
-              <p className="text-gray-300 text-sm">
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
                 This site works on mobile but is really designed for desktop use.
                 On a desktop you can compare output from 17+ YAML parsers side by side,
                 use keyboard shortcuts, and drag to reorder panes.
               </p>
-              <p className="text-gray-300 text-sm mt-2">
+              <p className="text-gray-600 dark:text-gray-300 text-sm mt-2">
                 The other parsers require Docker to run, which is not available on mobile devices.
                 Only the JavaScript Reference Parser is shown here.
               </p>
@@ -59,62 +59,62 @@ export function HelpModal({ isOpen, onClose, isMobile = false }: HelpModalProps)
           {/* Keyboard Shortcuts - only show on desktop */}
           {!isMobile && (
             <section>
-              <h3 className="text-sm font-semibold text-gray-400 mb-2 uppercase">
+              <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
                 Keyboard Shortcuts
               </h3>
               <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-                <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">Esc</kbd>
-                <span className="text-gray-300 self-center">Unfocus input pane / Close modal</span>
-                <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">I</kbd>
-                <span className="text-gray-300 self-center">Focus input pane</span>
-                <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">A</kbd>
-                <span className="text-gray-300 self-center">Show all panes</span>
-                <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">N</kbd>
-                <span className="text-gray-300 self-center">Hide all panes</span>
-                <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">D</kbd>
-                <span className="text-gray-300 self-center">Show differing panes</span>
-                <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">S</kbd>
-                <span className="text-gray-300 self-center">Show your selected panes</span>
-                <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">P</kbd>
-                <span className="text-gray-300 self-center">Open Preferences</span>
-                <kbd className="bg-gray-900 px-2 py-1 rounded text-gray-200 font-mono">H</kbd>
-                <span className="text-gray-300 self-center">Open Help</span>
+                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">Esc</kbd>
+                <span className="text-gray-600 dark:text-gray-300 self-center">Unfocus input pane / Close modal</span>
+                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">I</kbd>
+                <span className="text-gray-600 dark:text-gray-300 self-center">Focus input pane</span>
+                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">A</kbd>
+                <span className="text-gray-600 dark:text-gray-300 self-center">Show all panes</span>
+                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">N</kbd>
+                <span className="text-gray-600 dark:text-gray-300 self-center">Hide all panes</span>
+                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">D</kbd>
+                <span className="text-gray-600 dark:text-gray-300 self-center">Show differing panes</span>
+                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">S</kbd>
+                <span className="text-gray-600 dark:text-gray-300 self-center">Show your selected panes</span>
+                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">P</kbd>
+                <span className="text-gray-600 dark:text-gray-300 self-center">Open Preferences</span>
+                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">H</kbd>
+                <span className="text-gray-600 dark:text-gray-300 self-center">Open Help</span>
               </div>
             </section>
           )}
 
           {/* About */}
           <section>
-            <h3 className="text-sm font-semibold text-gray-400 mb-2 uppercase">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
               About
             </h3>
-            <p className="text-gray-300 text-sm">
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
               The YAML Parser Playground compares output from multiple YAML parser
               implementations. The Reference Parser is used as the baseline.
               Green headers indicate matching output and red ones indicate differences.
             </p>
             <br />
-            <p className="text-gray-300 text-sm">
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
               The output format is a DSL for YAML parser "events", which are the
               data structures most YAML parsers create internally.
               A YAML "parser" is just one of many stages in a YAML "loader"'s
               stack, but it is the most difficult and important one to get
               right. This DSL is the one used by the <a
               href="https://github.com/yaml/yaml-test-suite"
-              className="text-blue-400 hover:underline"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
               >YAML Test Suite</a>.
             </p>
             {!isMobile && (
               <>
                 <br />
-                <p className="text-gray-300 text-sm">
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
                   Note: The S key will restore your selected panes after using A, N,
                   or D to show all, none, or differing panes.
                 </p>
               </>
             )}
             <br />
-            <p className="text-gray-300 text-sm">
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
               This site turns your input into sharable URLs.
               This can be very useful when discussing particular YAML issues or reporting bugs.
             </p>

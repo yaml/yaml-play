@@ -48,14 +48,14 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Sandbox Setup</h2>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sandbox Setup</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl leading-none"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl leading-none"
           >
             &times;
           </button>
@@ -63,46 +63,46 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
         <div className="p-4 overflow-y-auto max-h-[60vh] space-y-6">
           {/* Sandbox Setup */}
           <section>
-            <h3 className="text-sm font-semibold text-gray-400 mb-2 uppercase">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
               Start the Sandbox Server (version {SANDBOX_VERSION})
             </h3>
-            <p className="text-gray-300 text-sm mb-2">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
               Most of these parsers run in a Docker container that you need to start on your machine.
               If you see connection errors, start the sandbox by running this command in a terminal:
             </p>
             <div className="relative">
-              <pre className="bg-gray-900 p-3 pr-16 rounded text-sm text-green-400 font-mono overflow-x-auto">
+              <pre className="bg-gray-100 dark:bg-gray-900 p-3 pr-16 rounded text-sm text-green-700 dark:text-green-400 font-mono overflow-x-auto">
                 {DOCKER_COMMAND}
               </pre>
               <button
                 onClick={copyCommand}
-                className="absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+                className="absolute top-2 right-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
               >
                 {copied ? 'Copied!' : 'Copy'}
               </button>
             </div>
             <br />
-            <p className="text-gray-400 text-sm mt-2">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
               Note: If a different version of the sandbox server Docker container is already running, you'll need to kill that first.
             </p>
           </section>
 
           {/* HTTPS Certificate */}
           <section>
-            <h3 className="text-sm font-semibold text-gray-400 mb-2 uppercase">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
               HTTPS Certificate (if needed)
             </h3>
-            <p className="text-gray-300 text-sm mb-2">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
               If you are still getting connection errors, you may need to accept the unsigned HTTPS certificate:
             </p>
-            <ol className="text-gray-300 text-sm list-decimal list-inside space-y-1">
+            <ol className="text-gray-600 dark:text-gray-300 text-sm list-decimal list-inside space-y-1">
               <li>
                 Click here:{' '}
                 <a
                   href="https://localhost:7481"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 underline"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 underline"
                 >
                   https://localhost:7481
                 </a>

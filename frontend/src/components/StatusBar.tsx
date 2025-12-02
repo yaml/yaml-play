@@ -13,8 +13,8 @@ export function StatusBar({ total, disagreeing, disagreeingNames, loading, sandb
 
   if (loading) {
     return (
-      <div className="bg-gray-800 border-t border-gray-700 px-4 py-2">
-        <span className="text-gray-400 font-semibold">Running parsers...</span>
+      <div className="bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 px-4 py-2">
+        <span className="text-gray-500 dark:text-gray-400 font-semibold">Running parsers...</span>
       </div>
     );
   }
@@ -22,13 +22,13 @@ export function StatusBar({ total, disagreeing, disagreeingNames, loading, sandb
   const allAgree = disagreeing === 0;
 
   return (
-    <div className="bg-gray-800 border-t border-gray-700 px-4 py-2 flex items-center justify-between">
+    <div className="bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 px-4 py-2 flex items-center justify-between">
       {allAgree ? (
-        <span className="text-green-400 font-semibold">
+        <span className="text-green-600 dark:text-green-400 font-semibold">
           All {total} parsers agree with the Reference Parser
         </span>
       ) : (
-        <span className="text-red-400 font-semibold">
+        <span className="text-red-600 dark:text-red-400 font-semibold">
           {disagreeing}/{total} parsers disagree with the Reference Parser: {disagreeingNames.join(', ')}
         </span>
       )}
@@ -36,7 +36,7 @@ export function StatusBar({ total, disagreeing, disagreeingNames, loading, sandb
         href="https://github.com/yaml/yaml-play"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-gray-400 hover:text-white transition-colors"
+        className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         title="View on GitHub"
       >
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

@@ -11,6 +11,7 @@ interface CodeMirrorEditorProps {
   value: string;
   onChange: (value: string) => void;
   colorScheme: ColorScheme;
+  onFocusChange?: (focused: boolean) => void;
 }
 
 export interface CodeMirrorEditorHandle {
@@ -131,37 +132,6 @@ const lightTheme = EditorView.theme({
   },
 });
 
-// High contrast theme
-const highContrastTheme = EditorView.theme({
-  '&': {
-    backgroundColor: '#000000',
-    color: '#ffffff',
-  },
-  '.cm-content': {
-    caretColor: '#ffffff',
-  },
-  '.cm-gutters': {
-    backgroundColor: '#000000',
-    color: '#ffffff',
-    border: 'none',
-  },
-  '.cm-activeLineGutter': {
-    backgroundColor: '#333333',
-  },
-  '.cm-activeLine': {
-    backgroundColor: '#222222',
-  },
-  '.cm-space-dot': {
-    color: '#ffff00',
-  },
-  '.cm-tab-arrow': {
-    color: '#ffff00',
-    display: 'inline-block',
-    width: 'calc(4ch)',
-    textAlign: 'left',
-  },
-});
-
 // Dark theme base (complementing oneDark)
 const darkThemeBase = EditorView.theme({
   '.cm-space-dot': {
@@ -179,8 +149,6 @@ function getTheme(colorScheme: ColorScheme) {
   switch (colorScheme) {
     case 'light':
       return [lightTheme];
-    case 'high-contrast':
-      return [highContrastTheme];
     case 'dark':
     default:
       return [oneDark, darkThemeBase];
@@ -188,10 +156,12 @@ function getTheme(colorScheme: ColorScheme) {
 }
 
 export const CodeMirrorEditor = forwardRef<CodeMirrorEditorHandle, CodeMirrorEditorProps>(
-  function CodeMirrorEditor({ value, onChange, colorScheme }, ref) {
+  function CodeMirrorEditor({ value, onChange, colorScheme, onFocusChange }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const themeCompartment = useRef(new Compartment());
+  const onFocusChangeRef = useRef(onFocusChange);
+  onFocusChangeRef.current = onFocusChange;
 
   useImperativeHandle(ref, () => ({
     focus: () => {
@@ -221,6 +191,9 @@ export const CodeMirrorEditor = forwardRef<CodeMirrorEditorHandle, CodeMirrorEdi
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             onChange(update.state.doc.toString());
+          }
+          if (update.focusChanged) {
+            onFocusChangeRef.current?.(update.view.hasFocus);
           }
         }),
         themeCompartment.current.of(getTheme(colorScheme)),

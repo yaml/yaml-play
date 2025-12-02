@@ -95,7 +95,7 @@ export function OutputPane({
     isConnectionError(result.output);
 
   return (
-    <div className="flex flex-col h-full min-h-[200px] bg-gray-900">
+    <div className="flex flex-col h-full min-h-[200px] bg-gray-100 dark:bg-gray-900">
       <PaneHeader
         parser={parser}
         matches={result?.matches}
@@ -108,6 +108,7 @@ export function OutputPane({
           setTestRunnerOpen(true);
         }}
         showTestSuite={showTestSuite}
+        output={result?.output}
       />
       <ParserInfoModal
         isOpen={infoModalOpen}
@@ -149,34 +150,34 @@ export function OutputPane({
           onClearCache={handleViewClearCache}
         />
       )}
-      <div className="flex-1 bg-gray-900 overflow-auto">
+      <div className="flex-1 bg-gray-100 dark:bg-gray-900 overflow-auto">
         {result?.error ? (
-          <pre className="p-3 text-red-400 text-sm font-mono whitespace-pre-wrap">
+          <pre className="p-3 text-red-600 dark:text-red-400 text-sm font-mono whitespace-pre-wrap">
             Error: {result.error}
           </pre>
         ) : hasVersionMismatch ? (
           <div className="p-3 text-sm">
-            <p className="text-yellow-400 mb-2">
+            <p className="text-yellow-600 dark:text-yellow-400 mb-2">
               Wrong sandbox version ({result.versionMismatch!.found}) found.
               Requires {result.versionMismatch!.required}.
             </p>
-            <p className="text-gray-400">
-              Click the "<span className="text-white font-medium">Setup</span>" button for instructions.
+            <p className="text-gray-600 dark:text-gray-400">
+              Click the "<span className="text-gray-900 dark:text-white font-medium">Setup</span>" button for instructions.
             </p>
           </div>
         ) : hasConnectionError ? (
           <div className="p-3 text-sm">
-            <p className="text-gray-300 mb-2">
+            <p className="text-gray-700 dark:text-gray-300 mb-2">
               Can't connect to a local YAML parser sandbox server.
             </p>
-            <p className="text-gray-400">
-              Click the "<span className="text-white font-medium">Setup</span>" button for instructions.
+            <p className="text-gray-600 dark:text-gray-400">
+              Click the "<span className="text-gray-900 dark:text-white font-medium">Setup</span>" button for instructions.
             </p>
           </div>
         ) : result?.loading ? (
           <div className="p-3 text-gray-500 text-sm">Running parser...</div>
         ) : (
-          <pre className="p-3 text-gray-200 text-sm font-mono whitespace-pre-wrap">
+          <pre className="p-3 text-gray-800 dark:text-gray-200 text-sm font-mono whitespace-pre-wrap">
             {result?.output || 'No output yet'}
           </pre>
         )}

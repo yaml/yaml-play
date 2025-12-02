@@ -385,30 +385,30 @@ export function TestRunnerModal({
       onClick={handleClose}
     >
       <div
-        className="bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             {parser.name} - Test Suite
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-white text-2xl leading-none"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl leading-none"
           >
             &times;
           </button>
         </div>
 
         {/* Status bar */}
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center gap-4">
-          <span className="text-green-400">Pass: {passCount}</span>
-          <span className="text-red-400">Fail: {failCount}</span>
-          <span className="text-gray-400">Total: {totalTests}</span>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-4">
+          <span className="text-green-600 dark:text-green-400">Pass: {passCount}</span>
+          <span className="text-red-600 dark:text-red-400">Fail: {failCount}</span>
+          <span className="text-gray-500 dark:text-gray-400">Total: {totalTests}</span>
           {isRunning ? (
-            <span className="text-blue-400 flex items-center gap-2">
-              <div className="animate-spin h-4 w-4 border-2 border-blue-400 border-t-transparent rounded-full" />
+            <span className="text-blue-600 dark:text-blue-400 flex items-center gap-2">
+              <div className="animate-spin h-4 w-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full" />
               {formatTime(elapsedTime)} ({progress}%)
             </span>
           ) : elapsedTime > 0 ? (
@@ -424,7 +424,7 @@ export function TestRunnerModal({
             <div className="ml-auto relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="text-white hover:text-gray-300 p-1"
+                className="text-gray-700 dark:text-white hover:text-gray-900 dark:hover:text-gray-300 p-1"
                 title="Menu"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -432,7 +432,7 @@ export function TestRunnerModal({
                 </svg>
               </button>
               {menuOpen && (
-                <div className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded shadow-lg z-50 min-w-[160px]">
+                <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow-lg z-50 min-w-[160px]">
                   {onCompare && (
                     <button
                       onClick={() => {
@@ -440,7 +440,7 @@ export function TestRunnerModal({
                         onClose();
                         onCompare();
                       }}
-                      className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+                      className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <span className="underline">C</span>ompare Test Runs
                     </button>
@@ -451,7 +451,7 @@ export function TestRunnerModal({
                         setMenuOpen(false);
                         onRunAgain();
                       }}
-                      className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+                      className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       Run Again
                     </button>
@@ -462,7 +462,7 @@ export function TestRunnerModal({
                         setMenuOpen(false);
                         onClearCache();
                       }}
-                      className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+                      className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       Clear Cache
                     </button>
@@ -475,28 +475,28 @@ export function TestRunnerModal({
 
         {/* Error message */}
         {error && (
-          <div className="px-4 py-3 bg-red-900 text-red-200 text-sm">
+          <div className="px-4 py-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 text-sm">
             Error: {error}
           </div>
         )}
 
         {/* Column headers */}
         {results.length > 0 && (
-          <div className="px-4 py-2 border-b border-gray-700 flex items-center gap-2 text-sm text-gray-400">
+          <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <span
-              className="w-10 cursor-pointer hover:text-white select-none"
+              className="w-10 cursor-pointer hover:text-gray-900 dark:hover:text-white select-none"
               onClick={() => handleSort('ok')}
             >
               OK{getSortIndicator('ok')}
             </span>
             <span
-              className="w-20 cursor-pointer hover:text-white select-none font-mono"
+              className="w-20 cursor-pointer hover:text-gray-900 dark:hover:text-white select-none font-mono"
               onClick={() => handleSort('id')}
             >
               ID{getSortIndicator('id')}
             </span>
             <span
-              className="flex-1 cursor-pointer hover:text-white select-none"
+              className="flex-1 cursor-pointer hover:text-gray-900 dark:hover:text-white select-none"
               onClick={() => handleSort('description')}
             >
               Description{getSortIndicator('description')}
@@ -515,23 +515,23 @@ export function TestRunnerModal({
               <button
                 key={result.testId}
                 onClick={() => test && handleTestClick(test)}
-                className={`w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 hover:bg-gray-700 ${
-                  result.running ? 'bg-gray-700' : ''
+                className={`w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                  result.running ? 'bg-gray-100 dark:bg-gray-700' : ''
                 }`}
               >
                 <span className="w-10 flex-shrink-0 text-center">
                   {result.running ? (
-                    <div className="animate-spin h-4 w-4 border-2 border-blue-400 border-t-transparent rounded-full" />
+                    <div className="animate-spin h-4 w-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full" />
                   ) : result.passed ? (
-                    <span className="text-green-400">✓</span>
+                    <span className="text-green-600 dark:text-green-400">✓</span>
                   ) : (
-                    <span className="text-red-400">✗</span>
+                    <span className="text-red-600 dark:text-red-400">✗</span>
                   )}
                 </span>
-                <span className="w-20 text-gray-400 font-mono flex-shrink-0">
+                <span className="w-20 text-gray-500 dark:text-gray-400 font-mono flex-shrink-0">
                   {result.testId}
                 </span>
-                <span className="flex-1 text-gray-300 truncate">{result.testName}</span>
+                <span className="flex-1 text-gray-700 dark:text-gray-300 truncate">{result.testName}</span>
               </button>
             );
           })}

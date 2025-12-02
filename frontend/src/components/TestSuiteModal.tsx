@@ -81,69 +81,69 @@ export function TestSuiteModal({ isOpen, onClose, onSelect }: TestSuiteModalProp
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-lg shadow-xl w-[600px] max-h-[80vh] flex flex-col">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-[600px] max-h-[80vh] flex flex-col">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Search{' '}
             <a
               href="https://github.com/yaml/yaml-test-suite/tree/data"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-400 hover:text-blue-300 underline"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 underline"
             >
               YAML Test Suite
             </a>
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
           >
             X
           </button>
         </div>
 
         {/* Search input */}
-        <div className="p-4 border-b border-gray-700">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <input
             ref={inputRef}
             type="text"
             placeholder="Search by regex (e.g., 'block.*map' or 'spec example')"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-900 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+            className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:outline-none"
           />
           {regexError && (
-            <div className="mt-1 text-red-400 text-sm">{regexError}</div>
+            <div className="mt-1 text-red-600 dark:text-red-400 text-sm">{regexError}</div>
           )}
         </div>
 
         {/* Results list */}
         <div className="flex-1 overflow-y-auto">
           {loading && (
-            <div className="p-8 text-center text-gray-400">Loading tests...</div>
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">Loading tests...</div>
           )}
           {error && (
-            <div className="p-8 text-center text-red-400">{error}</div>
+            <div className="p-8 text-center text-red-600 dark:text-red-400">{error}</div>
           )}
           {!loading && !error && filteredTests.map(test => (
             <button
               key={test.id}
               onClick={() => handleSelect(test)}
-              className="w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0"
+              className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0"
             >
-              <span className={`font-mono ${test.error ? 'text-red-400' : 'text-blue-400'}`}>{test.id}</span>
-              <span className="text-gray-400 mx-2">-</span>
-              <span className="text-gray-200">{test.name}</span>
+              <span className={`font-mono ${test.error ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`}>{test.id}</span>
+              <span className="text-gray-500 dark:text-gray-400 mx-2">-</span>
+              <span className="text-gray-800 dark:text-gray-200">{test.name}</span>
             </button>
           ))}
           {!loading && !error && filteredTests.length === 0 && search && !regexError && (
-            <div className="p-8 text-center text-gray-400">No tests match your search</div>
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">No tests match your search</div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2 border-t border-gray-700 text-sm text-gray-500 flex justify-between">
+        <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 flex justify-between">
           <span>{filteredTests.length} of {tests.length} tests</span>
           <span>(E) = expected parse error</span>
         </div>

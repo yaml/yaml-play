@@ -218,7 +218,7 @@ export function useLayoutPersistence() {
     getVisiblePanes,
     inputPaneWidth: layout.inputPaneWidth ?? 400,
     setInputPaneWidth,
-    colorScheme: layout.colorScheme ?? 'dark',
+    colorScheme: (layout.colorScheme === 'dark' ? 'dark' : 'light') as ColorScheme,
     setColorScheme,
     editorType: layout.editorType ?? 'monaco',
     setEditorType,

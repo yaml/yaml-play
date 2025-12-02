@@ -27,7 +27,7 @@ export interface PaneState {
   order: number;
 }
 
-export type ColorScheme = 'dark' | 'light' | 'high-contrast';
+export type ColorScheme = 'dark' | 'light';
 
 export type EditorType = 'monaco' | 'codemirror';
 
