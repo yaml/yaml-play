@@ -170,7 +170,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               <li><kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">I</kbd> — Focus the input editor</li>
               <li><kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">A</kbd> / <kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">N</kbd> — Show all / no panes</li>
               <li><kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">D</kbd> — Show only differing panes</li>
-              <li><kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">P</kbd> — Open Preferences</li>
+              <li><kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">O</kbd> / <kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">P</kbd> — Options / Parser Panes</li>
             </ul>
           </section>
 
@@ -181,8 +181,9 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
             </h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm">
               Drag parser panes by their headers to reorder them. Use{' '}
-              <strong className="text-gray-900 dark:text-white">Preferences</strong> (press P) to
-              show/hide specific parsers and change the color scheme.
+              <strong className="text-gray-900 dark:text-white">Parser Panes</strong> (press P) to
+              show/hide specific parsers, or <strong className="text-gray-900 dark:text-white">Options</strong> (press O)
+              to change the editor type or color scheme.
             </p>
           </section>
         </div>

@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 
 interface HeaderMenuProps {
   onHelp: () => void;
-  onPreferences: () => void;
+  onOptions: () => void;
+  onParserPanes: () => void;
   onKeyboardShortcuts: () => void;
   onSandboxSetup: () => void;
   onFactoryReset: () => void;
 }
 
-export function HeaderMenu({ onHelp, onPreferences, onKeyboardShortcuts, onSandboxSetup, onFactoryReset }: HeaderMenuProps) {
+export function HeaderMenu({ onHelp, onOptions, onParserPanes, onKeyboardShortcuts, onSandboxSetup, onFactoryReset }: HeaderMenuProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -58,11 +59,20 @@ export function HeaderMenu({ onHelp, onPreferences, onKeyboardShortcuts, onSandb
           <button
             onClick={() => {
               setMenuOpen(false);
-              onPreferences();
+              onOptions();
             }}
             className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <span className="underline">P</span>references
+            <span className="underline">O</span>ptions
+          </button>
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              onParserPanes();
+            }}
+            className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <span className="underline">P</span>arser Panes
           </button>
           <button
             onClick={() => {

@@ -16,6 +16,7 @@ import { InputPane, DEFAULT_YAML, InputPaneHandle } from './InputPane';
 import { OutputPane } from './OutputPane';
 import { StatusBar } from './StatusBar';
 import { PaneSelectorModal } from './PaneSelectorModal';
+import { OptionsModal } from './OptionsModal';
 import { SetupModal } from './SetupModal';
 import { HeaderMenu } from './HeaderMenu';
 import { HelpModal } from './HelpModal';
@@ -50,6 +51,7 @@ export default function App() {
     return getYamlFromUrl() || DEFAULT_YAML;
   });
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const [setupOpen, setSetupOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -175,7 +177,12 @@ export default function App() {
         e.preventDefault();
         setHelpOpen(true);
       }
-      // P for Preferences
+      // O for Options
+      if (key === 'O' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setOptionsOpen(true);
+      }
+      // P for Parser Panes
       if (key === 'P' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         setSelectorOpen(true);
@@ -363,7 +370,8 @@ export default function App() {
           )}
           <HeaderMenu
             onHelp={() => setHelpOpen(true)}
-            onPreferences={() => setSelectorOpen(true)}
+            onOptions={() => setOptionsOpen(true)}
+            onParserPanes={() => setSelectorOpen(true)}
             onKeyboardShortcuts={() => setShortcutsOpen(true)}
             onSandboxSetup={() => setSetupOpen(true)}
             onFactoryReset={() => {
@@ -452,12 +460,18 @@ export default function App() {
       {/* Status bar */}
       <StatusBar total={total} disagreeing={disagreeing} disagreeingNames={disagreeingNames} loading={parsersLoading} sandboxAvailable={sandboxAvailable} />
 
-      {/* Parser selector modal */}
+      {/* Parser panes selector modal */}
       <PaneSelectorModal
         isOpen={selectorOpen}
         onClose={() => setSelectorOpen(false)}
         paneStates={layout.panes}
         onToggleVisibility={updatePaneVisibility}
+      />
+
+      {/* Options modal */}
+      <OptionsModal
+        isOpen={optionsOpen}
+        onClose={() => setOptionsOpen(false)}
         colorScheme={colorScheme}
         onColorSchemeChange={setColorScheme}
         editorType={editorType}
