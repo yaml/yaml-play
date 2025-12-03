@@ -51,6 +51,7 @@ export default function App() {
     return getYamlFromUrl() || DEFAULT_YAML;
   });
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const [insertAfterId, setInsertAfterId] = useState<string | undefined>(undefined);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [setupOpen, setSetupOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -73,6 +74,7 @@ export default function App() {
     hideAllPanes,
     showSelectedPanes,
     showErrorPanes,
+    addPaneAfter,
     getVisiblePanes,
     inputPaneWidth,
     setInputPaneWidth,
@@ -344,6 +346,10 @@ export default function App() {
                 isDraggable={false}
                 onSetYamlInput={setYamlInput}
                 showTestSuite={false}
+                onAddPane={() => {
+                  setInsertAfterId('refparse');
+                  setSelectorOpen(true);
+                }}
               />
             </div>
           )}
@@ -417,6 +423,10 @@ export default function App() {
                       result={getResult('refparse')}
                       isDraggable={false}
                       onSetYamlInput={setYamlInput}
+                      onAddPane={() => {
+                        setInsertAfterId('refparse');
+                        setSelectorOpen(true);
+                      }}
                     />
                   </div>
                 )}
@@ -444,6 +454,10 @@ export default function App() {
                           parser={parser}
                           result={getResult(paneState.id)}
                           onClose={isRefParser ? undefined : () => updatePaneVisibility(paneState.id, false)}
+                          onAddPane={() => {
+                            setInsertAfterId(paneState.id);
+                            setSelectorOpen(true);
+                          }}
                           isDraggable={!isRefParser}
                           onSetYamlInput={setYamlInput}
                         />
@@ -463,9 +477,14 @@ export default function App() {
       {/* Parser panes selector modal */}
       <PaneSelectorModal
         isOpen={selectorOpen}
-        onClose={() => setSelectorOpen(false)}
+        onClose={() => {
+          setSelectorOpen(false);
+          setInsertAfterId(undefined);
+        }}
         paneStates={layout.panes}
         onToggleVisibility={updatePaneVisibility}
+        insertAfterId={insertAfterId}
+        onAddPaneAfter={addPaneAfter}
       />
 
       {/* Options modal */}

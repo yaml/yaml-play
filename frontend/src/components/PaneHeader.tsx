@@ -8,6 +8,7 @@ interface PaneHeaderProps {
   agrees?: boolean;
   loading?: boolean;
   onClose?: () => void;
+  onAddPane?: () => void;
   isDraggable?: boolean;
   onInfoClick?: () => void;
   onRunTestSuite?: () => void;
@@ -21,6 +22,7 @@ export function PaneHeader({
   agrees,
   loading,
   onClose,
+  onAddPane,
   isDraggable = true,
   onInfoClick,
   onRunTestSuite,
@@ -161,6 +163,20 @@ export function PaneHeader({
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+        )}
+        {onAddPane && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddPane();
+            }}
+            className="text-gray-700 hover:text-gray-500 p-1"
+            title="Add pane"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </button>
         )}

@@ -179,6 +179,36 @@ export function useLayoutPersistence() {
     });
   }, []);
 
+  const addPaneAfter = useCallback((afterId: string, paneId: string) => {
+    setLayout(prev => {
+      const afterPane = prev.panes.find(p => p.id === afterId);
+      if (!afterPane) return prev;
+
+      const afterOrder = afterPane.order;
+
+      // Shift all panes with order > afterOrder up by 1, then insert the new pane
+      const newPanes = prev.panes.map(p => {
+        if (p.id === paneId) {
+          return { ...p, visible: true, order: afterOrder + 0.5 };
+        }
+        return p;
+      });
+
+      // Re-normalize order numbers
+      const sorted = [...newPanes].sort((a, b) => a.order - b.order);
+      const normalized = sorted.map((p, i) => ({ ...p, order: i }));
+
+      // Update selectedPaneIds
+      const selectedPaneIds = normalized.filter(p => p.visible).map(p => p.id);
+
+      return {
+        ...prev,
+        panes: normalized,
+        selectedPaneIds,
+      };
+    });
+  }, []);
+
   const setInputPaneWidth = useCallback((width: number) => {
     setLayout(prev => ({
       ...prev,
@@ -215,6 +245,7 @@ export function useLayoutPersistence() {
     hideAllPanes,
     showSelectedPanes,
     showErrorPanes,
+    addPaneAfter,
     getVisiblePanes,
     inputPaneWidth: layout.inputPaneWidth ?? 400,
     setInputPaneWidth,

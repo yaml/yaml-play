@@ -11,6 +11,7 @@ interface OutputPaneProps {
   parser: ParserInfo;
   result?: ParserResult;
   onClose?: () => void;
+  onAddPane?: () => void;
   isDraggable?: boolean;
   onSetYamlInput?: (yaml: string) => void;
   showTestSuite?: boolean;
@@ -41,6 +42,7 @@ export function OutputPane({
   parser,
   result,
   onClose,
+  onAddPane,
   isDraggable = true,
   onSetYamlInput,
   showTestSuite = true,
@@ -101,6 +103,7 @@ export function OutputPane({
         agrees={result?.agrees}
         loading={result?.loading}
         onClose={onClose}
+        onAddPane={onAddPane}
         isDraggable={isDraggable}
         onInfoClick={() => setInfoModalOpen(true)}
         onRunTestSuite={() => {
