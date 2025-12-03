@@ -98,7 +98,7 @@ export function OutputPane({
     <div className="flex flex-col h-full min-h-[200px] bg-gray-100 dark:bg-gray-900">
       <PaneHeader
         parser={parser}
-        matches={result?.matches}
+        agrees={result?.agrees}
         loading={result?.loading}
         onClose={onClose}
         isDraggable={isDraggable}
@@ -109,6 +109,7 @@ export function OutputPane({
         }}
         showTestSuite={showTestSuite}
         output={result?.output}
+        parseSuccess={result ? result.status === 0 : undefined}
       />
       <ParserInfoModal
         isOpen={infoModalOpen}

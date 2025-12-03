@@ -16,10 +16,9 @@ import { InputPane, DEFAULT_YAML, InputPaneHandle } from './InputPane';
 import { OutputPane } from './OutputPane';
 import { StatusBar } from './StatusBar';
 import { PaneSelectorModal } from './PaneSelectorModal';
-import { HelpModal } from './HelpModal';
 import { SetupModal } from './SetupModal';
 import { HeaderMenu } from './HeaderMenu';
-import { AboutModal } from './AboutModal';
+import { HelpModal } from './HelpModal';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 import { CompareTestRunsModal } from './CompareTestRunsModal';
 import { TestRunnerModal } from './TestRunnerModal';
@@ -51,9 +50,8 @@ export default function App() {
     return getYamlFromUrl() || DEFAULT_YAML;
   });
   const [selectorOpen, setSelectorOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
   const [setupOpen, setSetupOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   const [selectedCompareParser, setSelectedCompareParser] = useState<string | null>(null);
@@ -207,6 +205,16 @@ export default function App() {
         e.preventDefault();
         setShortcutsOpen(true);
       }
+      // \\\ for clear input and focus
+      if (e.key === '\\' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        secretKeyRef.current += '\\';
+        if (secretKeyRef.current === '\\\\\\') {
+          e.preventDefault();
+          setYamlInput('');
+          inputPaneRef.current?.focus();
+          secretKeyRef.current = '';
+        }
+      }
       // D for show Differing panes
       if (key === 'D' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
@@ -230,7 +238,7 @@ export default function App() {
           setYamlInput(DEFAULT_YAML);
           secretKeyRef.current = '';
         }
-      } else {
+      } else if (e.key !== '\\') {
         secretKeyRef.current = '';
       }
     };
@@ -334,12 +342,6 @@ export default function App() {
           )}
         </div>
 
-        {/* Help modal - pass isMobile to show different content */}
-        <HelpModal
-          isOpen={helpOpen}
-          onClose={() => setHelpOpen(false)}
-          isMobile={isMobile}
-        />
       </div>
     );
   }
@@ -360,9 +362,10 @@ export default function App() {
             </button>
           )}
           <HeaderMenu
-            onAbout={() => setAboutOpen(true)}
+            onHelp={() => setHelpOpen(true)}
             onPreferences={() => setSelectorOpen(true)}
             onKeyboardShortcuts={() => setShortcutsOpen(true)}
+            onSandboxSetup={() => setSetupOpen(true)}
             onFactoryReset={() => {
               resetLayout();
               setYamlInput(DEFAULT_YAML);
@@ -461,12 +464,6 @@ export default function App() {
         onEditorTypeChange={setEditorType}
       />
 
-      {/* Help modal (for mobile) */}
-      <HelpModal
-        isOpen={helpOpen}
-        onClose={() => setHelpOpen(false)}
-      />
-
       {/* Setup modal */}
       <SetupModal
         isOpen={setupOpen}
@@ -480,10 +477,10 @@ export default function App() {
         }}
       />
 
-      {/* About modal */}
-      <AboutModal
-        isOpen={aboutOpen}
-        onClose={() => setAboutOpen(false)}
+      {/* Help modal */}
+      <HelpModal
+        isOpen={helpOpen}
+        onClose={() => setHelpOpen(false)}
       />
 
       {/* Keyboard Shortcuts modal */}

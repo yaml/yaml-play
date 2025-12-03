@@ -3,10 +3,9 @@ import { useEffect } from 'react';
 interface HelpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  isMobile?: boolean;
 }
 
-export function HelpModal({ isOpen, onClose, isMobile = false }: HelpModalProps) {
+export function HelpModal({ isOpen, onClose }: HelpModalProps) {
   // Handle ESC key to close
   useEffect(() => {
     if (!isOpen) return;
@@ -25,10 +24,10 @@ export function HelpModal({ isOpen, onClose, isMobile = false }: HelpModalProps)
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[85vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Help</h2>
           <button
             onClick={onClose}
@@ -37,86 +36,153 @@ export function HelpModal({ isOpen, onClose, isMobile = false }: HelpModalProps)
             &times;
           </button>
         </div>
-        <div className="p-4 overflow-y-auto max-h-[60vh] space-y-6">
-          {/* Mobile notice */}
-          {isMobile && (
-            <section className="bg-blue-100 dark:bg-blue-900 dark:bg-opacity-50 rounded-lg p-4 border border-blue-300 dark:border-blue-700">
-              <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
-                Mobile Mode
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                This site works on mobile but is really designed for desktop use.
-                On a desktop you can compare output from 17+ YAML parsers side by side,
-                use keyboard shortcuts, and drag to reorder panes.
-              </p>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mt-2">
-                The other parsers require Docker to run, which is not available on mobile devices.
-                Only the JavaScript Reference Parser is shown here.
-              </p>
-            </section>
-          )}
-
-          {/* Keyboard Shortcuts - only show on desktop */}
-          {!isMobile && (
-            <section>
-              <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
-                Keyboard Shortcuts
-              </h3>
-              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">Esc</kbd>
-                <span className="text-gray-600 dark:text-gray-300 self-center">Unfocus input pane / Close modal</span>
-                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">I</kbd>
-                <span className="text-gray-600 dark:text-gray-300 self-center">Focus input pane</span>
-                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">A</kbd>
-                <span className="text-gray-600 dark:text-gray-300 self-center">Show all panes</span>
-                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">N</kbd>
-                <span className="text-gray-600 dark:text-gray-300 self-center">Hide all panes</span>
-                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">D</kbd>
-                <span className="text-gray-600 dark:text-gray-300 self-center">Show differing panes</span>
-                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">S</kbd>
-                <span className="text-gray-600 dark:text-gray-300 self-center">Show your selected panes</span>
-                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">P</kbd>
-                <span className="text-gray-600 dark:text-gray-300 self-center">Open Preferences</span>
-                <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">H</kbd>
-                <span className="text-gray-600 dark:text-gray-300 self-center">Open Help</span>
-              </div>
-            </section>
-          )}
-
-          {/* About */}
+        <div className="p-4 space-y-5 overflow-y-auto">
+          {/* Overview */}
           <section>
-            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
-              About
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              Overview
             </h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm">
-              The YAML Parser Playground compares output from multiple YAML parser
-              implementations. The Reference Parser is used as the baseline.
-              Green headers indicate matching output and red ones indicate differences.
+              The <strong className="text-gray-900 dark:text-white">YAML Parser Playground</strong> lets
+              you compare how 17+ different YAML parser implementations handle the same input.
+              Enter YAML in the input editor on the left, and see the parsed output from each
+              parser in the panes on the right.
             </p>
-            <br />
-            <p className="text-gray-600 dark:text-gray-300 text-sm">
-              The output format is a DSL for YAML parser "events", which are the
-              data structures most YAML parsers create internally.
-              A YAML "parser" is just one of many stages in a YAML "loader"'s
-              stack, but it is the most difficult and important one to get
-              right. This DSL is the one used by the <a
-              href="https://github.com/yaml/yaml-test-suite"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
-              >YAML Test Suite</a>.
+          </section>
+
+          {/* Understanding Colors */}
+          <section>
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              Understanding the Colors
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
+              Each output pane has a colored header showing the parse status:
             </p>
-            {!isMobile && (
-              <>
-                <br />
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Note: The S key will restore your selected panes after using A, N,
-                  or D to show all, none, or differing panes.
-                </p>
-              </>
-            )}
-            <br />
+            <div className="space-y-2 text-sm">
+              <div className="flex items-start gap-2">
+                <span className="inline-block w-4 h-4 bg-green-300 border-4 border-green-300 rounded flex-shrink-0 mt-0.5"></span>
+                <span className="text-gray-600 dark:text-gray-300">
+                  <strong className="text-gray-900 dark:text-white">Green:</strong> The YAML parsed successfully (no errors)
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="inline-block w-4 h-4 bg-red-300 border-4 border-red-300 rounded flex-shrink-0 mt-0.5"></span>
+                <span className="text-gray-600 dark:text-gray-300">
+                  <strong className="text-gray-900 dark:text-white">Red:</strong> The parser returned an error
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="inline-block w-4 h-4 bg-green-300 border-4 border-red-600 rounded flex-shrink-0 mt-0.5"></span>
+                <span className="text-gray-600 dark:text-gray-300">
+                  <strong className="text-gray-900 dark:text-white">Red border:</strong> Output differs from the Reference Parser
+                </span>
+              </div>
+            </div>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mt-2">
+              A red border indicates disagreement — either the output differs from RefParse,
+              or one parser succeeded while the other failed.
+            </p>
+          </section>
+
+          {/* Reference Parser */}
+          <section>
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              The Reference Parser
+            </h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm">
-              This site turns your input into sharable URLs.
-              This can be very useful when discussing particular YAML issues or reporting bugs.
+              The <strong className="text-gray-900 dark:text-white">RefParse</strong> pane shows output
+              from the official YAML Reference Parser, which aims to implement the YAML 1.2 specification
+              exactly. All other parsers are compared against it. RefParse runs directly in your browser
+              and doesn't require the sandbox.
+            </p>
+          </section>
+
+          {/* Output Format */}
+          <section>
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              Output Format
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
+              The output is a DSL (domain-specific language) representing YAML parser "events" —
+              the internal data structures parsers create when processing YAML. This is the same
+              format used by the{' '}
+              <a
+                href="https://github.com/yaml/yaml-test-suite"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                YAML Test Suite
+              </a>.
+              A "parser" is just one stage in a YAML "loader" — it converts text to events,
+              while later stages convert events to native data structures.
+            </p>
+          </section>
+
+          {/* Sandbox Setup */}
+          <section>
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              Running Other Parsers
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
+              Most parsers (Python, Go, Ruby, Java, etc.) require a local Docker sandbox to run.
+              Click the <strong className="text-gray-900 dark:text-white">Setup</strong> button in the
+              header for instructions on starting the sandbox container. Without it, only the
+              JavaScript-based Reference Parser will work.
+            </p>
+          </section>
+
+          {/* Test Suite */}
+          <section>
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              YAML Test Suite
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
+              Use the <strong className="text-gray-900 dark:text-white">Search Test Suite</strong> feature
+              (in the input pane menu) to load test cases from the official YAML Test Suite. You can
+              also run the entire test suite against any parser by clicking its hamburger menu and
+              selecting <strong className="text-gray-900 dark:text-white">Test Suite</strong>.
+            </p>
+          </section>
+
+          {/* URL Sharing */}
+          <section>
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              Sharing URLs
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
+              Your YAML input is automatically encoded in the URL. Copy and share the URL to let
+              others see exactly what you're working on — great for bug reports and discussions
+              about YAML edge cases.
+            </p>
+          </section>
+
+          {/* Keyboard Shortcuts */}
+          <section>
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              Keyboard Shortcuts
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
+              Press <kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">K</kbd> to
+              see all keyboard shortcuts. Highlights include:
+            </p>
+            <ul className="text-gray-600 dark:text-gray-300 text-sm mt-2 space-y-1 list-disc list-inside">
+              <li><kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">I</kbd> — Focus the input editor</li>
+              <li><kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">A</kbd> / <kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">N</kbd> — Show all / no panes</li>
+              <li><kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">D</kbd> — Show only differing panes</li>
+              <li><kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">P</kbd> — Open Preferences</li>
+            </ul>
+          </section>
+
+          {/* Drag and Drop */}
+          <section>
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              Organizing Panes
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
+              Drag parser panes by their headers to reorder them. Use{' '}
+              <strong className="text-gray-900 dark:text-white">Preferences</strong> (press P) to
+              show/hide specific parsers and change the color scheme.
             </p>
           </section>
         </div>

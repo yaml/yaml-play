@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 
 interface HeaderMenuProps {
-  onAbout: () => void;
+  onHelp: () => void;
   onPreferences: () => void;
   onKeyboardShortcuts: () => void;
+  onSandboxSetup: () => void;
   onFactoryReset: () => void;
 }
 
-export function HeaderMenu({ onAbout, onPreferences, onKeyboardShortcuts, onFactoryReset }: HeaderMenuProps) {
+export function HeaderMenu({ onHelp, onPreferences, onKeyboardShortcuts, onSandboxSetup, onFactoryReset }: HeaderMenuProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -48,11 +49,11 @@ export function HeaderMenu({ onAbout, onPreferences, onKeyboardShortcuts, onFact
           <button
             onClick={() => {
               setMenuOpen(false);
-              onAbout();
+              onHelp();
             }}
             className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            About
+            <span className="underline">H</span>elp
           </button>
           <button
             onClick={() => {
@@ -71,6 +72,15 @@ export function HeaderMenu({ onAbout, onPreferences, onKeyboardShortcuts, onFact
             className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <span className="underline">K</span>eyboard Shortcuts
+          </button>
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              onSandboxSetup();
+            }}
+            className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            Sandbox Setup
           </button>
           <button
             onClick={() => {

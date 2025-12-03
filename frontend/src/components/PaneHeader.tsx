@@ -5,7 +5,7 @@ import { ParserInfo } from '../lib/types';
 
 interface PaneHeaderProps {
   parser: ParserInfo;
-  matches?: boolean;
+  agrees?: boolean;
   loading?: boolean;
   onClose?: () => void;
   isDraggable?: boolean;
@@ -13,11 +13,12 @@ interface PaneHeaderProps {
   onRunTestSuite?: () => void;
   showTestSuite?: boolean;
   output?: string;
+  parseSuccess?: boolean;
 }
 
 export function PaneHeader({
   parser,
-  matches,
+  agrees,
   loading,
   onClose,
   isDraggable = true,
@@ -25,6 +26,7 @@ export function PaneHeader({
   onRunTestSuite,
   showTestSuite = true,
   output,
+  parseSuccess,
 }: PaneHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -64,13 +66,30 @@ export function PaneHeader({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // Background: parse status (did YAML parse successfully?)
+  // Same colors for light and dark mode
   const bgColor = loading
-    ? 'bg-gray-300 dark:bg-gray-700'
-    : matches === undefined
-    ? 'bg-gray-300 dark:bg-gray-700'
-    : matches
-    ? 'bg-green-300 dark:bg-green-700'
-    : 'bg-red-300 dark:bg-red-700';
+    ? 'bg-gray-300'
+    : parseSuccess === undefined
+    ? 'bg-gray-300'
+    : parseSuccess
+    ? 'bg-green-300'
+    : 'bg-red-300';
+
+  // Border: shows disagreement with refparser (red border when differs)
+  // When agrees or for refparse, border matches background color
+  const isRefparse = parser.id === 'refparse';
+  const showDisagreeBorder = !isRefparse && !loading && agrees === false;
+
+  // Border matches background unless disagreeing
+  // Same colors for light and dark mode
+  const borderColor = showDisagreeBorder
+    ? 'border-red-600'
+    : loading || parseSuccess === undefined
+    ? 'border-gray-300'
+    : parseSuccess
+    ? 'border-green-300'
+    : 'border-red-300';
 
   const hoverInfo = `${parser.name} v${parser.version} (${parser.language})`;
 
@@ -83,7 +102,7 @@ export function PaneHeader({
     <div
       ref={setNodeRef}
       style={style}
-      className={`${bgColor} px-3 py-2 flex items-center justify-between cursor-grab active:cursor-grabbing select-none`}
+      className={`${bgColor} ${borderColor} border-4 px-3 py-2 flex items-center justify-between cursor-grab active:cursor-grabbing select-none`}
       {...attributes}
       {...listeners}
     >
@@ -93,10 +112,10 @@ export function PaneHeader({
         ref={menuRef}
       >
         {/* Hamburger icon */}
-        <svg className="w-4 h-4 text-gray-700 dark:text-white" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
         </svg>
-        <span className="text-gray-900 dark:text-white font-semibold" title={hoverInfo}>
+        <span className="text-gray-900 font-semibold" title={hoverInfo}>
           {parser.name}
         </span>
         {/* Dropdown menu */}
@@ -129,7 +148,7 @@ export function PaneHeader({
       </div>
       <div className="flex items-center gap-2">
         {loading && (
-          <div className="animate-spin h-4 w-4 border-2 border-gray-700 dark:border-white border-t-transparent rounded-full" />
+          <div className="animate-spin h-4 w-4 border-2 border-gray-700 border-t-transparent rounded-full" />
         )}
         {output && (
           <button
@@ -137,7 +156,7 @@ export function PaneHeader({
               e.stopPropagation();
               navigator.clipboard.writeText(output);
             }}
-            className="text-gray-700 dark:text-white hover:text-gray-500 dark:hover:text-gray-300 p-1"
+            className="text-gray-700 hover:text-gray-500 p-1"
             title="Copy output"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,7 +170,7 @@ export function PaneHeader({
               e.stopPropagation();
               onClose();
             }}
-            className="text-gray-700 dark:text-white hover:text-gray-500 dark:hover:text-gray-300 text-lg leading-none px-1"
+            className="text-gray-700 hover:text-gray-500 text-lg leading-none px-1"
             title="Close pane"
           >
             ×

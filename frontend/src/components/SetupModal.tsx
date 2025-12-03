@@ -7,26 +7,28 @@ interface SetupModalProps {
 }
 
 const SANDBOX_VERSION = getRequiredSandboxVersion();
-const DOCKER_COMMAND = `docker run --rm -d -p 7481:7481 yamlio/yaml-play-sandbox:${SANDBOX_VERSION} 7481`;
+const DOCKER_COMMAND = `docker run --rm -d --name yaml-play -p 7481:7481 yamlio/yaml-play-sandbox:${SANDBOX_VERSION} 7481`;
+const DOCKER_COMMAND_ALT = `docker run --rm -d --name yaml-play --network host yamlio/yaml-play-sandbox:${SANDBOX_VERSION} 7481`;
 
 export function SetupModal({ isOpen, onClose }: SetupModalProps) {
   const [copied, setCopied] = useState(false);
+  const [copiedAlt, setCopiedAlt] = useState(false);
 
-  const copyCommand = async () => {
+  const copyCommand = async (command: string, setCopiedState: (v: boolean) => void) => {
     try {
-      await navigator.clipboard.writeText(DOCKER_COMMAND);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(command);
+      setCopiedState(true);
+      setTimeout(() => setCopiedState(false), 2000);
     } catch {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
-      textArea.value = DOCKER_COMMAND;
+      textArea.value = command;
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setCopiedState(true);
+      setTimeout(() => setCopiedState(false), 2000);
     }
   };
 
@@ -67,7 +69,7 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
               Start the Sandbox Server (version {SANDBOX_VERSION})
             </h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
-              Most of these parsers run in a Docker container that you need to start on your machine.
+              These parsers run in a Docker container that you need to start on your machine.
               If you see connection errors, start the sandbox by running this command in a terminal:
             </p>
             <div className="relative">
@@ -75,14 +77,28 @@ export function SetupModal({ isOpen, onClose }: SetupModalProps) {
                 {DOCKER_COMMAND}
               </pre>
               <button
-                onClick={copyCommand}
+                onClick={() => copyCommand(DOCKER_COMMAND, setCopied)}
                 className="absolute top-2 right-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
               >
                 {copied ? 'Copied!' : 'Copy'}
               </button>
             </div>
-            <br />
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-3 mb-2">
+              The Docker command above does not work for some users.
+              If it does not work for you then try this command instead:
+            </p>
+            <div className="relative">
+              <pre className="bg-gray-100 dark:bg-gray-900 p-3 pr-16 rounded text-sm text-green-700 dark:text-green-400 font-mono overflow-x-auto">
+                {DOCKER_COMMAND_ALT}
+              </pre>
+              <button
+                onClick={() => copyCommand(DOCKER_COMMAND_ALT, setCopiedAlt)}
+                className="absolute top-2 right-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
+              >
+                {copiedAlt ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-3">
               Note: If a different version of the sandbox server Docker container is already running, you'll need to kill that first.
             </p>
           </section>
