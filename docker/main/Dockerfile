@@ -26,4 +26,13 @@ RUN apk add --no-cache openssl && \
     -keyout /key.pem -out /cert.pem -days 365 \
     -subj '/CN=localhost'
 
+# Install gh CLI for GitHub PR creation
+RUN apk add --no-cache github-cli git
+
+# Install anthropic Python package for LLM test naming and requests for OAuth
+RUN python3 -m pip install --no-cache-dir --break-system-packages anthropic requests
+
+# Install ys (YAMLScript) for JSON conversion
+RUN curl -Ls https://getys.org/ys | bash
+
 ENTRYPOINT ["play-sandbox"]

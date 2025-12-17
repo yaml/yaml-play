@@ -52,16 +52,20 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
             <span className="text-gray-600 dark:text-gray-300 self-center">Show differing panes</span>
             <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">S</kbd>
             <span className="text-gray-600 dark:text-gray-300 self-center">Show your selected panes</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">U</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Unselect all (clear all checkboxes)</span>
             <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">C</kbd>
             <span className="text-gray-600 dark:text-gray-300 self-center">Compare Test Runs</span>
             <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">O</kbd>
             <span className="text-gray-600 dark:text-gray-300 self-center">Open Options</span>
-            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">P</kbd>
-            <span className="text-gray-600 dark:text-gray-300 self-center">Open Parser Panes</span>
             <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">H</kbd>
             <span className="text-gray-600 dark:text-gray-300 self-center">Show help</span>
             <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">K</kbd>
             <span className="text-gray-600 dark:text-gray-300 self-center">Show keyboard shortcuts</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">G</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">GitHub Setup</span>
+            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">T</kbd>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Test Suite PR (submit new test)</span>
           </div>
         </div>
       </div>

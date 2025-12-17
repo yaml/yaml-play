@@ -65,12 +65,24 @@ export function useLayoutPersistence() {
           p.id === id ? { ...p, visible } : p
         );
       }
-      // Save visible panes as the user's selection (for 'S' shortcut)
-      const selectedPaneIds = newPanes.filter(p => p.visible).map(p => p.id);
       return {
         ...prev,
         panes: newPanes,
-        selectedPaneIds,
+      };
+    });
+  }, []);
+
+  const togglePaneSelection = useCallback((id: string) => {
+    setLayout(prev => {
+      const selectedIds = new Set(prev.selectedPaneIds ?? []);
+      if (selectedIds.has(id)) {
+        selectedIds.delete(id);
+      } else {
+        selectedIds.add(id);
+      }
+      return {
+        ...prev,
+        selectedPaneIds: Array.from(selectedIds),
       };
     });
   }, []);
@@ -140,18 +152,24 @@ export function useLayoutPersistence() {
   const showSelectedPanes = useCallback(() => {
     setLayout(prev => {
       const selectedIds = new Set(prev.selectedPaneIds ?? []);
-      // If no selection saved, do nothing
-      if (selectedIds.size === 0) return prev;
 
-      // Restore visibility based on selectedPaneIds
+      // Set visibility based on selectedPaneIds
+      // If nothing is selected, hide all panes except refparse
       return {
         ...prev,
         panes: prev.panes.map(p => ({
           ...p,
-          visible: selectedIds.has(p.id),
+          visible: p.id === 'refparse' || selectedIds.has(p.id),
         })),
       };
     });
+  }, []);
+
+  const clearSelectedPanes = useCallback(() => {
+    setLayout(prev => ({
+      ...prev,
+      selectedPaneIds: [],
+    }));
   }, []);
 
   const showErrorPanes = useCallback((errorPaneIds: string[]) => {
@@ -198,13 +216,9 @@ export function useLayoutPersistence() {
       const sorted = [...newPanes].sort((a, b) => a.order - b.order);
       const normalized = sorted.map((p, i) => ({ ...p, order: i }));
 
-      // Update selectedPaneIds
-      const selectedPaneIds = normalized.filter(p => p.visible).map(p => p.id);
-
       return {
         ...prev,
         panes: normalized,
-        selectedPaneIds,
       };
     });
   }, []);
@@ -239,11 +253,13 @@ export function useLayoutPersistence() {
   return {
     layout,
     updatePaneVisibility,
+    togglePaneSelection,
     reorderPanes,
     resetLayout,
     showAllPanes,
     hideAllPanes,
     showSelectedPanes,
+    clearSelectedPanes,
     showErrorPanes,
     addPaneAfter,
     getVisiblePanes,

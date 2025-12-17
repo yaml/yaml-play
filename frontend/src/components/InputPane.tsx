@@ -15,6 +15,9 @@ interface InputPaneProps {
   showBorder?: boolean;
   heightMode?: 'full' | 'half';
   isMobile?: boolean;
+  onSubmitPR?: () => void;
+  onSignIn?: () => void;
+  isGitHubAuthenticated?: boolean;
 }
 
 export interface InputPaneHandle {
@@ -57,7 +60,7 @@ const MIN_WIDTH = 200;
 const MAX_WIDTH = 800;
 
 export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function InputPane(
-  { value, onChange, width, onWidthChange, colorScheme, editorType, showBorder = true, heightMode = 'full', isMobile = false },
+  { value, onChange, width, onWidthChange, colorScheme, editorType, showBorder = true, heightMode = 'full', isMobile = false, onSubmitPR, onSignIn, isGitHubAuthenticated = false },
   ref
 ) {
   const isResizing = useRef(false);
@@ -170,6 +173,23 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
           {isFocused ? 'YAML Input Editor (editing)' : 'YAML Input Editor'}
         </h2>
         <div className="flex items-center gap-1">
+          {!isMobile && (onSubmitPR || onSignIn) && (
+            <button
+              onClick={() => {
+                if (isGitHubAuthenticated && onSubmitPR) {
+                  onSubmitPR();
+                } else if (onSignIn) {
+                  onSignIn();
+                }
+              }}
+              className="text-gray-400 hover:text-gray-700 dark:hover:text-white p-1"
+              title="Submit to yaml-test-suite"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </button>
+          )}
           <button
             onClick={() => navigator.clipboard.writeText(value)}
             className="text-gray-400 hover:text-gray-700 dark:hover:text-white p-1"

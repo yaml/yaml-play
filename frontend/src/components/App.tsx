@@ -15,7 +15,6 @@ import {
 import { InputPane, DEFAULT_YAML, InputPaneHandle } from './InputPane';
 import { OutputPane } from './OutputPane';
 import { StatusBar } from './StatusBar';
-import { PaneSelectorModal } from './PaneSelectorModal';
 import { OptionsModal } from './OptionsModal';
 import { SetupModal } from './SetupModal';
 import { HeaderMenu } from './HeaderMenu';
@@ -23,9 +22,12 @@ import { HelpModal } from './HelpModal';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 import { CompareTestRunsModal } from './CompareTestRunsModal';
 import { TestRunnerModal } from './TestRunnerModal';
+import { SubmitPRModal } from './SubmitPRModal';
+import { TokenEntryModal } from './TokenEntryModal';
 import { useLayoutPersistence } from '../hooks/useLayoutPersistence';
 import { useParserResults } from '../hooks/useParserResults';
 import { useIsMobile, useIsLandscape } from '../hooks/useIsMobile';
+import { useGitHubAuth } from '../hooks/useGitHubAuth';
 import { getParser } from '../lib/parsers';
 import { checkSandboxAvailable } from '../lib/sandbox';
 
@@ -50,31 +52,38 @@ export default function App() {
   const [yamlInput, setYamlInput] = useState(() => {
     return getYamlFromUrl() || DEFAULT_YAML;
   });
-  const [selectorOpen, setSelectorOpen] = useState(false);
-  const [insertAfterId, setInsertAfterId] = useState<string | undefined>(undefined);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [setupOpen, setSetupOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   const [selectedCompareParser, setSelectedCompareParser] = useState<string | null>(null);
+  const [testFormatOpen, setTestFormatOpen] = useState(false);
+  const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const [sandboxAvailable, setSandboxAvailable] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const inputPaneRef = useRef<InputPaneHandle>(null);
   const secretKeyRef = useRef<string>('');
   const isMobile = useIsMobile(640);
   const isLandscape = useIsLandscape();
+  const githubAuth = useGitHubAuth();
+
+  // Check if GitHub token is configured (required for test submission)
+  const hasTokens = () => {
+    return githubAuth.isAuthenticated;
+  };
 
   const {
     layout,
     updatePaneVisibility,
+    togglePaneSelection,
     reorderPanes,
     resetLayout,
     showAllPanes,
     hideAllPanes,
     showSelectedPanes,
+    clearSelectedPanes,
     showErrorPanes,
-    addPaneAfter,
     getVisiblePanes,
     inputPaneWidth,
     setInputPaneWidth,
@@ -184,11 +193,6 @@ export default function App() {
         e.preventDefault();
         setOptionsOpen(true);
       }
-      // P for Parser Panes
-      if (key === 'P' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        e.preventDefault();
-        setSelectorOpen(true);
-      }
       // A for show All panes
       if (key === 'A' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
@@ -204,6 +208,11 @@ export default function App() {
         e.preventDefault();
         showSelectedPanes();
       }
+      // U for Unselect all panes (clear all checkboxes)
+      if (key === 'U' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        clearSelectedPanes();
+      }
       // C for Compare Test Runs
       if (key === 'C' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
@@ -213,6 +222,20 @@ export default function App() {
       if (key === 'K' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         setShortcutsOpen(true);
+      }
+      // G for GitHub
+      if (key === 'G' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setTokenModalOpen(true);
+      }
+      // T for Test Format
+      if (key === 'T' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        if (hasTokens()) {
+          setTestFormatOpen(true);
+        } else {
+          setTokenModalOpen(true);
+        }
       }
       // \\\ for clear input and focus
       if (e.key === '\\' && !e.ctrlKey && !e.metaKey && !e.altKey) {
@@ -238,23 +261,28 @@ export default function App() {
           showErrorPanes(differingPaneIds);
         }
       }
-      // Secret shortcut: XXX for settings reset
+      // Secret shortcut: XXX for factory reset
       if (key === 'X' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         secretKeyRef.current += 'X';
         if (secretKeyRef.current === 'XXX') {
           e.preventDefault();
           resetLayout();
           setYamlInput(DEFAULT_YAML);
+          // Clear GitHub auth and model settings
+          localStorage.removeItem('github-model');
+          localStorage.removeItem('github-model-name');
+          // Sign out of GitHub (this also clears github-token and github-user)
+          githubAuth.logout();
           secretKeyRef.current = '';
         }
-      } else if (e.key !== '\\') {
+      } else if (e.key !== '\\' && key !== 'X') {
         secretKeyRef.current = '';
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showAllPanes, hideAllPanes, showSelectedPanes, showErrorPanes, results, resetLayout]);
+  }, [showAllPanes, hideAllPanes, showSelectedPanes, showErrorPanes, results, resetLayout, githubAuth.isAuthenticated]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -336,6 +364,9 @@ export default function App() {
               editorType={editorType}
               showBorder={false}
               isMobile={true}
+              onSubmitPR={() => setTestFormatOpen(true)}
+              onSignIn={() => setTokenModalOpen(true)}
+              isGitHubAuthenticated={githubAuth.isAuthenticated}
             />
           </div>
           {refParser && (
@@ -346,10 +377,6 @@ export default function App() {
                 isDraggable={false}
                 onSetYamlInput={setYamlInput}
                 showTestSuite={false}
-                onAddPane={() => {
-                  setInsertAfterId('refparse');
-                  setSelectorOpen(true);
-                }}
               />
             </div>
           )}
@@ -377,12 +404,21 @@ export default function App() {
           <HeaderMenu
             onHelp={() => setHelpOpen(true)}
             onOptions={() => setOptionsOpen(true)}
-            onParserPanes={() => setSelectorOpen(true)}
+            onAllPanes={showAllPanes}
+            onUnselectAll={clearSelectedPanes}
+            onTestFormat={() => setTestFormatOpen(true)}
             onKeyboardShortcuts={() => setShortcutsOpen(true)}
             onSandboxSetup={() => setSetupOpen(true)}
+            onAddTokens={() => setTokenModalOpen(true)}
+            hasTokens={hasTokens()}
             onFactoryReset={() => {
               resetLayout();
               setYamlInput(DEFAULT_YAML);
+              // Clear GitHub auth and model settings
+              localStorage.removeItem('github-model');
+              localStorage.removeItem('github-model-name');
+              // Sign out of GitHub (this also clears github-token and github-user)
+              githubAuth.logout();
             }}
           />
         </div>
@@ -414,6 +450,9 @@ export default function App() {
                   editorType={editorType}
                   showBorder={false}
                   heightMode={needsMultiRow ? 'half' : 'full'}
+                  onSubmitPR={() => setTestFormatOpen(true)}
+                  onSignIn={() => setTokenModalOpen(true)}
+                  isGitHubAuthenticated={githubAuth.isAuthenticated}
                 />
                 {needsMultiRow && refParser && (
                   <div className="h-full overflow-hidden border-t border-gray-300 dark:border-gray-700">
@@ -423,10 +462,6 @@ export default function App() {
                       result={getResult('refparse')}
                       isDraggable={false}
                       onSetYamlInput={setYamlInput}
-                      onAddPane={() => {
-                        setInsertAfterId('refparse');
-                        setSelectorOpen(true);
-                      }}
                     />
                   </div>
                 )}
@@ -454,12 +489,10 @@ export default function App() {
                           parser={parser}
                           result={getResult(paneState.id)}
                           onClose={isRefParser ? undefined : () => updatePaneVisibility(paneState.id, false)}
-                          onAddPane={() => {
-                            setInsertAfterId(paneState.id);
-                            setSelectorOpen(true);
-                          }}
                           isDraggable={!isRefParser}
                           onSetYamlInput={setYamlInput}
+                          isSelected={isRefParser ? false : (layout.selectedPaneIds?.includes(paneState.id) ?? false)}
+                          onToggleSelection={isRefParser ? undefined : () => togglePaneSelection(paneState.id)}
                         />
                       );
                     })}
@@ -472,20 +505,7 @@ export default function App() {
       </div>
 
       {/* Status bar */}
-      <StatusBar total={total} disagreeing={disagreeing} disagreeingNames={disagreeingNames} loading={parsersLoading} sandboxAvailable={sandboxAvailable} />
-
-      {/* Parser panes selector modal */}
-      <PaneSelectorModal
-        isOpen={selectorOpen}
-        onClose={() => {
-          setSelectorOpen(false);
-          setInsertAfterId(undefined);
-        }}
-        paneStates={layout.panes}
-        onToggleVisibility={updatePaneVisibility}
-        insertAfterId={insertAfterId}
-        onAddPaneAfter={addPaneAfter}
-      />
+      <StatusBar total={total} disagreeing={disagreeing} disagreeingNames={disagreeingNames} loading={parsersLoading} sandboxAvailable={sandboxAvailable} onSandboxSetup={() => setSetupOpen(true)} />
 
       {/* Options modal */}
       <OptionsModal
@@ -527,6 +547,23 @@ export default function App() {
         isOpen={compareOpen}
         onClose={() => setCompareOpen(false)}
         onSelectParser={(parserId) => setSelectedCompareParser(parserId)}
+      />
+
+      {/* Test Format modal */}
+      <SubmitPRModal
+        isOpen={testFormatOpen}
+        onClose={() => setTestFormatOpen(false)}
+        yaml={yamlInput}
+        events={getResult('refparse')?.output || ''}
+        isError={(getResult('refparse')?.status ?? 0) !== 0}
+        onConfigureModel={() => setTokenModalOpen(true)}
+      />
+
+      {/* Token Entry modal */}
+      <TokenEntryModal
+        isOpen={tokenModalOpen}
+        onClose={() => setTokenModalOpen(false)}
+        githubAuth={githubAuth}
       />
 
       {/* Test Runner modal for selected parser from Compare */}

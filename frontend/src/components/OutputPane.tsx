@@ -15,6 +15,8 @@ interface OutputPaneProps {
   isDraggable?: boolean;
   onSetYamlInput?: (yaml: string) => void;
   showTestSuite?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: () => void;
 }
 
 // Check if error looks like a connection/network error or server error
@@ -46,6 +48,8 @@ export function OutputPane({
   isDraggable = true,
   onSetYamlInput,
   showTestSuite = true,
+  isSelected = false,
+  onToggleSelection,
 }: OutputPaneProps) {
   const [infoModalOpen, setInfoModalOpen] = useState(false);
   const [testRunnerOpen, setTestRunnerOpen] = useState(false);
@@ -113,6 +117,8 @@ export function OutputPane({
         showTestSuite={showTestSuite}
         output={result?.output}
         parseSuccess={result ? result.status === 0 : undefined}
+        isSelected={isSelected}
+        onToggleSelection={onToggleSelection}
       />
       <ParserInfoModal
         isOpen={infoModalOpen}

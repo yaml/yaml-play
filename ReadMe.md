@@ -2,7 +2,7 @@ YAML Playground Website Generation
 ==================================
 
 This directory is responsible for publishing the content of this (yaml-play)
-repository to <https://play.yaml.io/>.
+repository to <https://play.yaml.com/>.
 
 # Build System
 
@@ -12,7 +12,7 @@ The Makefile supports:
 
 * `make publish SITEDIR=...`
 
-  Build and publish the content to <https://play.yaml.io/BRANCH>.
+  Build and publish the content to <https://play.yaml.com/BRANCH>.
 
 * `make serve`
 
@@ -20,7 +20,7 @@ The Makefile supports:
 
 * `make build`
 
-  Build the site content into a finalized `./play.yaml.io/` directory.
+  Build the site content into a finalized `./play.yaml.com/` directory.
 
 * `make site`
 
@@ -76,8 +76,8 @@ The intent is to not tie things too close to Jekyll or any other build system.
 The Jekyll build system is captured in the `github-pages` Docker image.
 It is the same build process that GitHub Pages uses when you push Jekyll
 content to it.
-It builds the final HTML/CSS/JavaScript into the `./play.yaml.io/` directory,
+It builds the final HTML/CSS/JavaScript into the `./play.yaml.com/` directory,
 which is a worktree of the `gh-pages` branch.
 When `make publish` pushes the `gh-pages` branch the content is served as
-<https://play.yaml.io/>.
+<https://play.yaml.com/>.
 No further Jekyll processing happens on the GitHub side after pushing.

@@ -15,6 +15,8 @@ interface PaneHeaderProps {
   showTestSuite?: boolean;
   output?: string;
   parseSuccess?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: () => void;
 }
 
 export function PaneHeader({
@@ -29,6 +31,8 @@ export function PaneHeader({
   showTestSuite = true,
   output,
   parseSuccess,
+  isSelected = false,
+  onToggleSelection,
 }: PaneHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -108,63 +112,28 @@ export function PaneHeader({
       {...attributes}
       {...listeners}
     >
-      <div
-        className="flex items-center gap-2 cursor-pointer flex-1 relative"
-        onClick={handleTitleBarClick}
-        ref={menuRef}
-      >
-        {/* Hamburger icon */}
-        <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-        </svg>
+      <div className="flex items-center gap-2 flex-1">
+        {onToggleSelection && (
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={(e) => {
+              e.stopPropagation();
+              onToggleSelection();
+              e.currentTarget.blur();
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-4 h-4 text-blue-600 bg-white border-gray-500 rounded cursor-pointer"
+            title="Include in selected group (S)"
+          />
+        )}
         <span className="text-gray-900 font-semibold" title={hoverInfo}>
           {parser.name}
         </span>
-        {/* Dropdown menu */}
-        {menuOpen && (
-          <div className="absolute left-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow-lg z-50 min-w-[140px]">
-            {showTestSuite && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(false);
-                  onRunTestSuite?.();
-                }}
-                className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Test Suite
-              </button>
-            )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setMenuOpen(false);
-                onInfoClick?.();
-              }}
-              className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              Parser Info
-            </button>
-          </div>
-        )}
       </div>
       <div className="flex items-center gap-2">
         {loading && (
           <div className="animate-spin h-4 w-4 border-2 border-gray-700 border-t-transparent rounded-full" />
-        )}
-        {output && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              navigator.clipboard.writeText(output);
-            }}
-            className="text-gray-700 hover:text-gray-500 p-1"
-            title="Copy output"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-          </button>
         )}
         {onAddPane && (
           <button
@@ -192,6 +161,57 @@ export function PaneHeader({
             ×
           </button>
         )}
+        {output && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigator.clipboard.writeText(output);
+            }}
+            className="text-gray-700 hover:text-gray-500 p-1"
+            title="Copy output"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+        )}
+        <div
+          className="cursor-pointer relative"
+          onClick={handleTitleBarClick}
+          ref={menuRef}
+        >
+          {/* Hamburger icon */}
+          <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+          </svg>
+          {/* Dropdown menu */}
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow-lg z-50 min-w-[140px]">
+              {showTestSuite && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    onRunTestSuite?.();
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Test Suite
+                </button>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(false);
+                  onInfoClick?.();
+                }}
+                className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Parser Info
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

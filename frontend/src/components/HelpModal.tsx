@@ -79,7 +79,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-300 text-sm mt-2">
-              A red border indicates disagreement — either the output differs from RefParse,
+              A red border indicates disagreement — either the output differs from the Reference Parser,
               or one parser succeeded while the other failed.
             </p>
           </section>
@@ -90,9 +90,9 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               The Reference Parser
             </h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm">
-              The <strong className="text-gray-900 dark:text-white">RefParse</strong> pane shows output
+              The <strong className="text-gray-900 dark:text-white">Reference Parser</strong> pane shows output
               from the official YAML Reference Parser, which aims to implement the YAML 1.2 specification
-              exactly. All other parsers are compared against it. RefParse runs directly in your browser
+              exactly. All other parsers are compared against it. The Reference Parser runs directly in your browser
               and doesn't require the sandbox.
             </p>
           </section>
@@ -137,11 +137,25 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
               YAML Test Suite
             </h3>
-            <p className="text-gray-600 dark:text-gray-300 text-sm">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
               Use the <strong className="text-gray-900 dark:text-white">Search Test Suite</strong> feature
               (in the input pane menu) to load test cases from the official YAML Test Suite. You can
               also run the entire test suite against any parser by clicking its hamburger menu and
               selecting <strong className="text-gray-900 dark:text-white">Test Suite</strong>.
+            </p>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mt-3 mb-2">
+              <strong className="text-gray-900 dark:text-white">Contributing Tests:</strong> You can submit
+              new test cases directly to the yaml-test-suite repository. Press{' '}
+              <kbd className="bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200 font-mono text-xs">T</kbd>{' '}
+              or use the menu to open <strong className="text-gray-900 dark:text-white">Test Format</strong>.
+              Choose between <strong className="text-gray-900 dark:text-white">Manual Mode</strong> (fill in test name and tags yourself)
+              or use <strong className="text-gray-900 dark:text-white">GitHub Models</strong> to AI-generate these fields.
+              You'll select applicable tags from a list, review similar tests to avoid duplicates, and create a pull request with one click.
+            </p>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <em>Note: Test submission requires a GitHub token for PR creation. Optionally, select a model from{' '}
+              <strong className="text-gray-900 dark:text-white">API Tokens</strong> in the menu
+              to enable AI-powered test naming via GitHub Models (uses your GitHub token, no additional API key needed).</em>
             </p>
           </section>
 

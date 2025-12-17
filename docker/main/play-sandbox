@@ -1,14 +1,47 @@
 #!/usr/bin/env python3
 
-import os, sys, json
+import os, sys, json, random, string
 from flask import Flask
 from flask import request
 from flask_cors import CORS
 import subprocess
+import requests
+
+GITHUB_CLIENT_ID = 'Ov23liRrgge8JKovPTxm'
 
 dir = os.path.dirname(os.path.realpath(__file__))
 
 required_version = open('/sandbox_version').read().rstrip()
+
+# YAML feature categories from yaml-test-suite/tags/
+YAML_FEATURES = [
+    "alias", "anchor", "comment", "complex-key", "directive",
+    "document", "double", "duplicate-key", "edge", "empty",
+    "empty-key", "error", "explicit-key", "flow", "folded",
+    "footer", "header", "indent", "literal", "local-tag",
+    "mapping", "scalar", "sequence", "simple", "single",
+    "spec", "tag", "unknown-tag", "whitespace",
+    "1.3-err", "1.3-mod", "libyaml-err", "upto-1.2"
+]
+
+# Example test names showing naming conventions
+EXAMPLE_NAMES = [
+    "aliases-in-block-sequence",
+    "anchors-on-empty-scalars",
+    "block-mapping-with-missing-keys",
+    "flow-mapping-separate-values",
+    "folded-block-scalar",
+    "comment-in-flow-sequence-before-comma",
+    "spec-example-7-1-alias-nodes",
+    "invalid-mapping-in-plain-scalar",
+    "tabs-that-look-like-indentation",
+    "colon-at-the-beginning-of-adjacent-flow-scalar",
+    "double-quoted-string-without-closing-quote",
+    "trailing-content-that-looks-like-a-mapping",
+    "allowed-characters-in-plain-scalars",
+    "multiline-plain-scalar",
+    "empty-sequence-entry"
+]
 
 app = Flask(__name__)
 app.debug = True
@@ -71,6 +104,846 @@ def processYaml():
     response.headers['Access-Control-Allow-Origin'] = origin
 
   return response
+
+@app.route('/github-models', methods=['GET'])
+def getGitHubModels():
+  """Fetch available models from GitHub Models API"""
+  github_token = request.headers.get('Authorization', '').replace('Bearer ', '')
+
+  if not github_token:
+    return app.response_class(
+      response=json.dumps({'error': 'GitHub token required'}),
+      status=401,
+      mimetype='application/json'
+    )
+
+  # Curated list of models for test naming
+  # Use exact names from GitHub Models API
+  ALLOWED_MODELS = {
+    # Free tier models
+    'OpenAI GPT-4o mini',  # free
+    'Llama-3.3-70B-Instruct',  # free
+    'DeepSeek-R1',  # free
+    # Paid models
+    'OpenAI GPT-4o',
+    'OpenAI o1-preview',
+    'OpenAI o1',
+  }
+
+  try:
+    # Fetch models from GitHub Models API
+    response = requests.get(
+      'https://models.github.ai/catalog/models',
+      headers={
+        'Accept': 'application/vnd.github+json',
+        'Authorization': f'Bearer {github_token}',
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+    )
+
+    if response.status_code != 200:
+      raise Exception(f'GitHub Models API returned {response.status_code}: {response.text}')
+
+    all_models = response.json()
+
+    # Log available models for debugging
+    log(f"Total models from GitHub API: {len(all_models)}")
+
+    # Filter to curated list of text-capable models
+    text_models = []
+    for model in all_models:
+      input_modalities = model.get('supported_input_modalities', [])
+      output_modalities = model.get('supported_output_modalities', [])
+      model_name = model.get('name', '')
+
+      # Log each model we check
+      is_text_capable = 'text' in input_modalities and 'text' in output_modalities
+      is_allowed = model_name in ALLOWED_MODELS
+
+      if is_text_capable and not is_allowed:
+        log(f"Model '{model_name}' is text-capable but not in ALLOWED_MODELS")
+
+      # Only include models in our curated list
+      if is_text_capable and is_allowed:
+        text_models.append({
+          'id': model['id'],
+          'name': model_name,
+          'publisher': model.get('publisher', 'Unknown')
+        })
+        log(f"Added model: {model.get('publisher')}/{model_name}")
+
+    log(f"Filtered to {len(text_models)} allowed models")
+
+    result = app.response_class(
+      response=json.dumps(text_models),
+      status=200,
+      mimetype='application/json'
+    )
+
+  except Exception as e:
+    log(f'Error fetching GitHub models: {e}')
+    result = app.response_class(
+      response=json.dumps({'error': str(e)}),
+      status=500,
+      mimetype='application/json'
+    )
+
+  origin = request.headers.get('Origin', '')
+  if origin.endswith('play.yaml.io') or origin.endswith('play.yaml.com') or 'localhost' in origin:
+    result.headers['Access-Control-Allow-Origin'] = origin
+
+  return result
+
+@app.route('/preview-pr', methods=['POST'])
+def previewPR():
+  yaml_content = request.form.get('yaml')
+  events = request.form.get('events')
+  is_error = request.form.get('isError') == 'true'
+  model = request.form.get('model', '')  # GitHub Models ID or empty for manual
+  github_token = request.form.get('githubToken')
+  current_test_name = request.form.get('testName', '')  # Optional: user-edited test name
+  current_tags_json = request.form.get('currentTags', '[]')  # Optional: current tags JSON array
+
+  # Parse current tags
+  try:
+    current_tags = json.loads(current_tags_json) if current_tags_json else []
+  except:
+    current_tags = []
+
+  # Generate unique 4-char ID
+  test_id = generate_test_id()
+
+  # Analyze YAML using LLM (generates name, detects features, finds similar tests)
+  # If no model specified, return empty name for manual mode
+  # Pass current test name and tags for better similar test suggestions
+  analysis = analyze_yaml_test_github(yaml_content, events, is_error, model, github_token, current_test_name, current_tags)
+
+  test_name = analysis['testName']
+
+  # Convert kebab-case to Title Case (e.g., "literal-block-with-multiline-strings" -> "Literal block with multiline strings")
+  if test_name:
+    test_name = test_name.replace('-', ' ').capitalize()
+
+  tags = analysis.get('features', [])
+  similar_tests = analysis['similarTests']
+  llm_error = analysis.get('error', '')
+
+  # Fetch GitHub username
+  github_username = None
+  if github_token:
+    try:
+      env = os.environ.copy()
+      env['GH_TOKEN'] = github_token
+      result = subprocess.run(
+        ['gh', 'api', 'user', '--jq', '.login'],
+        capture_output=True,
+        text=True,
+        env=env
+      )
+      if result.returncode == 0:
+        github_username = result.stdout.strip()
+      else:
+        log(f"Failed to get GitHub username: {result.stderr}")
+    except Exception as e:
+      log(f"Error fetching GitHub username: {e}")
+
+  # Generate JSON
+  json_output = generate_json(yaml_content)
+
+  # Generate preview
+  preview = f"=== {test_name}\n--- in-yaml\n{yaml_content}"
+  if not is_error and events:
+    preview += f"\n--- test-event\n{events}"
+  if is_error:
+    preview += "\n--- error\n"
+
+  data = {
+    'testId': test_id,
+    'testName': test_name,
+    'tags': tags,
+    'preview': preview,
+    'similarTests': similar_tests,
+    'githubUsername': github_username,
+    'json': json_output,
+    'availableTags': YAML_FEATURES,  # Return full list of available tags
+    'llmError': llm_error if llm_error else None,
+  }
+
+  response = app.response_class(
+    response=json.dumps(data),
+    status=200,
+    mimetype='application/json'
+  )
+
+  origin = request.headers.get('Origin', '')
+  if origin.endswith('play.yaml.io') or origin.endswith('play.yaml.com'):
+    response.headers['Access-Control-Allow-Origin'] = origin
+
+  return response
+
+def generate_test_id():
+  """Generate a unique 4-character alphanumeric test ID.
+
+  Rules (matching yaml-test-suite/bin/new-test-id):
+  - Characters: A-H, J-N, P-Z (no I, O) and 2-9 (no 0, 1)
+  - Must contain at least one letter AND one digit
+  - Must not conflict with existing test IDs
+  """
+  # Allowed characters: A-H, J-N, P-Z (no I, O) and 2-9 (no 0, 1)
+  letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ'  # No I, O
+  digits = '23456789'  # No 0, 1
+  chars = letters + digits
+
+  # Get existing test IDs
+  existing_ids = set()
+  test_suite_path = '/yaml-test-suite/src'
+  if os.path.exists(test_suite_path):
+    for filename in os.listdir(test_suite_path):
+      if filename.endswith('.yaml') and len(filename) == 9:  # 4-char ID + .yaml
+        existing_ids.add(filename[:-5])
+
+  # Generate unique ID with at least one letter and one digit
+  for _ in range(1000):  # Limit attempts
+    test_id = ''.join(random.choices(chars, k=4))
+    has_letter = any(c in letters for c in test_id)
+    has_digit = any(c in digits for c in test_id)
+    if has_letter and has_digit and test_id not in existing_ids:
+      return test_id
+
+  # Fallback (shouldn't happen with 24+8 chars and 4 positions)
+  raise ValueError("Could not generate unique test ID")
+
+def load_all_test_summaries():
+  """Load all test summaries from yaml-test-suite"""
+  import glob
+
+  test_suite_path = '/yaml-test-suite'
+
+  #Clone or update yaml-test-suite
+  if not os.path.exists(test_suite_path):
+    log(f"Cloning yaml-test-suite to {test_suite_path}")
+    result = subprocess.run(
+      ['git', 'clone', '-b', 'main', '--depth', '1',
+       'https://github.com/yaml/yaml-test-suite.git', test_suite_path],
+      capture_output=True,
+      text=True
+    )
+    if result.returncode != 0:
+      log(f"Failed to clone yaml-test-suite: {result.stderr}")
+      return []
+  else:
+    # Pull latest changes
+    log(f"Updating yaml-test-suite at {test_suite_path}")
+    result = subprocess.run(
+      ['git', '-C', test_suite_path, 'pull'],
+      capture_output=True,
+      text=True
+    )
+    if result.returncode != 0:
+      log(f"Failed to update yaml-test-suite: {result.stderr}")
+      # Continue anyway with existing data
+
+  # Load ALL tests from src/*.yaml files
+  existing_tests = []
+  test_files = glob.glob(f"{test_suite_path}/src/*.yaml")
+
+  for test_file in test_files:
+    test_id = os.path.basename(test_file)[:-5]  # Remove .yaml extension
+
+    try:
+      # Parse YAML file to extract test name and yaml content
+      import yaml
+      with open(test_file, 'r') as f:
+        tests_in_file = yaml.safe_load(f)
+
+      # Each file contains a list of test cases
+      if isinstance(tests_in_file, list) and len(tests_in_file) > 0:
+        # Use the first test in the file (usually there's only one)
+        test = tests_in_file[0]
+        test_name = test.get('name', '')
+        test_yaml = test.get('yaml', '')[:500]  # First 500 chars for context
+
+        existing_tests.append({
+          'id': test_id,
+          'name': test_name,
+          'yaml_snippet': test_yaml
+        })
+    except Exception as e:
+      # Skip files that can't be parsed
+      log(f"Skipping {test_id}: {e}")
+      continue
+
+  log(f"Loaded {len(existing_tests)} existing tests")
+  return existing_tests
+
+def analyze_yaml_test_github(yaml_content, events, is_error, model, github_token, current_test_name='', current_tags=None):
+  """Analyze YAML test using GitHub Models API or return empty for manual mode"""
+  if current_tags is None:
+    current_tags = []
+  # If no model specified, return empty for manual mode
+  if not model or not github_token:
+    log(f"Skipping LLM analysis: model='{model}', token={'present' if github_token else 'missing'}")
+    return {
+      'features': [],
+      'testName': '',  # Empty name for manual mode
+      'similarTests': [],
+      'error': ''
+    }
+
+  log(f"Starting LLM analysis with model: {model}, current_name: '{current_test_name}', current_tags: {current_tags}")
+
+  try:
+    # Load all existing tests
+    existing_tests = load_all_test_summaries()
+
+    if not existing_tests:
+      existing_tests_section = "(No existing tests loaded)"
+    else:
+      # Format existing tests for LLM (limit to first 200 for context window)
+      tests_to_show = existing_tests[:200]
+      existing_tests_section = "\n".join([
+        f"- {t['id']}: {t['name']}"
+        for t in tests_to_show
+      ])
+
+    # Build prompt
+    example_names_list = "\n".join([f"- {name}" for name in EXAMPLE_NAMES])
+
+    prompt = f"""Analyze this YAML test case and provide three things:
+
+## Task 1: Detect YAML Features
+Identify which YAML features this test exercises from this list:
+{', '.join(YAML_FEATURES)}
+
+## Task 2: Generate Test Name
+Create a descriptive test name following these conventions:
+- Use kebab-case (lowercase with hyphens)
+- Start with the primary YAML feature being tested
+- Be specific about what makes this test interesting
+- For error tests, prefix with "invalid-" or describe what's wrong
+- For spec examples, use "spec-example-X-Y-description" format
+
+Example test names:
+{example_names_list}
+
+## Task 3: Find Similar Tests
+From the existing tests below, identify up to 5 that test similar features.
+
+---
+
+## Input YAML:
+{yaml_content}
+
+## Parse Events:
+{events if events else '(none)'}
+
+## Is Error Test: {is_error}
+
+{f"## Current Test Name (for context):\n{current_test_name}\n" if current_test_name else ""}{f"## Current Tags (for context):\n{', '.join(current_tags)}\n" if current_tags else ""}
+## Existing Tests:
+{existing_tests_section}
+
+---
+
+Return ONLY valid JSON in this exact format:
+{{
+  "features": ["feature1", "feature2"],
+  "testName": "kebab-case-descriptive-name",
+  "similarTests": ["XXXX", "YYYY"]
+}}
+"""
+
+    # Call GitHub Models API
+    import time
+    start_time = time.time()
+    log(f"Calling GitHub Models API with model: {model}")
+    response = requests.post(
+      'https://models.github.ai/inference/chat/completions',
+      headers={
+        'Accept': 'application/vnd.github+json',
+        'Authorization': f'Bearer {github_token}',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json'
+      },
+      json={
+        'model': model,
+        'messages': [{'role': 'user', 'content': prompt}],
+        'max_tokens': 2000,  # Increased for DeepSeek R1's thinking process
+        'temperature': 0.7
+      },
+      timeout=60  # 60 second timeout for slower models
+    )
+    elapsed = time.time() - start_time
+    log(f"GitHub Models API responded in {elapsed:.2f} seconds with status {response.status_code}")
+
+    if response.status_code != 200:
+      error_msg = f'GitHub Models API returned {response.status_code}: {response.text}'
+      log(f"GitHub Models API error: {response.status_code} - {response.text}")
+      return {
+        'features': [],
+        'testName': '',
+        'similarTests': [],
+        'error': error_msg
+      }
+
+    response_data = response.json()
+    response_text = response_data['choices'][0]['message']['content'].strip()
+
+    # Log the raw response for debugging
+    log(f"LLM raw response length: {len(response_text)}, first 500 chars: {response_text[:500]}")
+
+    # DeepSeek R1 uses <think> tags for reasoning - strip them out
+    if '<think>' in response_text:
+      # Check if there's a closing tag
+      if '</think>' in response_text:
+        # Remove everything from <think> to </think>
+        import re
+        response_text = re.sub(r'<think>.*?</think>', '', response_text, flags=re.DOTALL)
+        response_text = response_text.strip()
+        log(f"After stripping <think> tags: {response_text[:500]}")
+      else:
+        # No closing tag - the response might be truncated by the model
+        # Try to find JSON after the think tag
+        log(f"Warning: <think> tag found but no closing </think> tag")
+        # Look for JSON starting with { after the <think>
+        json_start = response_text.find('{')
+        if json_start > 0:
+          response_text = response_text[json_start:]
+          log(f"Extracted JSON after <think>: {response_text[:500]}")
+
+    # Extract JSON from markdown code blocks if present
+    if '```json' in response_text:
+      json_start = response_text.find('```json') + 7
+      json_end = response_text.find('```', json_start)
+      response_text = response_text[json_start:json_end].strip()
+    elif '```' in response_text:
+      json_start = response_text.find('```') + 3
+      json_end = response_text.find('```', json_start)
+      response_text = response_text[json_start:json_end].strip()
+
+    # Try to find just the JSON object if there's extra text
+    if response_text.startswith('{'):
+      # Find the matching closing brace
+      brace_count = 0
+      for i, char in enumerate(response_text):
+        if char == '{':
+          brace_count += 1
+        elif char == '}':
+          brace_count -= 1
+          if brace_count == 0:
+            response_text = response_text[:i+1]
+            break
+
+    # Parse JSON response
+    try:
+      result = json.loads(response_text)
+
+      # Validate structure
+      if not isinstance(result, dict):
+        raise ValueError("Response is not a JSON object")
+      if 'testName' not in result:
+        raise ValueError("Response missing 'testName' field")
+
+      # Build similar tests with full info
+      similar_test_ids = result.get('similarTests', [])
+      similar_tests_full = []
+      for test_id in similar_test_ids[:5]:  # Limit to 5
+        test = next((t for t in existing_tests if t['id'] == test_id), None)
+        if test:
+          similar_tests_full.append({
+            'id': test['id'],
+            'name': test['name'],
+            'url': f"https://github.com/yaml/yaml-test-suite/blob/main/src/{test['id']}.yaml"
+          })
+
+      log(f"LLM analysis successful: name='{result.get('testName', '')}', features={result.get('features', [])}, similar={len(similar_tests_full)} tests")
+      return {
+        'features': result.get('features', []),
+        'testName': result.get('testName', ''),
+        'similarTests': similar_tests_full,
+        'error': ''
+      }
+
+    except (json.JSONDecodeError, ValueError) as e:
+      error_msg = f"Failed to parse LLM response as JSON: {str(e)}"
+      log(f"{error_msg}: {response_text}")
+      return {
+        'features': [],
+        'testName': '',
+        'similarTests': [],
+        'error': error_msg
+      }
+
+  except requests.Timeout:
+    error_msg = "GitHub Models API timed out after 30 seconds. The model may be slow or unavailable."
+    log(error_msg)
+    return {
+      'features': [],
+      'testName': '',
+      'similarTests': [],
+      'error': error_msg
+    }
+  except Exception as e:
+    error_msg = f"Error analyzing YAML test with GitHub Models: {str(e)}"
+    log(error_msg)
+    return {
+      'features': [],
+      'testName': '',
+      'similarTests': [],
+      'error': error_msg
+    }
+
+def generate_json(yaml_content):
+  """Generate JSON using ys -J | jq"""
+  try:
+    import tempfile
+
+    # Write yaml to temp file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+      f.write(yaml_content)
+      yaml_file = f.name
+
+    # Run ys -J | jq
+    result = subprocess.run(
+      f'ys -J {yaml_file} | jq',
+      shell=True,
+      capture_output=True,
+      text=True
+    )
+
+    os.unlink(yaml_file)
+
+    if result.returncode == 0:
+      return result.stdout.strip()
+    else:
+      log(f"Failed to generate JSON: {result.stderr}")
+      return None
+  except Exception as e:
+    log(f"Error generating JSON: {e}")
+    return None
+
+@app.route('/submit-pr', methods=['POST'])
+def submitPR():
+  import tempfile
+  import shutil
+
+  token = request.form.get('token')
+  test_id = request.form.get('testId')
+  test_name = request.form.get('testName')
+  yaml_content = request.form.get('yaml')
+  events = request.form.get('events')
+  is_error = request.form.get('isError') == 'true'
+  similar_tests_json = request.form.get('similarTests', '[]')
+  tags_json = request.form.get('tags', '[]')
+  from_attribution = request.form.get('from', '')
+
+  # Parse similar tests and tags
+  try:
+    similar_tests = json.loads(similar_tests_json)
+  except json.JSONDecodeError:
+    similar_tests = []
+
+  try:
+    tags_list = json.loads(tags_json)
+  except json.JSONDecodeError:
+    tags_list = []
+
+  try:
+    # Create temporary directory
+    with tempfile.TemporaryDirectory() as tmpdir:
+      # Clone yaml-test-suite repo (main branch)
+      repo_dir = os.path.join(tmpdir, 'yaml-test-suite')
+      result = subprocess.run(
+        ['git', 'clone', '-b', 'main', '--depth', '1',
+         'https://github.com/yaml/yaml-test-suite.git', repo_dir],
+        capture_output=True,
+        text=True
+      )
+      if result.returncode != 0:
+        raise Exception(f"Failed to clone repo: {result.stderr}")
+
+      # Build YAML test file content
+      test_yaml = f"---\n- name: {test_name}\n"
+
+      if from_attribution:
+        # Convert https://github.com/username to github:username
+        from_formatted = from_attribution.replace('https://github.com/', 'github:').replace('http://github.com/', 'github:')
+        test_yaml += f"  from: {from_formatted}\n"
+
+      if tags_list:
+        test_yaml += f"  tags: {' '.join(tags_list)}\n"
+
+      if is_error:
+        test_yaml += f"  fail: true\n"
+
+      # Add yaml content (block scalar)
+      test_yaml += f"  yaml: |\n"
+      for line in yaml_content.split('\n'):
+        test_yaml += f"    {line}\n"
+
+      # Add tree/events (block scalar)
+      if events:
+        test_yaml += f"  tree: |\n"
+        for line in events.split('\n'):
+          test_yaml += f"    {line}\n"
+
+      # For non-error tests, add json and dump placeholders
+      # (These would normally be generated by test suite tools)
+      if not is_error:
+        json_output = generate_json(yaml_content)
+        if json_output:
+          test_yaml += f"  json: |\n"
+          for line in json_output.split('\n'):
+            test_yaml += f"    {line}\n"
+
+        # dump would be canonical YAML output - placeholder for now
+        test_yaml += f"  dump: |\n"
+        for line in yaml_content.split('\n'):
+          test_yaml += f"    {line}\n"
+
+      # Write the test file
+      src_dir = os.path.join(repo_dir, 'src')
+      os.makedirs(src_dir, exist_ok=True)
+      test_file_path = os.path.join(src_dir, f'{test_id}.yaml')
+      with open(test_file_path, 'w') as f:
+        f.write(test_yaml)
+
+      # Configure git with token
+      env = os.environ.copy()
+      env['GH_TOKEN'] = token
+
+      # Create branch
+      branch_name = f"add-test-{test_id}"
+      subprocess.run(['git', 'checkout', '-b', branch_name], cwd=repo_dir, check=True)
+
+      # Add and commit
+      subprocess.run(['git', 'add', f'src/{test_id}.yaml'], cwd=repo_dir, check=True)
+      subprocess.run(
+        ['git', 'config', 'user.email', 'playground@yaml.io'],
+        cwd=repo_dir,
+        check=True
+      )
+      subprocess.run(
+        ['git', 'config', 'user.name', 'YAML Playground'],
+        cwd=repo_dir,
+        check=True
+      )
+      subprocess.run(
+        ['git', 'commit', '-m', f'Add test {test_id}: {test_name}'],
+        cwd=repo_dir,
+        check=True
+      )
+
+      # Configure git remote to use token for authentication
+      # This allows pushing without interactive password prompt
+      subprocess.run(
+        ['git', 'config', 'credential.helper', 'store'],
+        cwd=repo_dir,
+        check=True
+      )
+
+      # Use gh CLI to set up authenticated remote and push
+      # gh will automatically handle fork creation if needed
+      result = subprocess.run(
+        ['gh', 'repo', 'set-default', 'yaml/yaml-test-suite'],
+        cwd=repo_dir,
+        capture_output=True,
+        text=True,
+        env=env
+      )
+
+      result = subprocess.run(
+        ['gh', 'repo', 'fork', '--remote=false'],
+        cwd=repo_dir,
+        capture_output=True,
+        text=True,
+        env=env
+      )
+      # Fork may already exist, so don't fail if it does
+
+      # Push to user's fork using gh
+      # Get the GitHub username from the token
+      result = subprocess.run(
+        ['gh', 'api', 'user', '--jq', '.login'],
+        cwd=repo_dir,
+        capture_output=True,
+        text=True,
+        env=env
+      )
+      if result.returncode != 0:
+        raise Exception(f"Failed to get GitHub username: {result.stderr}")
+
+      username = result.stdout.strip()
+
+      # Set up remote for user's fork with token
+      fork_url = f"https://{token}@github.com/{username}/yaml-test-suite.git"
+      subprocess.run(
+        ['git', 'remote', 'add', 'fork', fork_url],
+        cwd=repo_dir,
+        capture_output=True,
+        text=True
+      )
+      # Remote may already exist, ignore error
+
+      # Push branch to fork
+      result = subprocess.run(
+        ['git', 'push', '-u', 'fork', branch_name],
+        cwd=repo_dir,
+        capture_output=True,
+        text=True,
+        env=env
+      )
+      if result.returncode != 0:
+        raise Exception(f"Failed to push branch: {result.stderr}")
+
+      # Build PR body
+      pr_body = f'Test case submitted via YAML Playground\n\nTest ID: {test_id}\nTest Name: {test_name}'
+
+      # Add similar tests section if any
+      if similar_tests:
+        pr_body += '\n\n## Similar Existing Tests\n\n'
+        pr_body += 'The following tests may cover related features:\n\n'
+        for test in similar_tests:
+          pr_body += f"- [{test['id']}: {test['name']}]({test['url']})\n"
+
+      # Create PR using gh CLI
+      # PR is from username:branch to yaml/yaml-test-suite:main
+      result = subprocess.run(
+        ['gh', 'pr', 'create',
+         '--repo', 'yaml/yaml-test-suite',
+         '--title', f'Add test {test_id}: {test_name}',
+         '--body', pr_body,
+         '--head', f'{username}:{branch_name}',
+         '--base', 'main'],
+        cwd=repo_dir,
+        capture_output=True,
+        text=True,
+        env=env
+      )
+
+      if result.returncode != 0:
+        raise Exception(f"Failed to create PR: {result.stderr}")
+
+      pr_url = result.stdout.strip()
+
+      data = {
+        'success': True,
+        'prUrl': pr_url,
+      }
+  except Exception as e:
+    log(f"Error submitting PR: {e}")
+    data = {
+      'success': False,
+      'error': str(e),
+    }
+
+  response = app.response_class(
+    response=json.dumps(data),
+    status=200,
+    mimetype='application/json'
+  )
+
+  origin = request.headers.get('Origin', '')
+  if origin.endswith('play.yaml.io') or origin.endswith('play.yaml.com'):
+    response.headers['Access-Control-Allow-Origin'] = origin
+
+  return response
+
+@app.route('/oauth/device/code', methods=['POST'])
+def oauth_device_code():
+  """Proxy: Request device code from GitHub (bypasses CORS)"""
+  try:
+    client_id = request.form.get('client_id')
+    scope = request.form.get('scope', 'public_repo')
+
+    if not client_id:
+      return app.response_class(
+        response=json.dumps({'error': 'client_id is required'}),
+        status=400,
+        mimetype='application/json'
+      )
+
+    # Request device code from GitHub
+    response = requests.post(
+      'https://github.com/login/device/code',
+      data={
+        'client_id': client_id,
+        'scope': scope
+      },
+      headers={
+        'Accept': 'application/json'
+      }
+    )
+
+    data = response.json()
+
+    result = app.response_class(
+      response=json.dumps(data),
+      status=response.status_code,
+      mimetype='application/json'
+    )
+  except Exception as e:
+    log(f"Error requesting device code: {e}")
+    result = app.response_class(
+      response=json.dumps({'error': str(e)}),
+      status=500,
+      mimetype='application/json'
+    )
+
+  origin = request.headers.get('Origin', '')
+  if origin.endswith('play.yaml.io') or origin.endswith('play.yaml.com') or 'localhost' in origin:
+    result.headers['Access-Control-Allow-Origin'] = origin
+
+  return result
+
+@app.route('/oauth/device/token', methods=['POST'])
+def oauth_device_token():
+  """Proxy: Poll for access token from GitHub (bypasses CORS)"""
+  try:
+    client_id = request.form.get('client_id')
+    device_code = request.form.get('device_code')
+    grant_type = request.form.get('grant_type', 'urn:ietf:params:oauth:grant-type:device_code')
+
+    if not client_id or not device_code:
+      return app.response_class(
+        response=json.dumps({'error': 'client_id and device_code are required'}),
+        status=400,
+        mimetype='application/json'
+      )
+
+    # Poll for access token from GitHub
+    response = requests.post(
+      'https://github.com/login/oauth/access_token',
+      data={
+        'client_id': client_id,
+        'device_code': device_code,
+        'grant_type': grant_type
+      },
+      headers={
+        'Accept': 'application/json'
+      }
+    )
+
+    data = response.json()
+
+    result = app.response_class(
+      response=json.dumps(data),
+      status=response.status_code,
+      mimetype='application/json'
+    )
+  except Exception as e:
+    log(f"Error polling for token: {e}")
+    result = app.response_class(
+      response=json.dumps({'error': str(e)}),
+      status=500,
+      mimetype='application/json'
+    )
+
+  origin = request.headers.get('Origin', '')
+  if origin.endswith('play.yaml.io') or origin.endswith('play.yaml.com') or 'localhost' in origin:
+    result.headers['Access-Control-Allow-Origin'] = origin
+
+  return result
 
 if __name__ == "__main__":
   host = '0.0.0.0'
