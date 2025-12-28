@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { previewTestPR, submitTestPR, getGitHubModels } from '../lib/sandbox';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { previewTestPR, submitTestPR, getGitHubModels, generateFinalFile } from '../lib/sandbox';
 import { getGitHubToken } from '../lib/oauth';
 import { useIsMobile } from '../hooks/useIsMobile';
 
@@ -20,71 +20,11 @@ interface SimilarTest {
   url: string;
 }
 
-// Helper: Generate preview YAML from form fields
-function generatePreview(name: string, from: string, tags: string[], yamlContent: string, events: string, isError: boolean): string {
-  let preview = '---\n';
-  preview += `- name: ${name}\n`;
-  if (from) {
-    // Convert https://github.com/username to '@username'
-    const fromFormatted = from.replace(/^https?:\/\/github\.com\//, '@');
-    preview += `  from: '${fromFormatted}'\n`;
-  }
-  preview += `  tags: ${tags.join(' ')}\n`;
-  if (isError) {
-    preview += `  fail: true\n`;
-  }
-  preview += `  yaml: |\n`;
-  yamlContent.split('\n').forEach(line => {
-    preview += `    ${line}\n`;
-  });
-  if (events) {
-    preview += `  tree: |\n`;
-    events.split('\n').forEach(line => {
-      preview += `    ${line}\n`;
-    });
-  }
-  return preview;
-}
-
-// Helper: Parse preview YAML to extract fields
-function parsePreview(previewText: string): { name: string; from: string; tags: string[] } | null {
-  try {
-    // Match name only if there's space + non-whitespace content after "- name:"
-    const nameMatch = previewText.match(/^- name: +(\S.*)$/m);
-    const fromMatch = previewText.match(/^  from: +(\S.*)$/m);
-    const tagsMatch = previewText.match(/^  tags: +(\S.*)$/m);
-
-    // Parse tags and filter out invalid ones (tags shouldn't contain special chars like : | etc)
-    let tags: string[] = [];
-    if (tagsMatch && tagsMatch[1]) {
-      tags = tagsMatch[1]
-        .trim()
-        .split(/\s+/)
-        .filter(t => t && /^[a-zA-Z0-9.-]+$/.test(t)); // Only allow alphanumeric, dots, hyphens
-    }
-
-    // Strip quotes from 'from' field if present (e.g., '@ingydotnet' -> @ingydotnet)
-    let fromValue = fromMatch ? fromMatch[1].trim() : '';
-    if (fromValue.startsWith("'") && fromValue.endsWith("'")) {
-      fromValue = fromValue.slice(1, -1);
-    }
-
-    return {
-      name: nameMatch ? nameMatch[1].trim() : '',
-      from: fromValue,
-      tags: tags,
-    };
-  } catch {
-    return null;
-  }
-}
-
 export function SubmitPRModal({ isOpen, onClose, yaml, events, isError, onConfigureModel }: SubmitPRModalProps) {
   const isMobile = useIsMobile(640);
   const [state, setState] = useState<ModalState>('generating');
   const [testId, setTestId] = useState('');
   const [testName, setTestName] = useState('');
-  const [preview, setPreview] = useState('');
   const [similarTests, setSimilarTests] = useState<SimilarTest[]>([]);
   const [prUrl, setPrUrl] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -96,6 +36,67 @@ export function SubmitPRModal({ isOpen, onClose, yaml, events, isError, onConfig
   const [modelName, setModelName] = useState<string>('');
   const [llmError, setLlmError] = useState<string>('');
   const [regeneratingSimilar, setRegeneratingSimilar] = useState(false);
+  const [finalFileContent, setFinalFileContent] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [includeJson, setIncludeJson] = useState(false);
+  const [includeDump, setIncludeDump] = useState(false);
+  const [updatingPreview, setUpdatingPreview] = useState(false);
+
+  // Copy to clipboard function
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(finalFileContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = finalFileContent;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  // Regenerate final file preview
+  const regenerateFinalFile = useCallback(async () => {
+    if (!testName.trim()) {
+      setFinalFileContent('');
+      setUpdatingPreview(false);
+      return;
+    }
+
+    setUpdatingPreview(true);
+    try {
+      const result = await generateFinalFile({
+        testName,
+        from: fromAttribution,
+        tags: selectedTags,
+        yaml,
+        events,
+        isError,
+        includeJson,
+        includeDump,
+      });
+      setFinalFileContent(result.finalFileContent);
+    } catch (error) {
+      console.error('Failed to regenerate final file:', error);
+    } finally {
+      setUpdatingPreview(false);
+    }
+  }, [testName, fromAttribution, selectedTags, yaml, events, isError, includeJson, includeDump]);
+
+  // Debounce the regeneration
+  const debouncedRegenerateFinalFile = useMemo(() => {
+    let timeoutId: NodeJS.Timeout;
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(regenerateFinalFile, 300);
+    };
+  }, [regenerateFinalFile]);
 
   // Regenerate similar tests only
   const regenerateSimilarTests = async () => {
@@ -104,17 +105,13 @@ export function SubmitPRModal({ isOpen, onClose, yaml, events, isError, onConfig
       const model = localStorage.getItem('github-model') || '';
       const githubToken = getGitHubToken() || '';
 
-      // Use current test name from preview (which may have been user-edited)
-      const parsed = parsePreview(preview);
-      const currentName = parsed?.name || testName;
-
       const result = await previewTestPR({
         yaml,
         events,
         isError,
         model,
         githubToken,
-        testName: currentName,  // Pass current name for better context
+        testName: testName,  // Pass current name for better context
         currentTags: selectedTags  // Pass current tags for better context
       });
 
@@ -134,7 +131,6 @@ export function SubmitPRModal({ isOpen, onClose, yaml, events, isError, onConfig
     setState('generating');
     setTestId('');
     setTestName('');
-    setPreview('');
     setSimilarTests([]);
     setPrUrl('');
     setErrorMessage('');
@@ -183,16 +179,10 @@ export function SubmitPRModal({ isOpen, onClose, yaml, events, isError, onConfig
           setFromAttribution(`https://github.com/${result.githubUsername}`);
         }
 
-        // Generate initial preview from form fields
-        const initialPreview = generatePreview(
-          result.testName || '',
-          result.githubUsername ? `https://github.com/${result.githubUsername}` : '',
-          result.tags || [],
-          yaml,
-          events,
-          isError
-        );
-        setPreview(initialPreview);
+        // Set final file content from server
+        if (result.finalFileContent) {
+          setFinalFileContent(result.finalFileContent);
+        }
 
         setState('preview');
       } catch (error) {
@@ -204,40 +194,19 @@ export function SubmitPRModal({ isOpen, onClose, yaml, events, isError, onConfig
     generate();
   }, [isOpen, yaml, events, isError]);
 
-  // Handle preview text changes - parse and sync to form fields
-  const handlePreviewChange = (newPreviewText: string) => {
-    setPreview(newPreviewText);
+  // Regenerate final file when dependencies change
+  useEffect(() => {
+    if (state === 'preview' && testName.trim()) {
+      debouncedRegenerateFinalFile();
+    }
+  }, [testName, selectedTags, includeJson, includeDump, state, debouncedRegenerateFinalFile]);
 
-    const parsed = parsePreview(newPreviewText);
-    // Update name from preview, tags from parsed values
-    setTestName(parsed?.name || '');
-    setFromAttribution(parsed?.from || '');
-    setSelectedTags(parsed?.tags || []);
-  };
-
-  // Handle tag toggle from dropdown - update both state and preview text
+  // Handle tag toggle from dropdown
   const handleTagToggle = (tag: string, checked: boolean) => {
     const newTags = checked
       ? [...selectedTags, tag]
       : selectedTags.filter(t => t !== tag);
     setSelectedTags(newTags);
-
-    // Update the tags line in the preview (always keep the line, even if empty)
-    const tagsLine = `  tags: ${newTags.join(' ')}`;
-    const tagsRegex = /^  tags:.*$/m;
-
-    if (preview.match(tagsRegex)) {
-      setPreview(preview.replace(tagsRegex, tagsLine));
-    } else {
-      // Insert tags line after from: or name:
-      const fromRegex = /^(  from:.*$)/m;
-      const nameRegex = /^(  name:.*$)/m;
-      if (preview.match(fromRegex)) {
-        setPreview(preview.replace(fromRegex, `$1\n${tagsLine}`));
-      } else if (preview.match(nameRegex)) {
-        setPreview(preview.replace(nameRegex, `$1\n${tagsLine}`));
-      }
-    }
   };
 
   // Debounced validation: wait 1 second after last change to validate tags
@@ -417,12 +386,17 @@ export function SubmitPRModal({ isOpen, onClose, yaml, events, isError, onConfig
                 </div>
               )}
 
-              <div className="h-[25rem]">
-                <textarea
-                  id="preview-edit"
-                  value={preview}
-                  onChange={(e) => handlePreviewChange(e.target.value)}
-                  className="w-full h-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-pre overflow-x-auto resize-none"
+              {/* Test Name Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Test Name {!testName.trim() && <span className="text-red-600">*</span>}
+                </label>
+                <input
+                  type="text"
+                  value={testName}
+                  onChange={(e) => setTestName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Multiline plain scalar in flow sequence"
                 />
               </div>
 
@@ -464,6 +438,77 @@ export function SubmitPRModal({ isOpen, onClose, yaml, events, isError, onConfig
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* Optional Fields Checkboxes */}
+              <div className="space-y-2">
+                <label className={`flex items-center ${isError ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                  <input
+                    type="checkbox"
+                    checked={includeJson}
+                    onChange={(e) => setIncludeJson(e.target.checked)}
+                    disabled={isError}
+                    className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 mr-2 disabled:cursor-not-allowed"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Include 'json' section</span>
+                </label>
+                <label className={`flex items-center ${isError ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                  <input
+                    type="checkbox"
+                    checked={includeDump}
+                    onChange={(e) => setIncludeDump(e.target.checked)}
+                    disabled={isError}
+                    className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 mr-2 disabled:cursor-not-allowed"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Include 'dump' section (canonical YAML)</span>
+                </label>
+              </div>
+
+              {/* Final File Preview */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Final File Content
+                    </label>
+                    {updatingPreview && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Updating...
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={copyToClipboard}
+                    disabled={!finalFileContent}
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {copied ? (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Copy to Clipboard
+                      </>
+                    )}
+                  </button>
+                </div>
+                <pre className="w-full h-[20rem] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-mono text-sm overflow-auto whitespace-pre">
+{finalFileContent || 'Enter a test name to see the final file content...'}
+                </pre>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  This is the exact file that will be submitted to yaml-test-suite.
+                </p>
               </div>
 
               {/* Similar Tests Section */}

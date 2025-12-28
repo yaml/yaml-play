@@ -30,6 +30,9 @@ import { useIsMobile, useIsLandscape } from '../hooks/useIsMobile';
 import { useGitHubAuth } from '../hooks/useGitHubAuth';
 import { getParser } from '../lib/parsers';
 import { checkSandboxAvailable } from '../lib/sandbox';
+import packageJson from '../../package.json';
+
+const VERSION = packageJson.version;
 
 // Read YAML from URL hash (base64 encoded)
 function getYamlFromUrl(): string | null {
@@ -60,7 +63,7 @@ export default function App() {
   const [selectedCompareParser, setSelectedCompareParser] = useState<string | null>(null);
   const [testFormatOpen, setTestFormatOpen] = useState(false);
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
-  const [sandboxAvailable, setSandboxAvailable] = useState(true);
+  const [sandboxAvailable, setSandboxAvailable] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const inputPaneRef = useRef<InputPaneHandle>(null);
   const secretKeyRef = useRef<string>('');
@@ -391,7 +394,7 @@ export default function App() {
     <div className={`h-screen flex flex-col bg-gray-100 dark:bg-gray-900 ${colorScheme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-300 dark:border-gray-700 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">YAML Parser Playground</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white">YAML Parser Playground {VERSION}</h1>
         <div className="flex items-center gap-2">
           {(!sandboxAvailable || hasVersionMismatch) && (
             <button

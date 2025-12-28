@@ -257,11 +257,27 @@ def previewPR():
   if is_error:
     preview += "\n--- error\n"
 
+  # Generate final file content (without json/dump by default)
+  final_file_content = None
+  if test_name:
+    from_attribution = f"https://github.com/{github_username}" if github_username else ''
+    final_file_content = generate_test_file_content(
+      test_name,
+      from_attribution,
+      tags,
+      is_error,
+      yaml_content,
+      events,
+      include_json=False,  # Default to not including json
+      include_dump=False   # Default to not including dump
+    )
+
   data = {
     'testId': test_id,
     'testName': test_name,
     'tags': tags,
     'preview': preview,
+    'finalFileContent': final_file_content,
     'similarTests': similar_tests,
     'githubUsername': github_username,
     'json': json_output,
@@ -362,11 +378,13 @@ def load_all_test_summaries():
         test = tests_in_file[0]
         test_name = test.get('name', '')
         test_yaml = test.get('yaml', '')[:500]  # First 500 chars for context
+        test_tags = test.get('tags', '')  # Get tags as space-separated string
 
         existing_tests.append({
           'id': test_id,
           'name': test_name,
-          'yaml_snippet': test_yaml
+          'yaml_snippet': test_yaml,
+          'tags': test_tags
         })
     except Exception as e:
       # Skip files that can't be parsed
@@ -402,7 +420,7 @@ def analyze_yaml_test_github(yaml_content, events, is_error, model, github_token
       # Format existing tests for LLM (limit to first 200 for context window)
       tests_to_show = existing_tests[:200]
       existing_tests_section = "\n".join([
-        f"- {t['id']}: {t['name']}"
+        f"- {t['id']}: {t['name']} [tags: {t.get('tags', 'none')}]"
         for t in tests_to_show
       ])
 
@@ -428,6 +446,7 @@ Example test names:
 
 ## Task 3: Find Similar Tests
 From the existing tests below, identify up to 5 that test similar features.
+Look for tests with overlapping tags and similar feature sets.
 
 ---
 
@@ -594,33 +613,147 @@ Return ONLY valid JSON in this exact format:
     }
 
 def generate_json(yaml_content):
-  """Generate JSON using ys -J | jq"""
+  """Generate JSON from YAML using Python"""
   try:
-    import tempfile
+    import yaml as pyyaml
+    import json
 
-    # Write yaml to temp file
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-      f.write(yaml_content)
-      yaml_file = f.name
-
-    # Run ys -J | jq
-    result = subprocess.run(
-      f'ys -J {yaml_file} | jq',
-      shell=True,
-      capture_output=True,
-      text=True
-    )
-
-    os.unlink(yaml_file)
-
-    if result.returncode == 0:
-      return result.stdout.strip()
-    else:
-      log(f"Failed to generate JSON: {result.stderr}")
-      return None
+    # Parse YAML and convert to JSON
+    data = pyyaml.safe_load(yaml_content)
+    return json.dumps(data, indent=2)
   except Exception as e:
     log(f"Error generating JSON: {e}")
     return None
+
+def transform_events_to_tree(events):
+  """Transform flat events to indented tree format"""
+  level = 0
+  lines = []
+  for line in events.split('\n'):
+    trimmed = line.strip()
+    if not trimmed:
+      continue
+
+    # Decrease level for closing tags
+    if trimmed.startswith('-'):
+      level = max(0, level - 1)
+
+    indented = ' ' * level + trimmed
+
+    # Increase level for opening tags
+    if trimmed.startswith('+'):
+      level += 1
+
+    lines.append(indented)
+  return '\n'.join(lines)
+
+def generate_test_file_content(test_name, from_attribution, tags_list, is_error, yaml_content, events, include_json=False, include_dump=False):
+  """Generate the exact test file content that would be submitted to yaml-test-suite.
+
+  Args:
+    test_name: Name of the test
+    from_attribution: Attribution URL (e.g., https://github.com/username)
+    tags_list: List of tags
+    is_error: Whether this is an error test
+    yaml_content: YAML content to test
+    events: Parser events
+    include_json: Whether to include JSON output (default: False)
+    include_dump: Whether to include dump output (default: False)
+
+  Returns:
+    String containing the complete YAML test file content
+  """
+  test_yaml = f"---\n- name: {test_name}\n"
+
+  if from_attribution:
+    # Convert https://github.com/username to github:username
+    from_formatted = from_attribution.replace('https://github.com/', 'github:').replace('http://github.com/', 'github:')
+    test_yaml += f"  from: {from_formatted}\n"
+
+  if tags_list:
+    test_yaml += f"  tags: {' '.join(tags_list)}\n"
+
+  if is_error:
+    test_yaml += f"  fail: true\n"
+
+  # Add yaml content (block scalar)
+  test_yaml += f"  yaml: |\n"
+  for line in yaml_content.split('\n'):
+    test_yaml += f"    {line}\n"
+
+  # Add tree/events (block scalar)
+  if events:
+    test_yaml += f"  tree: |\n"
+    tree = transform_events_to_tree(events)
+    for line in tree.split('\n'):
+      test_yaml += f"    {line}\n"
+
+  # For non-error tests, optionally add json and dump
+  if not is_error:
+    if include_json:
+      json_output = generate_json(yaml_content)
+      test_yaml += f"  json: |\n"
+      if json_output:
+        for line in json_output.split('\n'):
+          test_yaml += f"    {line}\n"
+      else:
+        test_yaml += f"    # JSON generation failed - YAML may be invalid or unsupported\n"
+
+    if include_dump:
+      # dump would be canonical YAML output - placeholder for now
+      test_yaml += f"  dump: |\n"
+      for line in yaml_content.split('\n'):
+        test_yaml += f"    {line}\n"
+
+  return test_yaml
+
+@app.route('/generate-final-file', methods=['POST'])
+def generateFinalFile():
+  """Generate the exact final test file content.
+
+  This is a lightweight endpoint that just generates the file content
+  without the expensive LLM analysis or git operations.
+  """
+  test_name = request.form.get('testName', '')
+  from_attribution = request.form.get('from', '')
+  tags_json = request.form.get('tags', '[]')
+  yaml_content = request.form.get('yaml', '')
+  events = request.form.get('events', '')
+  is_error = request.form.get('isError') == 'true'
+  include_json = request.form.get('includeJson') == 'true'
+  include_dump = request.form.get('includeDump') == 'true'
+
+  try:
+    tags_list = json.loads(tags_json)
+  except json.JSONDecodeError:
+    tags_list = []
+
+  final_content = generate_test_file_content(
+    test_name,
+    from_attribution,
+    tags_list,
+    is_error,
+    yaml_content,
+    events,
+    include_json,
+    include_dump
+  )
+
+  data = {
+    'finalFileContent': final_content,
+  }
+
+  response = app.response_class(
+    response=json.dumps(data),
+    status=200,
+    mimetype='application/json'
+  )
+
+  origin = request.headers.get('Origin', '')
+  if origin.endswith('play.yaml.io') or origin.endswith('play.yaml.com') or 'localhost' in origin:
+    response.headers['Access-Control-Allow-Origin'] = origin
+
+  return response
 
 @app.route('/submit-pr', methods=['POST'])
 def submitPR():
@@ -662,44 +795,18 @@ def submitPR():
       if result.returncode != 0:
         raise Exception(f"Failed to clone repo: {result.stderr}")
 
-      # Build YAML test file content
-      test_yaml = f"---\n- name: {test_name}\n"
-
-      if from_attribution:
-        # Convert https://github.com/username to github:username
-        from_formatted = from_attribution.replace('https://github.com/', 'github:').replace('http://github.com/', 'github:')
-        test_yaml += f"  from: {from_formatted}\n"
-
-      if tags_list:
-        test_yaml += f"  tags: {' '.join(tags_list)}\n"
-
-      if is_error:
-        test_yaml += f"  fail: true\n"
-
-      # Add yaml content (block scalar)
-      test_yaml += f"  yaml: |\n"
-      for line in yaml_content.split('\n'):
-        test_yaml += f"    {line}\n"
-
-      # Add tree/events (block scalar)
-      if events:
-        test_yaml += f"  tree: |\n"
-        for line in events.split('\n'):
-          test_yaml += f"    {line}\n"
-
-      # For non-error tests, add json and dump placeholders
-      # (These would normally be generated by test suite tools)
-      if not is_error:
-        json_output = generate_json(yaml_content)
-        if json_output:
-          test_yaml += f"  json: |\n"
-          for line in json_output.split('\n'):
-            test_yaml += f"    {line}\n"
-
-        # dump would be canonical YAML output - placeholder for now
-        test_yaml += f"  dump: |\n"
-        for line in yaml_content.split('\n'):
-          test_yaml += f"    {line}\n"
+      # Build YAML test file content using helper function
+      # For submitPR, always include json and dump for non-error tests
+      test_yaml = generate_test_file_content(
+        test_name,
+        from_attribution,
+        tags_list,
+        is_error,
+        yaml_content,
+        events,
+        include_json=True,  # Always include json when submitting
+        include_dump=True   # Always include dump when submitting
+      )
 
       # Write the test file
       src_dir = os.path.join(repo_dir, 'src')

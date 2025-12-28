@@ -134,6 +134,7 @@ export async function previewTestPR(data: {
   testName: string;
   tags: string[];
   preview: string;
+  finalFileContent: string | null;
   similarTests: Array<{ id: string; name: string; url: string }>;
   githubUsername: string | null;
   json: string | null;
@@ -165,6 +166,47 @@ export async function previewTestPR(data: {
 
   if (!response.ok) {
     throw new Error(`Failed to preview PR: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+/**
+ * Generate the exact final file content for preview
+ * This is a lightweight endpoint without LLM processing
+ */
+export async function generateFinalFile(data: {
+  testName: string;
+  from: string;
+  tags: string[];
+  yaml: string;
+  events: string;
+  isError: boolean;
+  includeJson?: boolean;
+  includeDump?: boolean;
+}): Promise<{ finalFileContent: string }> {
+  const url = `${SANDBOX_URL}/generate-final-file`;
+
+  const formData = new URLSearchParams();
+  formData.append('testName', data.testName);
+  formData.append('from', data.from);
+  formData.append('tags', JSON.stringify(data.tags));
+  formData.append('yaml', data.yaml);
+  formData.append('events', data.events);
+  formData.append('isError', data.isError ? 'true' : 'false');
+  formData.append('includeJson', data.includeJson ? 'true' : 'false');
+  formData.append('includeDump', data.includeDump ? 'true' : 'false');
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to generate final file: ${response.statusText}`);
   }
 
   return await response.json();
