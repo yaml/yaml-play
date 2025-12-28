@@ -126,12 +126,17 @@ testsuite-build: $(TESTSUITE-DIR)
 frontend-deps: $(NODE)
 	cd $(FRONTEND) && $(NPM) install
 
-frontend-dev: frontend-deps refparser-build testsuite-build
+sync-version:
+	@VERSION=$$(cat VERSION); \
+	sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"$$VERSION\"/" $(FRONTEND)/package.json && \
+	rm -f $(FRONTEND)/package.json.bak
+
+frontend-dev: sync-version frontend-deps refparser-build testsuite-build
 	$(eval override DOCKER-CID := $$(shell $$(SANDBOX-RUN)))
 	cd $(FRONTEND) && $(NPM) run dev; \
 	docker kill $(DOCKER-CID)
 
-frontend-build: frontend-deps refparser-build testsuite-build
+frontend-build: sync-version frontend-deps refparser-build testsuite-build
 	cd $(FRONTEND) && $(NPM) run build
 
 #------------------------------------------------------------------------------
