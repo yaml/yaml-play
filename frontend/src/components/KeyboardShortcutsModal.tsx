@@ -46,10 +46,8 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
             <span className="text-gray-600 dark:text-gray-300 self-center">Clear input and focus</span>
             <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">A</kbd>
             <span className="text-gray-600 dark:text-gray-300 self-center">Show all panes</span>
-            <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">N</kbd>
-            <span className="text-gray-600 dark:text-gray-300 self-center">Hide all panes</span>
             <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">D</kbd>
-            <span className="text-gray-600 dark:text-gray-300 self-center">Show differing panes</span>
+            <span className="text-gray-600 dark:text-gray-300 self-center">Select differing panes</span>
             <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">S</kbd>
             <span className="text-gray-600 dark:text-gray-300 self-center">Show your selected panes</span>
             <kbd className="bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-gray-800 dark:text-gray-200 font-mono">U</kbd>

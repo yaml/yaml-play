@@ -172,6 +172,13 @@ export function useLayoutPersistence() {
     }));
   }, []);
 
+  const selectPanes = useCallback((ids: string[]) => {
+    setLayout(prev => ({
+      ...prev,
+      selectedPaneIds: ids,
+    }));
+  }, []);
+
   const showErrorPanes = useCallback((errorPaneIds: string[]) => {
     setLayout(prev => {
       const errorIds = new Set(errorPaneIds);
@@ -274,6 +281,7 @@ export function useLayoutPersistence() {
     hideAllPanes,
     showSelectedPanes,
     clearSelectedPanes,
+    selectPanes,
     showErrorPanes,
     showOnlyPanes,
     addPaneAfter,

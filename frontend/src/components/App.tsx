@@ -123,6 +123,7 @@ export default function App() {
     hideAllPanes,
     showSelectedPanes,
     clearSelectedPanes,
+    selectPanes,
     showErrorPanes,
     showOnlyPanes,
     getVisiblePanes,
@@ -259,11 +260,6 @@ export default function App() {
         e.preventDefault();
         showAllPanes();
       }
-      // N for hide all panes (None)
-      if (key === 'N' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        e.preventDefault();
-        hideAllPanes();
-      }
       // S for show Selected panes
       if (key === 'S' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
@@ -308,19 +304,19 @@ export default function App() {
           secretKeyRef.current = '';
         }
       }
-      // D for show Differing panes
+      // D for select Differing panes
       if (key === 'D' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
-        // Find all panes that differ from refparse
-        const differingPaneIds: string[] = [];
-        results.forEach((result, id) => {
-          if (id !== 'refparse' && result.agrees === false) {
-            differingPaneIds.push(id);
+        const differingIds: string[] = [];
+        visiblePanes.forEach(pane => {
+          if (pane.id !== 'refparse') {
+            const result = getResult(pane.id);
+            if (result && result.agrees === false) {
+              differingIds.push(pane.id);
+            }
           }
         });
-        if (differingPaneIds.length > 0) {
-          showErrorPanes(differingPaneIds);
-        }
+        selectPanes(differingIds);
       }
       // Secret shortcut: XXX for factory reset
       if (key === 'X' && !e.ctrlKey && !e.metaKey && !e.altKey) {
