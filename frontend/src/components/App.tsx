@@ -81,16 +81,10 @@ function cleanShowParam(validIds: string[] | null) {
   window.history.replaceState(null, '', newUrl);
 }
 
-// Remove ?show= parameter from URL
-function clearShowParam() {
-  const params = new URLSearchParams(window.location.search);
-  if (!params.has('show')) return;
-
-  params.delete('show');
-  const newSearch = params.toString();
-  const newUrl = newSearch
-    ? `?${newSearch}${window.location.hash}`
-    : `${window.location.pathname}${window.location.hash}`;
+// Update URL ?show= parameter to reflect visible panes
+function updateShowParam(visibleIds: string[]) {
+  const showValue = visibleIds.join(',');
+  const newUrl = `?show=${showValue}${window.location.hash}`;
   window.history.replaceState(null, '', newUrl);
 }
 
@@ -196,6 +190,14 @@ export default function App() {
     return () => clearTimeout(timeout);
   }, [yamlInput]);
 
+  // Keep URL ?show= parameter in sync with visible panes
+  useEffect(() => {
+    const visibleIds = visiblePanes.map(p => p.id);
+    if (visibleIds.length > 0) {
+      updateShowParam(visibleIds);
+    }
+  }, [visiblePaneIds, visiblePanes]);
+
   // Run parsers when input changes (debounced)
   useEffect(() => {
     // Skip if nothing changed
@@ -255,19 +257,16 @@ export default function App() {
       // A for show All panes
       if (key === 'A' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
-        clearShowParam();
         showAllPanes();
       }
       // N for hide all panes (None)
       if (key === 'N' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
-        clearShowParam();
         hideAllPanes();
       }
       // S for show Selected panes
       if (key === 'S' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
-        clearShowParam();
         showSelectedPanes();
       }
       // U for Unselect all panes (clear all checkboxes)
@@ -466,10 +465,7 @@ export default function App() {
           <HeaderMenu
             onHelp={() => setHelpOpen(true)}
             onOptions={() => setOptionsOpen(true)}
-            onAllPanes={() => {
-              clearShowParam();
-              showAllPanes();
-            }}
+            onAllPanes={showAllPanes}
             onUnselectAll={clearSelectedPanes}
             onTestFormat={() => setTestFormatOpen(true)}
             onKeyboardShortcuts={() => setShortcutsOpen(true)}
