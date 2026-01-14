@@ -197,6 +197,20 @@ export function useLayoutPersistence() {
     });
   }, []);
 
+  const showOnlyPanes = useCallback((idsToShow: string[]) => {
+    setLayout(prev => {
+      const showSet = new Set(idsToShow);
+      return {
+        ...prev,
+        panes: prev.panes.map((pane, index) => ({
+          ...pane,
+          visible: showSet.has(pane.id),
+          order: showSet.has(pane.id) ? idsToShow.indexOf(pane.id) : index + 100,
+        })),
+      };
+    });
+  }, []);
+
   const addPaneAfter = useCallback((afterId: string, paneId: string) => {
     setLayout(prev => {
       const afterPane = prev.panes.find(p => p.id === afterId);
@@ -261,6 +275,7 @@ export function useLayoutPersistence() {
     showSelectedPanes,
     clearSelectedPanes,
     showErrorPanes,
+    showOnlyPanes,
     addPaneAfter,
     getVisiblePanes,
     inputPaneWidth: layout.inputPaneWidth ?? 400,

@@ -5,7 +5,7 @@ export const parsers: ParserInfo[] = [
   {
     id: 'refparse',
     name: 'Reference Parser',
-    version: 'f003194',
+    version: 'f00319457419feacddf743d75eb317dacf5caf4b',
     repo: 'https://github.com/yaml/yaml-reference-parser',
     language: 'JavaScript',
     isJavaScript: true,
@@ -13,7 +13,7 @@ export const parsers: ParserInfo[] = [
   {
     id: 'npmyaml',
     name: 'eemeli/yaml',
-    version: '2.8.1',
+    version: '2.8.2',
     repo: 'https://github.com/eemeli/yaml',
     language: 'JavaScript',
     isJavaScript: true,
@@ -34,20 +34,20 @@ export const parsers: ParserInfo[] = [
   {
     id: 'ruamel',
     name: 'ruamel.yaml',
-    version: '0.18.16',
+    version: '0.18.17',
     language: 'Python',
   },
   {
     id: 'goyaml',
     name: 'go-yaml',
-    version: '94c6e9d',
+    version: 'main',
     repo: 'https://github.com/pantoniou/yaml',
     language: 'Go',
   },
   {
     id: 'libfyaml',
     name: 'libfyaml',
-    version: '0.9',
+    version: '0.9.1',
     repo: 'https://github.com/pantoniou/libfyaml',
     language: 'C',
   },
@@ -82,7 +82,7 @@ export const parsers: ParserInfo[] = [
   {
     id: 'dotnet',
     name: 'YamlDotNet',
-    version: '11.2.1',
+    version: '16.3.0',
     repo: 'https://github.com/aaubry/YamlDotNet',
     language: 'C#',
   },
@@ -96,7 +96,7 @@ export const parsers: ParserInfo[] = [
   {
     id: 'nimyaml',
     name: 'NimYAML',
-    version: '1.0.0',
+    version: '2.2.1',
     repo: 'https://github.com/flyx/NimYAML',
     language: 'Nim',
   },
@@ -109,14 +109,14 @@ export const parsers: ParserInfo[] = [
   {
     id: 'hsyaml',
     name: 'HsYAML',
-    version: '0.2.1.1',
+    version: '0.2.1.5',
     repo: 'https://github.com/haskell-hvr/HsYAML',
     language: 'Haskell',
   },
   {
     id: 'refhs',
     name: 'yamlreference',
-    version: 'bf471f8',
+    version: 'bf471f804ccd014fcdded3a8c74c338df8f33c85',
     repo: 'https://github.com/orenbenkiki/yamlreference',
     language: 'Haskell',
   },

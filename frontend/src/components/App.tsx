@@ -51,6 +51,49 @@ function updateUrlHash(yaml: string) {
   window.history.replaceState(null, '', `#${hash}`);
 }
 
+// Read parsers from URL query parameter ?show=
+function getParsersFromUrl(): string[] | null {
+  const params = new URLSearchParams(window.location.search);
+  const show = params.get('show');
+  if (!show) return null;
+
+  const requested = show.split(',').map(s => s.trim()).filter(Boolean);
+  const valid = requested.filter(id => getParser(id));
+  return valid.length > 0 ? valid : null;
+}
+
+// Clean up invalid parser IDs from URL
+function cleanShowParam(validIds: string[] | null) {
+  const params = new URLSearchParams(window.location.search);
+  const originalShow = params.get('show');
+  if (!originalShow) return;
+
+  if (validIds && validIds.length > 0) {
+    params.set('show', validIds.join(','));
+  } else {
+    params.delete('show');
+  }
+
+  const newSearch = params.toString();
+  const newUrl = newSearch
+    ? `?${newSearch}${window.location.hash}`
+    : `${window.location.pathname}${window.location.hash}`;
+  window.history.replaceState(null, '', newUrl);
+}
+
+// Remove ?show= parameter from URL
+function clearShowParam() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('show')) return;
+
+  params.delete('show');
+  const newSearch = params.toString();
+  const newUrl = newSearch
+    ? `?${newSearch}${window.location.hash}`
+    : `${window.location.pathname}${window.location.hash}`;
+  window.history.replaceState(null, '', newUrl);
+}
+
 export default function App() {
   const [yamlInput, setYamlInput] = useState(() => {
     return getYamlFromUrl() || DEFAULT_YAML;
@@ -87,6 +130,7 @@ export default function App() {
     showSelectedPanes,
     clearSelectedPanes,
     showErrorPanes,
+    showOnlyPanes,
     getVisiblePanes,
     inputPaneWidth,
     setInputPaneWidth,
@@ -123,6 +167,18 @@ export default function App() {
     const interval = setInterval(checkSandbox, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  // Initialize visible panes from URL ?show= parameter
+  useEffect(() => {
+    const urlParsers = getParsersFromUrl();
+    cleanShowParam(urlParsers);
+    if (urlParsers) {
+      // Always include refparse, filter it out from URL list if present to avoid duplicates
+      const uniqueParsers = ['refparse', ...urlParsers.filter(id => id !== 'refparse')];
+      showOnlyPanes(uniqueParsers);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   // Ensure refparse is always visible and first
   useEffect(() => {
@@ -199,16 +255,19 @@ export default function App() {
       // A for show All panes
       if (key === 'A' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
+        clearShowParam();
         showAllPanes();
       }
       // N for hide all panes (None)
       if (key === 'N' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
+        clearShowParam();
         hideAllPanes();
       }
       // S for show Selected panes
       if (key === 'S' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
+        clearShowParam();
         showSelectedPanes();
       }
       // U for Unselect all panes (clear all checkboxes)
@@ -407,7 +466,10 @@ export default function App() {
           <HeaderMenu
             onHelp={() => setHelpOpen(true)}
             onOptions={() => setOptionsOpen(true)}
-            onAllPanes={showAllPanes}
+            onAllPanes={() => {
+              clearShowParam();
+              showAllPanes();
+            }}
             onUnselectAll={clearSelectedPanes}
             onTestFormat={() => setTestFormatOpen(true)}
             onKeyboardShortcuts={() => setShortcutsOpen(true)}

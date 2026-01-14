@@ -23,6 +23,8 @@ override export PATH := $(ROOT)/bin:$(PATH)
 
 include Config.mk
 
+RUNTIMES_CONFIG := ../yaml-test-runtimes/Config.mk
+
 #------------------------------------------------------------------------------
 # Variables
 #------------------------------------------------------------------------------
@@ -131,12 +133,19 @@ sync-version:
 	sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"$$VERSION\"/" $(FRONTEND)/package.json && \
 	rm -f $(FRONTEND)/package.json.bak
 
-frontend-dev: sync-version frontend-deps refparser-build testsuite-build
+sync-parsers:
+	@if [ -f $(RUNTIMES_CONFIG) ]; then \
+		bin/sync-parser-versions $(RUNTIMES_CONFIG) $(FRONTEND)/src/lib/parsers.ts; \
+	else \
+		echo "Warning: $(RUNTIMES_CONFIG) not found, skipping parser version sync"; \
+	fi
+
+frontend-dev: sync-version sync-parsers frontend-deps refparser-build testsuite-build
 	$(eval override DOCKER-CID := $$(shell $$(SANDBOX-RUN)))
 	cd $(FRONTEND) && $(NPM) run dev; \
 	docker kill $(DOCKER-CID)
 
-frontend-build: sync-version frontend-deps refparser-build testsuite-build
+frontend-build: sync-version sync-parsers frontend-deps refparser-build testsuite-build
 	cd $(FRONTEND) && $(NPM) run build
 
 #------------------------------------------------------------------------------
