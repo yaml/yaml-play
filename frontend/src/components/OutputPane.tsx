@@ -116,7 +116,7 @@ export function OutputPane({
         }}
         showTestSuite={showTestSuite}
         output={result?.output}
-        parseSuccess={result ? result.status === 0 : undefined}
+        parseSuccess={result?.matches}
         isSelected={isSelected}
         onToggleSelection={onToggleSelection}
       />
