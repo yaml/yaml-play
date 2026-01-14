@@ -6,6 +6,10 @@ from flask import request
 from flask_cors import CORS
 import subprocess
 import requests
+import signal
+
+# Auto-reap zombie children (important since this runs as PID 1 in Docker)
+signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
 GITHUB_CLIENT_ID = 'Ov23liRrgge8JKovPTxm'
 
