@@ -57,7 +57,7 @@ features:
 `;
 
 const MIN_WIDTH = 200;
-const MAX_WIDTH = 800;
+const MAX_WIDTH = 1600;
 
 export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function InputPane(
   { value, onChange, width, onWidthChange, colorScheme, editorType, showBorder = true, heightMode = 'full', isMobile = false, onSubmitPR, onSignIn, isGitHubAuthenticated = false },

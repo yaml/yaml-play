@@ -286,7 +286,7 @@ export function useLayoutPersistence() {
     showOnlyPanes,
     addPaneAfter,
     getVisiblePanes,
-    inputPaneWidth: layout.inputPaneWidth ?? 400,
+    inputPaneWidth: layout.inputPaneWidth ?? 600,
     setInputPaneWidth,
     colorScheme: (layout.colorScheme === 'dark' ? 'dark' : 'light') as ColorScheme,
     setColorScheme,
