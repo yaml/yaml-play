@@ -1,0 +1,117 @@
+#!/usr/bin/env perl
+# Sync parser versions from yaml-test-runtimes Config.mk to parsers.ts
+
+use strict;
+use warnings;
+
+my $config_file = $ARGV[0] or die "Usage: $0 <config-file> <parsers-ts-file>\n";
+my $parsers_file = $ARGV[1] or die "Usage: $0 <config-file> <parsers-ts-file>\n";
+
+die "Config file not found: $config_file\n" unless -f $config_file;
+die "Parsers file not found: $parsers_file\n" unless -f $parsers_file;
+
+# Parse Config.mk to extract TAG_* and REPO_* variables
+my %tags;
+my %repos;
+
+open(my $fh, '<', $config_file) or die "Cannot open $config_file: $!\n";
+while (my $line = <$fh>) {
+    chomp $line;
+    # Match TAG_<NAME> := <value>
+    if ($line =~ /^TAG_(\w+)\s*:=\s*(.+)$/) {
+        my ($name, $value) = ($1, $2);
+        $value =~ s/^\s+|\s+$//g;  # Trim whitespace
+        $tags{$name} = $value;
+    }
+    # Match REPO_<NAME> := <value>
+    if ($line =~ /^REPO_(\w+)\s*:=\s*(.+)$/) {
+        my ($name, $value) = ($1, $2);
+        $value =~ s/^\s+|\s+$//g;  # Trim whitespace
+        $repos{$name} = $value;
+    }
+}
+close($fh);
+
+# Map uppercase runtime names to lowercase parser IDs
+my %name_map = (
+    'REFPARSE' => 'refparse',
+    'NPMYAML'  => 'npmyaml',
+    'LIBYAML'  => 'libyaml',
+    'PYYAML'   => 'pyyaml',
+    'RUAMEL'   => 'ruamel',
+    'GOYAML'   => 'goyaml',
+    'LIBFYAML' => 'libfyaml',
+    'RAPID'    => 'rapid',
+    'RUSTYAML' => 'rustyaml',
+    'SNAKE'    => 'snake',
+    'SNAKEENG' => 'snakeeng',
+    'DOTNET'   => 'dotnet',
+    'LUAYAML'  => 'luayaml',
+    'NIMYAML'  => 'nimyaml',
+    'PPYAML'   => 'ppyaml',
+    'HSYAML'   => 'hsyaml',
+    'REFHS'    => 'refhs',
+);
+
+# Build version lookup by parser ID
+my %versions;
+for my $upper_name (keys %name_map) {
+    my $parser_id = $name_map{$upper_name};
+    if (exists $tags{$upper_name}) {
+        my $version = $tags{$upper_name};
+        # Strip 'v' prefix if present (e.g., v0.9.1 -> 0.9.1)
+        $version =~ s/^v//;
+        # Handle SnakeYAML special format (e.g., snakeyaml-2.5 -> 2.5)
+        # Check for snakeyaml-engine first, then snakeyaml
+        $version =~ s/^snakeyaml-engine-//;
+        $version =~ s/^snakeyaml-//;
+        $versions{$parser_id} = $version;
+    }
+}
+
+# Read parsers.ts file
+open(my $pfh, '<', $parsers_file) or die "Cannot open $parsers_file: $!\n";
+my @lines = <$pfh>;
+close($pfh);
+
+# Track updates
+my $updated = 0;
+
+# Update version strings in parsers.ts
+for (my $i = 0; $i < @lines; $i++) {
+    my $line = $lines[$i];
+
+    # Look for id: 'parser-id',
+    if ($line =~ /id:\s*'(\w+)'/) {
+        my $parser_id = $1;
+
+        # If we have a version for this parser, look ahead for version line
+        if (exists $versions{$parser_id}) {
+            # Search next few lines for version
+            for (my $j = $i + 1; $j < $i + 10 && $j < @lines; $j++) {
+                if ($lines[$j] =~ /^(\s*)version:\s*'([^']*)'(.*)$/) {
+                    my ($indent, $old_version, $rest) = ($1, $2, $3);
+                    my $new_version = $versions{$parser_id};
+
+                    if ($old_version ne $new_version) {
+                        $lines[$j] = "${indent}version: '$new_version'$rest\n";
+                        print "Updated $parser_id: $old_version -> $new_version\n";
+                        $updated++;
+                    }
+                    last;
+                }
+            }
+        }
+    }
+}
+
+# Write back to file
+open(my $wfh, '>', $parsers_file) or die "Cannot write to $parsers_file: $!\n";
+print $wfh @lines;
+close($wfh);
+
+if ($updated > 0) {
+    print "✓ Updated $updated parser version(s) in $parsers_file\n";
+} else {
+    print "✓ All parser versions are up to date\n";
+}
