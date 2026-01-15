@@ -269,6 +269,7 @@ export const InputPane = forwardRef<InputPaneHandle, InputPaneProps>(function In
             options={{
               minimap: { enabled: false },
               fontSize: 14,
+              fontFamily: "'Consolas', 'Monaco', 'Courier New', monospace",
               lineNumbers: 'on',
               renderWhitespace: 'all',
               tabSize: 4,
