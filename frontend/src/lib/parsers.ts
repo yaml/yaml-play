@@ -47,7 +47,7 @@ export const parsers: ParserInfo[] = [
   {
     id: 'libfyaml',
     name: 'libfyaml',
-    version: '0.9.1',
+    version: '0.9.4',
     repo: 'https://github.com/pantoniou/libfyaml',
     language: 'C',
   },

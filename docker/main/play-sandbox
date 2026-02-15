@@ -8,8 +8,8 @@ import subprocess
 import requests
 import signal
 
-# Auto-reap zombie children (important since this runs as PID 1 in Docker)
-signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+# Note: subprocess.run() already waits for and reaps each child process synchronously,
+# so no special zombie handling is needed here.
 
 GITHUB_CLIENT_ID = 'Ov23liRrgge8JKovPTxm'
 

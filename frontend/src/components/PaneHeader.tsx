@@ -89,11 +89,12 @@ export function PaneHeader({
 
   // Border matches background unless disagreeing
   // Same colors for light and dark mode
+  // When agrees is true, show green border even if parseSuccess is false (invalid YAML but all parsers agree)
   const borderColor = showDisagreeBorder
     ? 'border-red-600'
     : loading || parseSuccess === undefined
     ? 'border-gray-300'
-    : parseSuccess
+    : agrees !== false
     ? 'border-green-300'
     : 'border-red-300';
 
