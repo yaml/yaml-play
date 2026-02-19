@@ -48,7 +48,7 @@ SANDBOX-RUN := \
 #------------------------------------------------------------------------------
 # Main targets
 #------------------------------------------------------------------------------
-.PHONY: build site serve
+.PHONY: build site
 
 build: frontend-build
 	$(RM) -r $(BUILD) $(SITE)
@@ -127,6 +127,9 @@ testsuite-build: $(TESTSUITE-DIR)
 
 frontend-deps: $(NODE)
 	cd $(FRONTEND) && $(NPM) install
+
+update: $(NODE)
+	cd $(FRONTEND) && $(NPM) update
 
 sync-version:
 	@VERSION=$$(cat VERSION); \

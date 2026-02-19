@@ -99,6 +99,7 @@ export function useLayoutPersistence() {
 
       // Update order numbers
       return {
+        ...prev,
         panes: panes.map((p, i) => ({ ...p, order: i })),
       };
     });

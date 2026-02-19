@@ -128,5 +128,63 @@ export const getParser = (id: string): ParserInfo | undefined => {
 
 // Default visible parsers in display order (refparse is always first)
 export const getDefaultVisibleParsers = (): string[] => {
-  return ['refparse', 'pyyaml', 'libyaml', 'goyaml'];
+  return parsers.map(p => p.id);
+};
+
+// Character mapping for compact URL encoding (refparse excluded - always shown)
+export const PARSER_CHAR_MAP: Record<string, string> = {
+  // Parser ID to character
+  'dotnet': 'd',
+  'goyaml': 'g',
+  'hsyaml': 'h',
+  'libfyaml': 'f',
+  'libyaml': 'l',
+  'luayaml': 'L',
+  'nimyaml': 'n',
+  'npmyaml': 'J',
+  'ppyaml': 'P',
+  'pyyaml': 'p',
+  'rapid': 'x',
+  'refhs': 'H',
+  'ruamel': 'U',
+  'rustyaml': 'r',
+  'snake': 's',
+  'snakeeng': 'S',
+  // Character to parser ID (reverse mapping)
+  'd': 'dotnet',
+  'g': 'goyaml',
+  'h': 'hsyaml',
+  'f': 'libfyaml',
+  'l': 'libyaml',
+  'L': 'luayaml',
+  'n': 'nimyaml',
+  'J': 'npmyaml',
+  'P': 'ppyaml',
+  'p': 'pyyaml',
+  'x': 'rapid',
+  'H': 'refhs',
+  'U': 'ruamel',
+  'r': 'rustyaml',
+  's': 'snake',
+  'S': 'snakeeng',
+};
+
+// Encode visible parser IDs to compact character string (refparse excluded)
+export const encodeVisibleParsers = (ids: string[]): string => {
+  return ids
+    .filter(id => id !== 'refparse')
+    .map(id => PARSER_CHAR_MAP[id])
+    .filter(Boolean)
+    .join('');
+};
+
+// Decode compact character string to parser IDs (refparse not included in encoding)
+export const decodeVisibleParsers = (code: string): string[] => {
+  const decoded = code
+    .split('')
+    .map(char => PARSER_CHAR_MAP[char])
+    .filter(Boolean);
+
+  // Always include refparse first
+  return ['refparse', ...decoded];
 };

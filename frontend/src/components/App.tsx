@@ -28,7 +28,7 @@ import { useLayoutPersistence } from '../hooks/useLayoutPersistence';
 import { useParserResults } from '../hooks/useParserResults';
 import { useIsMobile, useIsLandscape } from '../hooks/useIsMobile';
 import { useGitHubAuth } from '../hooks/useGitHubAuth';
-import { getParser } from '../lib/parsers';
+import { getParser, encodeVisibleParsers, decodeVisibleParsers } from '../lib/parsers';
 import { checkSandboxAvailable } from '../lib/sandbox';
 import packageJson from '../../package.json';
 
@@ -57,8 +57,8 @@ function getParsersFromUrl(): string[] | null {
   const show = params.get('show');
   if (!show) return null;
 
-  const requested = show.split(',').map(s => s.trim()).filter(Boolean);
-  const valid = requested.filter(id => getParser(id));
+  const decoded = decodeVisibleParsers(show);
+  const valid = decoded.filter(id => getParser(id));
   return valid.length > 0 ? valid : null;
 }
 
@@ -69,7 +69,7 @@ function cleanShowParam(validIds: string[] | null) {
   if (!originalShow) return;
 
   if (validIds && validIds.length > 0) {
-    params.set('show', validIds.join(','));
+    params.set('show', encodeVisibleParsers(validIds));
   } else {
     params.delete('show');
   }
@@ -83,7 +83,7 @@ function cleanShowParam(validIds: string[] | null) {
 
 // Update URL ?show= parameter to reflect visible panes
 function updateShowParam(visibleIds: string[]) {
-  const showValue = visibleIds.join(',');
+  const showValue = encodeVisibleParsers(visibleIds);
   const newUrl = `?show=${showValue}${window.location.hash}`;
   window.history.replaceState(null, '', newUrl);
 }
